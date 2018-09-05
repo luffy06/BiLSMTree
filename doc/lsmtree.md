@@ -178,6 +178,10 @@ Elastic BF又称为Elastic Bloom Filter。Bloom Filter用于可以快速的检�
 
 向下Compation时，若选择到了标记文件，则取消标记。
 
+**问题：**
+
+**Hit**超出存储范围
+
 ## 难点
 
 数据何时载入内存，载入多少？
