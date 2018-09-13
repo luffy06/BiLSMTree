@@ -95,10 +95,6 @@ LevelDB用VersionSet来管理所有的Version，用VersionEdit来表示Version�
 
 `Version0 + VersionEdit --> Version1`
 
-# Flash
-
-
-
 # Related Work
 
 ## WiscKey
@@ -162,6 +158,8 @@ Elastic BF又称为Elastic Bloom Filter。Bloom Filter用于可以快速的检�
     * 其他层中可以根据每个SSTable对应的FileMetaData记录的最大键值做二分查找。
   * 找到潜在的SSTable文件后，将index_block内的内容加载入Cache。
 
+* BloomFilter：用k个哈希函数和一个m位数组表示包含n个数据的集合，支持快速查询一个数据是否属于这个集合。
+
 **数据记录：**
 
 为每个文件在内存中维护最近命中次数**Hit**。对每次查找，将最终命中的文件的Hit增加一。
@@ -176,11 +174,13 @@ Elastic BF又称为Elastic Bloom Filter。Bloom Filter用于可以快速的检�
 
 为了不破坏原来的LevelDB中的每层数据结构类型，当文件加入新的一层时应该与该层所有有Overlap的文件进行合并，但是这个合并操作的代价很大，同时若不合并的话，最多对原来的查找文件的数量每层增加一个，同时标记文件相比于原有的文件是旧文件。
 
-向下Compation时，若选择到了标记文件，则取消标记。
+向下Compation时，选择频率最低的SSTable文件，合并文件若选择到了标记文件，则取消标记。
 
 **问题：**
 
-**Hit**超出存储范围
+**Hit**超出存储范围。
+
+磁盘读写次数未减少，增加。
 
 ## 难点
 
@@ -201,8 +201,13 @@ ROLLBACK时机？哪些文件ROLLBACK？
   * 顺序读随机写
   * 随机读顺序写
   * 随机读随机写
-* 
 * 实验：在磁盘上开出一段空间模拟flash，拿到操作序列，再重新计算时间消耗。
+* 布谷鸟过滤器
+* **单个SSTable的大小？一个page若能放下多个SSTable，将哪些SSTable放在一起？一个page若放不下一个SSTable，将SSTable的哪部分放在一起？SSTable的Block大小？**
+  * Flash中Block大小16MB，包含1024个Page，即每个Page大小16KB。
+  * SSTable大小可调，一般为2MB。
+  * 一个SSTable需要128个Page来存储。
+* **Immutable MemTable向下Compact时，有选择的向下Compact。类似LRU-2。**
 
 # 引用
 
