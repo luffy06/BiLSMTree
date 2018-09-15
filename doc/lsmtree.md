@@ -39,8 +39,6 @@ LevelDB在内存中主要的数据存储结构为两个有序跳表（skiplist�
 
 每个SSTable文件的上限是2MB，由若干个4KB大小的block组成，最后一个block用于存储每个block的index信息和第一个key的值。同一个block中的key可以共享前缀，每个key只需存储自己唯一的后缀即可。若仅有部分key可以共享前缀，这部分key和其它key之间插入“reset”标识。
 
-
-
 ### MANIFEST文件
 
 MANIFEST文件罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
@@ -147,7 +145,39 @@ Elastic BF又称为Elastic Bloom Filter。Bloom Filter用于可以快速的检�
 
 对每个get操作触发put操作之前，先将拷贝了的键值对标记splayed。当进行向下合并的时候，对于标记为splayed的数据根据当前的状态估计保留该键值的收益，否则删除。
 
+## HashKV
+
+使用了基于哈希的数据分组（data grouping），能够确定性的将values存储在固定的位置，提升更新和垃圾回收的效率。
+
+基于WiscKey的想法，将Key和Value分开存储，Key基于LSM-Tree结构存在内存，Value使用vLog结构存储在外存。
+
+### Limitations
+
+每次GC操作都需要查询LSM-Tree来验证一段数据的有效性。vLog在更新时会产生高达19.7倍的写放大。
+
+### Main Idea
+
+#### Hash-based data grouping
+
+对Key通过哈希函数映射到固定大小的partition，称为main segment，大小为64MB。
+
+#### Dynamic reserved space allocation
+
+当main segment满了以后，HashKV从预留空间中划分出固定大小的单元，称为log segment，大小为1MB。一个main segment可以与多个log segment连接。
+
+#### Hotness awareness
+
+HashKV用打tag的方法来重新安排冷KV到不同的存储区域，以便于区分冷热KV，避免重新拷贝冷KV。
+
+#### Selective KV separation
+
+HashKV对比较小的KV，直接将其存储在LSM-Tree中。
+
 # Ideas
+
+## Motivation
+
+
 
 基于Flash的LevelDB，在不影响原有的Compaction速度的基础上优化**读放大问题**。
 
