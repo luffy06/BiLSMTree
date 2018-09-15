@@ -32,9 +32,9 @@ public:
   
   ~Flash();
 
-  char* read(int lba);
+  char* read(const int lba);
 
-  void write(int lba, char* data);
+  void write(const int lba, const char* data);
   
 private:
   const string BASE_PATH = "flashblocks/";
@@ -42,7 +42,7 @@ private:
   const string TABLE_PATH = BASE_PATH + "table.txt";
   const string BLOCK_INFO_PATH = BASE_PATH + "block_info.txt";
   const int BLOCK_NUMS = 256;
-  const int PAGE_NUMS = 1024;
+  const int PAGE_NUMS = 8;
   const int PAGE_SIZE = 16 * 1024 * 8; // 16KB
   const int LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
   const int LOG_LENGTH = 1000;
@@ -64,40 +64,58 @@ private:
     }
   };
 
+  struct BlockInfo {
+    int lba;
+    int status;
+
+    BlockInfo() {
+      status = 0;
+      lba = -1;
+    }
+  };
+
 
   int *next_block;
-  int **block_status;
+  BlockInfo **block_info;
   PBA *page_table;
   queue<int> free_blocks;
+  bool *free_block_tag;
+  int free_blocks_num;
   vector<pair<int, int>> linked_lists;
 
-  bool existFile(string filename) {
+  bool existFile(const string filename) {
     fstream f(filename, ios::in);
     bool res = f.is_open();
     f.close();
     return res;
   }
 
-  string getBlockPath(int block_num);
+  string getBlockPath(const int block_num);
 
-  void writeLog(char *l) {
+  void writeLog(const char *l) {
     string l1(l);
     writeLog(l1);
   }
 
-  void writeLog(string l) {
-    fstream f(LOG_PATH, ios::app);
-    f << l << endl;
+  void writeLog(const string l) {
+    fstream f(LOG_PATH, ios::app | ios::out);
+    f << l;
     f.close();
   }
 
-  void readByPageNum(int block_num, int page_num, int &lba, char *data);
+  void readByPageNum(const int block_num, const int page_num, const int &lba, char *data);
 
-  void writeByPageNum(int block_num, int page_num, int lba, char *data);
+  void writeByPageNum(const int block_num, const int page_num, const int lba, const char *data);
 
-  void erase(int block_num);
+  void erase(const int block_num);
 
   void collectGarbage();
 
   int assignFreeBlock();
+
+  void showNextBlock() {
+    for (int i = 0; i < 10; ++ i)
+      cout << i << "\t" << next_block[i] << endl;
+    cout << endl;
+  }
 };

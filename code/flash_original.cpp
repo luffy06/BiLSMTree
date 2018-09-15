@@ -1,32 +1,36 @@
 #include "flash_original.h"
 Flash::Flash() {
+  cout << "CREATING FLASH" << endl;
   fstream f;
   // create block files
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
     string block_path = getBlockPath(i);
     if (!existFile(block_path)) {
+      cout << "CREATING BLOCK FILE " << i << endl;
       f.open(block_path, ios::app | ios::out);
       f.close();
     }
   }
   
   // load block meta files
-  block_status = new int*[BLOCK_NUMS];
+  block_info = new BlockInfo*[BLOCK_NUMS];
   for (int i = 0; i < BLOCK_NUMS; ++ i)
-    block_status[i] = new int[PAGE_NUMS];
-  for (int i = 0; i < BLOCK_NUMS; ++ i)
-    for (int j = 0; j < PAGE_NUMS; ++ j)
-      block_status[i][j] = 0;
+    block_info[i] = new BlockInfo[PAGE_NUMS];
   string block_meta_path = BASE_PATH + "block_meta.txt";
   if (existFile(block_meta_path)) {
-    cout << "block meta exist" << endl;
+    cout << "LOADING BLOCK META" << endl;
     f.open(block_meta_path, ios::in);
+    if (!f.is_open()) {
+      cout << "OPEN BLOCK META FILE FAILED" << endl;
+      exit(-1);
+    }
     while (!f.eof()) {
-      int i, j, status;
+      int i, j;
+      BlockInfo bs;
       f.read((char *)&i, sizeof(int));
       f.read((char *)&j, sizeof(int));
-      f.read((char *)&status, sizeof(int));
-      block_status[i][j] = status;
+      f.read((char *)&bs, sizeof(BlockInfo));
+      block_info[i][j] = bs;
     }
     f.close();
   }
@@ -34,8 +38,12 @@ Flash::Flash() {
   // load table info
   page_table = new PBA[LBA_NUMS];
   if (existFile(TABLE_PATH)) {
-    cout << "table info exist" << endl;
+    cout << "LOADING PAGE TABLE" << endl;
     f.open(TABLE_PATH, ios::in);
+    if (!f.is_open()) {
+      cout << "OPEN PAGE TABLE FILE FAILED" << endl;
+      exit(-1);
+    }
     int lba, bn, pn;
     while (!f.eof()) {
       f.read((char *)&lba, sizeof(int));
@@ -54,8 +62,12 @@ Flash::Flash() {
   for (int i = 0; i < BLOCK_NUMS; ++ i)
     next_block[i] = i;
   if (existFile(BLOCK_INFO_PATH)) {
-    cout << "block info exist" << endl;
+    cout << "LOADING BLOCK INFO" << endl;
     f.open(BLOCK_INFO_PATH, ios::in);
+    if (!f.is_open()) {
+      cout << "OPEN BLOCK INFO FILE FAILED" << endl;
+      exit(-1);
+    }
     int from, to;
     while (!f.eof()) {
       f.read((char *)&from, sizeof(int));
@@ -66,38 +78,58 @@ Flash::Flash() {
   }
 
   // load free blocks
+  cout << "LOADING FREE BLOCKS" << endl;
+  free_blocks_num = 0;
+  free_block_tag = new bool[BLOCK_NUMS];
+  memset(free_block_tag, false, sizeof(bool) * BLOCK_NUMS);
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
     bool is_free = true;
     for (int j = 0; j < PAGE_NUMS; ++ j)
-      if (block_status[i][j] != 0)
+      if (block_info[i][j].status != 0)
         is_free = false;
-    if (is_free)
+    if (is_free) {
+      // cout << "BLOCK " << i << " IS FREE" << endl;
       free_blocks.push(i);
+      free_block_tag[i] = true;
+      free_blocks_num = free_blocks_num + 1;
+    }
   }
+  cout << "FREE BLOCKS'S NUMBER:" << free_blocks_num << endl;
+  cout << "CREATE SUCCESS" << endl;
 }
   
 Flash::~Flash() {
-  // write block status
   fstream f;
+  // write block status
+  cout << "UNLOADING BLOCK META" << endl;
   string block_meta_path = BASE_PATH + "block_meta.txt";
   f.open(block_meta_path, ios::ate | ios::out);
+  if (!f.is_open()) {
+    cout << "OPEN BLOCK META FILE FAILED" << endl;
+    exit(-1);
+  }
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
     for (int j = 0; j < PAGE_NUMS; ++ j) {
-      if (block_status[i][j] != 0) {
+      if (block_info[i][j].status != 0) {
         f.write((char *)&i, sizeof(int));
         f.write((char *)&j, sizeof(int));
-        f.write((char *)&block_status[i][j], sizeof(int));
+        f.write((char *)&block_info[i][j], sizeof(BlockInfo));
       }
     }
   }
   f.close();
-  // destory block_status
+  // destory block_info
   for (int i = 0; i < BLOCK_NUMS; ++ i)
-    delete[] block_status[i];
-  delete[] block_status;
+    delete[] block_info[i];
+  delete[] block_info;
 
   // write page table
+  cout << "UNLOADING PAGE TABLE" << endl;
   f.open(TABLE_PATH, ios::ate | ios::out);
+  if (!f.is_open()) {
+    cout << "OPEN PAGE TABLE FILE FAILED" << endl;
+    exit(-1);
+  }
   for (int i = 0; i < LBA_NUMS; ++ i) {
     if (page_table[i].used) {
       f.write((char *)&i, sizeof(int));
@@ -110,7 +142,12 @@ Flash::~Flash() {
   delete[] page_table;
 
   // write block info
+  cout << "UNLOADING BLOCK INFO" << endl;
   f.open(BLOCK_INFO_PATH, ios::ate | ios::out);
+  if (!f.is_open()) {
+    cout << "OPEN BLOCK INFO FILE FAILED" << endl;
+    exit(-1);
+  }
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
     if (next_block[i] != i) {
       f.write((char *)&i, sizeof(int));
@@ -120,9 +157,11 @@ Flash::~Flash() {
   f.close();
   // destory next_block
   delete[] next_block; 
+
+  delete[] free_block_tag;
 }
 
-char* Flash::read(int lba) {
+char* Flash::read(const int lba) {
   // calculate block num and page num
   int block_num = lba / PAGE_NUMS;
   int page_num = lba % PAGE_NUMS;
@@ -137,44 +176,46 @@ char* Flash::read(int lba) {
   return data;
 }
 
-void Flash::write(int lba, char* data) {
+void Flash::write(const int lba, const char* data) {
   // calculate block num and page num
   int block_num = lba / PAGE_NUMS;
   int page_num = lba % PAGE_NUMS;
   while (true) {
-    if (block_status[block_num][page_num] == 0)
-      break;
-    int _lba;
-    char *buffer = new char[PAGE_SIZE];
-    readByPageNum(block_num, page_num, _lba, buffer);
-    if (_lba == lba)
-      block_status[block_num][page_num] = 2;
+    if (block_info[block_num][page_num].status == 0)
+      break;    
+    if (block_info[block_num][page_num].lba == lba)
+      block_info[block_num][page_num].status = 2;
 
     if (next_block[block_num] == block_num) {
       next_block[block_num] = assignFreeBlock();
     }
-    else {
-      block_num = next_block[block_num];
-    }
+    block_num = next_block[block_num];
   }
   // write page
   writeByPageNum(block_num, page_num, lba, data);
+  // update block info
+  block_info[block_num][page_num].status = 1;
+  block_info[block_num][page_num].lba = lba;
+  if (free_block_tag[block_num] == true) {
+    free_block_tag[block_num] = false;
+    free_blocks_num = free_blocks_num - 1;
+  }
   // write page table
   page_table[lba].setData(block_num, page_num);
   // check whether start garbage collection
-  if (BLOCK_NUMS - free_blocks.size() > BLOCK_THRESOLD) 
+  if (BLOCK_NUMS - free_blocks_num > BLOCK_THRESOLD) 
     collectGarbage();
 }
 
-string Flash::getBlockPath(int block_num) {
+string Flash::getBlockPath(const int block_num) {
   char block_name[30];
   sprintf(block_name, "block_%d.txt", block_num);
   return BASE_PATH + block_name;
 }
 
-void Flash::readByPageNum(int block_num, int page_num, int &lba, char *data) {
+void Flash::readByPageNum(const int block_num, const int page_num, const int &lba, char *data) {
   fstream f(getBlockPath(block_num), ios::in);
-  f.seekp(page_num * (PAGE_SIZE + sizeof(int)));
+  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
   f.read(data, PAGE_SIZE * sizeof(char));
   f.read((char *)&lba, sizeof(int));
   f.close();
@@ -184,10 +225,12 @@ void Flash::readByPageNum(int block_num, int page_num, int &lba, char *data) {
   writeLog(log);
 }
 
-void Flash::writeByPageNum(int block_num, int page_num, int lba, char *data) {
-  fstream f(getBlockPath(block_num), ios::out);
-  f.seekp(page_num * (PAGE_SIZE + sizeof(int)));
-  f.write(data, PAGE_SIZE * sizeof(char));
+void Flash::writeByPageNum(const int block_num, const int page_num, const int lba, const char *data) {
+  char *ndata = new char[PAGE_SIZE];
+  strcpy(ndata, data);
+  fstream f(getBlockPath(block_num), ios::out | ios::in);
+  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
+  f.write(ndata, PAGE_SIZE * sizeof(char));
   f.write((char *)&lba, sizeof(int));
   f.close();
   // write log
@@ -196,13 +239,13 @@ void Flash::writeByPageNum(int block_num, int page_num, int lba, char *data) {
   writeLog(log);
 }
 
-void Flash::erase(int block_num) {
+void Flash::erase(const int block_num) {
   // clean block data
   fstream f(getBlockPath(block_num), ios::ate | ios:: out);
   f.close();
   // clean block status
   for (int j = 0; j < PAGE_NUMS; ++ j)
-    block_status[block_num][j] = 0;
+    block_info[block_num][j] = BlockInfo();
   // insert into free queue
   free_blocks.push(block_num);
   // update next block
@@ -214,6 +257,7 @@ void Flash::erase(int block_num) {
 }
 
 void Flash::collectGarbage() {
+  cout << "START GARBAGE COLLECTION" << endl;
   // find max length linked list
   int head = linked_lists[0].first;
   int max_len = linked_lists[0].second;
@@ -233,8 +277,8 @@ void Flash::collectGarbage() {
   int page_index = 0; // page index of last block
   for (int i = head; next_block[i] != last; i = next_block[i]) {
     for (int j = 0; j < PAGE_NUMS; ++ j) {
-      if (block_status[i][j] == 1) {
-        while (page_index < PAGE_NUMS && block_status[last][page_index] != 0)
+      if (block_info[i][j].status == 1) {
+        while (page_index < PAGE_NUMS && block_info[last][page_index].status != 0)
           page_index = page_index + 1;
         if (page_index == PAGE_NUMS) {
           page_index = 0;
@@ -250,7 +294,7 @@ void Flash::collectGarbage() {
         page_table[lba].setData(last, page_index);
       }
       // update block status
-      block_status[i][j] = 0;
+      block_info[i][j] = BlockInfo();
     }
     // erase block
     erase(i);
@@ -258,15 +302,33 @@ void Flash::collectGarbage() {
 }
 
 int Flash::assignFreeBlock() {
-  if (!free_blocks.empty()) 
+  cout << "ASSIGN FREE BLOCK" << endl;
+  if (free_blocks.empty()) {
+    cout << "FREE BLOCK IS NOT ENOUGH" << endl;
     exit(-1);
+  }
   int block_num = free_blocks.front();
   free_blocks.pop();
+  if (!free_block_tag[block_num]) {
+    while (!free_blocks.empty() && !free_block_tag[block_num]) {
+      block_num = free_blocks.front();
+      free_blocks.pop();
+    }
+  }
   return block_num;
 }
 
 int main() {
   Flash flash = Flash();
-
+  vector<int> lba_list = {17, 17, 17, 19, 20, 20, 20, 20};
+  vector<string> content = {"A", "A1", "A2", "B", "C", "C1", "C2", "C3"};
+  for (int i = 0; i < lba_list.size(); ++ i) {
+    int lba = lba_list[i];
+    string data = content[i];
+    cout << "WRITE LBA:" << lba << " CONTENT:" << data << endl;
+    flash.write(lba, data.c_str());
+  }
+  char *d = flash.read(17);
+  cout << "LBA:" << 17 << " CONTENT:" << d << endl; 
   return 0;
 }
