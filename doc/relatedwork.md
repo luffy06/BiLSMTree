@@ -74,6 +74,37 @@ LevelDB只有一个后台线程支持Compaction操作。
 
 Elastic BF又称为Elastic Bloom Filter。Bloom Filter用于可以快速的检查请求的数据是否存在与SSTable中，从而减少了额外的I/O消耗。一般的BF在不同的level中都使用的同样的配置，也无法动态调整，Elastic BF是一种更细粒度的，更灵活的filter。
 
+### Motivation
+
+高Level的BloomFilter需要更低的容错率，也意味着需要更大的bits-per-key。而bits-per-key越大，所需要的存储空间越大。而原有的设计当中每一层的BloomFilter全部都是固定大小的，并不适应每一层的需求。基于此提出Elastic BloomFilter，对每一层分配不同大小的BloomFilter。
+
+### Main Idea
+
+对每个SSTable建立许多filter，称为filter unit。当需要增加BloomFilter容量时，只需要增加filter unit的个数。将一个SSTable的所有filter unit称为filter group。当查询一个key时，需要所有的filter unit都显示key存在，才真正认为key存在。实现过程中的两个问题：
+
+1. 如何设计策略来动态调整filter unit的个数？
+2. 如何实现来尽可能减少调整的开销？
+
+#### Adjusting Rule
+
+定义公式：
+$$
+E[Extra\_IO]=\sum ^n _{i=1}f_i\cdot f_{p_i}\quad (2)
+$$
+表示额外的IO开销，BloomFilter目的就是为了减少这个开销。其中$f_i$表示文件$i$访问的频率，$f_{p_i}$表示错误率。
+
+当一个SSTable文件被访问时，首先更新其访问频率，并更新$E[Extra\_IO]$。再检查能否通过增加一个filter unit同时废除一部分filter unit来减少$E[Extra\_IO]$。
+
+#### Dynamic Adjustment with MQ
+
+为了选择一些SSTable作为动态调整BloomFilter的候选。
+
+维护多个LRU队列，$Q_1,\ldots, Q_m$，其中$m$所有SSTable中最大的filter unit的个数。$Q_i$管理了包含$i$个filter unit的SSTable。对每个SSTable，维护两个值：`expiredTime`、`currentTime`。其中`expiredTime = currentTime + lifeTime`，`currentTime`表示迄今为止的Get请求数目，`lifeTime`为常数。
+
+当SSTable被访问了，更新其`currentTime`和`expiredTime`。当所有Get请求数目大于某个SSTable的`expiredTime`时，将该SSTable列入候选。
+
+当有多个SSTable候选时，按照$Q_m$到$Q_1$且从LRU到MRU的顺序，依次选择。对每个选中的SSTable，释放一个filter unit，并下放到下一个level的队列中。
+
 ## HashKV
 
 使用了基于哈希的数据分组（data grouping），能够确定性的将values存储在固定的位置，提升更新和垃圾回收的效率。
