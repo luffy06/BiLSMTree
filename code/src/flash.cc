@@ -1,4 +1,4 @@
-#include "flash_original.h"
+#include "flash.h"
 Flash::Flash() {
   cout << "CREATING FLASH" << endl;
   fstream f;
@@ -16,10 +16,9 @@ Flash::Flash() {
   block_info = new BlockInfo*[BLOCK_NUMS];
   for (int i = 0; i < BLOCK_NUMS; ++ i)
     block_info[i] = new BlockInfo[PAGE_NUMS];
-  string block_meta_path = BASE_PATH + "block_meta.txt";
-  if (existFile(block_meta_path)) {
+  if (existFile(BLOCK_META_PATH)) {
     cout << "LOADING BLOCK META" << endl;
-    f.open(block_meta_path, ios::in);
+    f.open(BLOCK_META_PATH, ios::in);
     if (!f.is_open()) {
       cout << "OPEN BLOCK META FILE FAILED" << endl;
       exit(-1);
@@ -102,8 +101,7 @@ Flash::~Flash() {
   fstream f;
   // write block status
   cout << "UNLOADING BLOCK META" << endl;
-  string block_meta_path = BASE_PATH + "block_meta.txt";
-  f.open(block_meta_path, ios::ate | ios::out);
+  f.open(BLOCK_META_PATH, ios::ate | ios::out);
   if (!f.is_open()) {
     cout << "OPEN BLOCK META FILE FAILED" << endl;
     exit(-1);
@@ -205,12 +203,6 @@ void Flash::write(const int lba, const char* data) {
   // check whether start garbage collection
   if (BLOCK_NUMS - free_blocks_num > BLOCK_THRESOLD) 
     collectGarbage();
-}
-
-string Flash::getBlockPath(const int block_num) {
-  char block_name[30];
-  sprintf(block_name, "block_%d.txt", block_num);
-  return BASE_PATH + block_name;
 }
 
 void Flash::readByPageNum(const int block_num, const int page_num, const int &lba, char *data) {

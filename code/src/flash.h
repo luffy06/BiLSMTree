@@ -37,10 +37,12 @@ public:
   void write(const int lba, const char* data);
   
 private:
-  const string BASE_PATH = "flashblocks/";
-  const string LOG_PATH = BASE_PATH + "log.txt";
+  const string BASE_PATH = "../flashblocks/";
+  const string BASE_LOG_PATH = "../logs/";
+  const string LOG_PATH = BASE_LOG_PATH + "flashlog.txt";
   const string TABLE_PATH = BASE_PATH + "table.txt";
-  const string BLOCK_INFO_PATH = BASE_PATH + "block_info.txt";
+  const string BLOCK_INFO_PATH = BASE_PATH + "blockinfo.txt";
+  const string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
   const int BLOCK_NUMS = 256;
   const int PAGE_NUMS = 8;
   const int PAGE_SIZE = 16 * 1024 * 8; // 16KB
@@ -90,7 +92,11 @@ private:
     return res;
   }
 
-  string getBlockPath(const int block_num);
+  string getBlockPath(const int block_num) {
+    char block_name[30];
+    sprintf(block_name, "blocks/block_%d.txt", block_num);
+    return BASE_PATH + block_name;
+  }
 
   void writeLog(const char *l) {
     string l1(l);
@@ -99,7 +105,7 @@ private:
 
   void writeLog(const string l) {
     fstream f(LOG_PATH, ios::app | ios::out);
-    f << l;
+    f << time(0) << "\t" << l;
     f.close();
   }
 
