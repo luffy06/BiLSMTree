@@ -1,5 +1,6 @@
 rm -rf lib/
 mkdir lib
+cd lib/
 rm -rf leveldb/
 rm -rf threadpool/
 rm -rf HdrHistogram_c/
