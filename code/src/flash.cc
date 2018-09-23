@@ -309,21 +309,3 @@ int Flash::assignFreeBlock() {
   }
   return block_num;
 }
-
-int main() {
-  Flash flash = Flash();
-
-  vector<int> lba_list = {17, 17, 17, 19, 20, 20, 20, 20};
-  vector<string> content = {"A", "A1", "A2", "B", "C", "C1", "C2", "C3"};
-  for (int i = 0; i < lba_list.size(); ++ i) {
-    int lba = lba_list[i];
-    string data = content[i];
-    cout << "WRITE LBA:" << lba << " CONTENT:" << data << endl;
-    flash.write(lba, data.c_str());
-  }
-  char *d = flash.read(17);
-  cout << "LBA:" << 17 << " CONTENT:" << d << endl; 
-  d = flash.read(20);
-  cout << "LBA:" << 20 << " CONTENT:" << d << endl;   
-  return 0;
-}
