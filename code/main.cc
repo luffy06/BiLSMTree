@@ -7,6 +7,7 @@
 
 #include "leveldb/db.h"
 #include "flash.h"
+#include "kvserver.h"
 
 using namespace std;
 
@@ -100,10 +101,44 @@ void TestLevelDB() {
   delete db;
 }
 
+void TestKVServer() {
+  cout << "TestKVServer" << endl;
+  vector<pair<string, string>> kvs = GenerateRandomKVPairs();
+
+  KVServer *kvserver = new KVServer();
+  for (pair<string, string> kv : kvs) {
+    string key = kv.first;
+    string value = kv.second;
+    kvserver->Put(key, value);
+  }
+
+  bool success = true;
+  for (pair<string, string> kv : kvs) {
+    string key = kv.first;
+    string value = kv.second;
+    string db_value;
+    kvserver->Get(key, db_value);
+    if (value != db_value) {
+      success = false;
+      cout << "VALUE DOESN'T MATCH" << endl;
+      cout << "KEY:" << key << endl;
+      cout << value << "$$$" << endl << value.size() << endl;
+      cout << db_value << "$$$" << endl << db_value.size() << endl;
+      cout << endl;
+    }
+  }
+  if (success)
+    cout << "SUCCESS" << endl;
+  else
+    cout << "FAILURE" << endl;
+  delete kvserver;
+}
+
 int main() {
   int seed = 1000000007;
   srand((unsigned int)seed);
-  TestFlash();
-  TestLevelDB();
+  // TestFlash();
+  // TestLevelDB();
+  TestKVServer();
   return 0;
 }

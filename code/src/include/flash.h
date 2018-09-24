@@ -1,16 +1,8 @@
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
-
 #include <iostream>
 #include <fstream>
-#include <map>
 #include <string>
-#include <vector>
 #include <queue>
-#include <stack>
-#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -118,10 +110,4 @@ private:
   void collectGarbage();
 
   int assignFreeBlock();
-
-  void showNextBlock() {
-    for (int i = 0; i < 10; ++ i)
-      cout << i << "\t" << next_block[i] << endl;
-    cout << endl;
-  }
 };
