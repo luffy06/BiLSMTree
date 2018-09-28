@@ -4,8 +4,6 @@
 #include <queue>
 #include <vector>
 
-using namespace std;
-
 /*
 * The implement of Original NFTL
 * LBA --> VBA: BLOCK_NUM = LBA / MAX_PAGE_NUM, PAGE_NUM = LBA % MAX_PAGE_NUM
@@ -29,12 +27,12 @@ public:
   void write(const int lba, const char* data);
   
 private:
-  const string BASE_PATH = "../flashblocks/";
-  const string BASE_LOG_PATH = "../logs/";
-  const string LOG_PATH = BASE_LOG_PATH + "flashlog.txt";
-  const string TABLE_PATH = BASE_PATH + "table.txt";
-  const string BLOCK_INFO_PATH = BASE_PATH + "blockinfo.txt";
-  const string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
+  const std::string BASE_PATH = "../flashblocks/";
+  const std::string BASE_LOG_PATH = "../logs/";
+  const std::string LOG_PATH = BASE_LOG_PATH + "flashlog.txt";
+  const std::string TABLE_PATH = BASE_PATH + "table.txt";
+  const std::string BLOCK_INFO_PATH = BASE_PATH + "blockinfo.txt";
+  const std::string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
   const int BLOCK_NUMS = 256;
   const int PAGE_NUMS = 8;
   const int PAGE_SIZE = 16 * 1024 * 8; // 16KB
@@ -72,31 +70,30 @@ private:
   int *next_block;
   BlockInfo **block_info;
   PBA *page_table;
-  queue<int> free_blocks;
+  std::queue<int> free_blocks;
   bool *free_block_tag;
   int free_blocks_num;
-  vector<pair<int, int>> linked_lists;
+  std::vector<std::pair<int, int>> linked_lists;
 
-  bool existFile(const string filename) {
-    fstream f(filename, ios::in);
+  bool existFile(const std::string filename) {
+    std::fstream f(filename, std::ios::in);
     bool res = f.is_open();
     f.close();
     return res;
   }
 
-  string getBlockPath(const int block_num) {
+  std::string getBlockPath(const int block_num) {
     char block_name[30];
     sprintf(block_name, "blocks/block_%d.txt", block_num);
     return BASE_PATH + block_name;
   }
 
   void writeLog(const char *l) {
-    string l1(l);
-    writeLog(l1);
+    writeLog(std::string(l));
   }
 
-  void writeLog(const string l) {
-    fstream f(LOG_PATH, ios::app | ios::out);
+  void writeLog(const std::string l) {
+    std::fstream f(LOG_PATH, std::ios::app | std::ios::out);
     f << time(0) << "\t" << l;
     f.close();
   }

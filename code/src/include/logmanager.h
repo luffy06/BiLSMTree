@@ -7,26 +7,24 @@
 #include "leveldb/db.h"
 #include "util.h"
 
-using namespace std;
-
 class LogManager {
 public:
   LogManager();
   ~LogManager();
 
-  void Append(const string &key, const string &value, string &location);
+  void Append(const std::string &key, const std::string &value, std::string &location);
 
-  void Get(const string &location, string &value);
+  void Get(const std::string &location, std::string &value);
 
   void CollectGarbage(leveldb::DB* db, leveldb::ReadOptions roptions, leveldb::WriteOptions woptions);
 private:
-  const string LOG_PATH = "../logs/VLOG";
+  const std::string LOG_PATH = "../logs/VLOG";
   const int GARBARGE_THRESOLD = 20;
 
   long head, tail, record_count;
-  fstream file_handle;
+  std::fstream file_handle;
 
-  void WriteKV(const string &key, const string &value);
+  void WriteKV(const std::string &key, const std::string &value);
 
-  void ReadKV(string &key, string &value);
+  void ReadKV(std::string &key, std::string &value);
 };

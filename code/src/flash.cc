@@ -1,13 +1,13 @@
 #include "flash.h"
 Flash::Flash() {
-  cout << "CREATING FLASH" << endl;
-  fstream f;
+  std::cout << "CREATING FLASH" << std::endl;
+  std::fstream f;
   // create block files
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
-    string block_path = getBlockPath(i);
+    std::string block_path = getBlockPath(i);
     if (!existFile(block_path)) {
-      cout << "CREATING BLOCK FILE " << i << endl;
-      f.open(block_path, ios::app | ios::out);
+      std::cout << "CREATING BLOCK FILE " << i << std::endl;
+      f.open(block_path, std::ios::app | std::ios::out);
       f.close();
     }
   }
@@ -17,10 +17,10 @@ Flash::Flash() {
   for (int i = 0; i < BLOCK_NUMS; ++ i)
     block_info[i] = new BlockInfo[PAGE_NUMS];
   if (existFile(BLOCK_META_PATH)) {
-    cout << "LOADING BLOCK META" << endl;
-    f.open(BLOCK_META_PATH, ios::in);
+    std::cout << "LOADING BLOCK META" << std::endl;
+    f.open(BLOCK_META_PATH, std::ios::in);
     if (!f.is_open()) {
-      cout << "OPEN BLOCK META FILE FAILED" << endl;
+      std::cout << "OPEN BLOCK META FILE FAILED" << std::endl;
       exit(-1);
     }
     while (!f.eof()) {
@@ -37,10 +37,10 @@ Flash::Flash() {
   // load table info
   page_table = new PBA[LBA_NUMS];
   if (existFile(TABLE_PATH)) {
-    cout << "LOADING PAGE TABLE" << endl;
-    f.open(TABLE_PATH, ios::in);
+    std::cout << "LOADING PAGE TABLE" << std::endl;
+    f.open(TABLE_PATH, std::ios::in);
     if (!f.is_open()) {
-      cout << "OPEN PAGE TABLE FILE FAILED" << endl;
+      std::cout << "OPEN PAGE TABLE FILE FAILED" << std::endl;
       exit(-1);
     }
     int lba, bn, pn;
@@ -61,10 +61,10 @@ Flash::Flash() {
   for (int i = 0; i < BLOCK_NUMS; ++ i)
     next_block[i] = i;
   if (existFile(BLOCK_INFO_PATH)) {
-    cout << "LOADING BLOCK INFO" << endl;
-    f.open(BLOCK_INFO_PATH, ios::in);
+    std::cout << "LOADING BLOCK INFO" << std::endl;
+    f.open(BLOCK_INFO_PATH, std::ios::in);
     if (!f.is_open()) {
-      cout << "OPEN BLOCK INFO FILE FAILED" << endl;
+      std::cout << "OPEN BLOCK INFO FILE FAILED" << std::endl;
       exit(-1);
     }
     int from, to;
@@ -77,7 +77,7 @@ Flash::Flash() {
   }
 
   // load free blocks
-  cout << "LOADING FREE BLOCKS" << endl;
+  std::cout << "LOADING FREE BLOCKS" << std::endl;
   free_blocks_num = 0;
   free_block_tag = new bool[BLOCK_NUMS];
   memset(free_block_tag, false, sizeof(bool) * BLOCK_NUMS);
@@ -93,17 +93,17 @@ Flash::Flash() {
       free_blocks_num = free_blocks_num + 1;
     }
   }
-  cout << "FREE BLOCKS'S NUMBER:" << free_blocks_num << endl;
-  cout << "CREATE SUCCESS" << endl;
+  std::cout << "FREE BLOCKS'S NUMBER:" << free_blocks_num << std::endl;
+  std::cout << "CREATE SUCCESS" << std::endl;
 }
   
 Flash::~Flash() {
-  fstream f;
+  std::fstream f;
   // write block status
-  cout << "UNLOADING BLOCK META" << endl;
-  f.open(BLOCK_META_PATH, ios::ate | ios::out);
+  std::cout << "UNLOADING BLOCK META" << std::endl;
+  f.open(BLOCK_META_PATH, std::ios::ate | std::ios::out);
   if (!f.is_open()) {
-    cout << "OPEN BLOCK META FILE FAILED" << endl;
+    std::cout << "OPEN BLOCK META FILE FAILED" << std::endl;
     exit(-1);
   }
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
@@ -122,10 +122,10 @@ Flash::~Flash() {
   delete[] block_info;
 
   // write page table
-  cout << "UNLOADING PAGE TABLE" << endl;
-  f.open(TABLE_PATH, ios::ate | ios::out);
+  std::cout << "UNLOADING PAGE TABLE" << std::endl;
+  f.open(TABLE_PATH, std::ios::ate | std::ios::out);
   if (!f.is_open()) {
-    cout << "OPEN PAGE TABLE FILE FAILED" << endl;
+    std::cout << "OPEN PAGE TABLE FILE FAILED" << std::endl;
     exit(-1);
   }
   for (int i = 0; i < LBA_NUMS; ++ i) {
@@ -140,10 +140,10 @@ Flash::~Flash() {
   delete[] page_table;
 
   // write block info
-  cout << "UNLOADING BLOCK INFO" << endl;
-  f.open(BLOCK_INFO_PATH, ios::ate | ios::out);
+  std::cout << "UNLOADING BLOCK INFO" << std::endl;
+  f.open(BLOCK_INFO_PATH, std::ios::ate | std::ios::out);
   if (!f.is_open()) {
-    cout << "OPEN BLOCK INFO FILE FAILED" << endl;
+    std::cout << "OPEN BLOCK INFO FILE FAILED" << std::endl;
     exit(-1);
   }
   for (int i = 0; i < BLOCK_NUMS; ++ i) {
@@ -206,7 +206,7 @@ void Flash::write(const int lba, const char* data) {
 }
 
 void Flash::readByPageNum(const int block_num, const int page_num, const int &lba, char *data) {
-  fstream f(getBlockPath(block_num), ios::in);
+  std::fstream f(getBlockPath(block_num), std::ios::in);
   f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
   f.read(data, PAGE_SIZE * sizeof(char));
   f.read((char *)&lba, sizeof(int));
@@ -220,7 +220,7 @@ void Flash::readByPageNum(const int block_num, const int page_num, const int &lb
 void Flash::writeByPageNum(const int block_num, const int page_num, const int lba, const char *data) {
   char *ndata = new char[PAGE_SIZE];
   strcpy(ndata, data);
-  fstream f(getBlockPath(block_num), ios::out | ios::in);
+  std::fstream f(getBlockPath(block_num), std::ios::out | std::ios::in);
   f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
   f.write(ndata, PAGE_SIZE * sizeof(char));
   f.write((char *)&lba, sizeof(int));
@@ -233,7 +233,7 @@ void Flash::writeByPageNum(const int block_num, const int page_num, const int lb
 
 void Flash::erase(const int block_num) {
   // clean block data
-  fstream f(getBlockPath(block_num), ios::ate | ios:: out);
+  std::fstream f(getBlockPath(block_num), std::ios::ate | std::ios:: out);
   f.close();
   // clean block status
   for (int j = 0; j < PAGE_NUMS; ++ j)
@@ -249,7 +249,7 @@ void Flash::erase(const int block_num) {
 }
 
 void Flash::collectGarbage() {
-  cout << "START GARBAGE COLLECTION" << endl;
+  std::cout << "START GARBAGE COLLECTION" << std::endl;
   // find max length linked list
   int head = linked_lists[0].first;
   int max_len = linked_lists[0].second;
@@ -294,9 +294,9 @@ void Flash::collectGarbage() {
 }
 
 int Flash::assignFreeBlock() {
-  cout << "ASSIGN FREE BLOCK" << endl;
+  std::cout << "ASSIGN FREE BLOCK" << std::endl;
   if (free_blocks.empty()) {
-    cout << "FREE BLOCK IS NOT ENOUGH" << endl;
+    std::cout << "FREE BLOCK IS NOT ENOUGH" << std::endl;
     exit(-1);
   }
   int block_num = free_blocks.front();

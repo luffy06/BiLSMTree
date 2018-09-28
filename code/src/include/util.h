@@ -1,13 +1,11 @@
 #include <string>
 
-using namespace std;
-
 class Convertor {
 public:
   Convertor();
   ~Convertor();
   
-  static string LongToString(long value);
+  static std::string LongToString(long value);
 
-  static long StringToLong(const string &value);
+  static long StringToLong(const std::string &value);
 };

@@ -8,13 +8,13 @@ Convertor::~Convertor() {
 
 }
 
-string Convertor::LongToString(long value) {
+std::string Convertor::LongToString(long value) {
   char buf[100];
   sprintf(buf, "%ld", value);
-  return string(buf);
+  return std::string(buf);
 }
 
-long Convertor::StringToLong(const string &value) {
+long Convertor::StringToLong(const std::string &value) {
   long buf;
   sscanf(value.c_str(), "%ld", &buf);
   return buf;

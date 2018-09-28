@@ -4,18 +4,16 @@
 #include "leveldb/db.h"
 #include "logmanager.h"
 
-using namespace std;
-
 class KVServer {
 public:
   KVServer();
   ~KVServer();
 
-  void Put(const string &key, const string &value);
-  void Get(const string &key, string &value);
-  void Delete(const string &key);
+  void Put(const std::string &key, const std::string &value);
+  void Get(const std::string &key, std::string &value);
+  void Delete(const std::string &key);
 private:
-  const string DB_PATH = "../logs/testdb";
+  const std::string DB_PATH = "../logs/testdb";
 
   leveldb::DB* db;
   LogManager* log_manager;
