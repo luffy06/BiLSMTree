@@ -97,8 +97,6 @@ LevelDB用VersionSet来管理所有的Version，用VersionEdit来表示Version�
 
 ## Motivation
 
-
-
 基于Flash的LevelDB，在不影响原有的Compaction速度的基础上优化**读放大问题**。
 
 * 原有的查找方法
@@ -110,6 +108,22 @@ LevelDB用VersionSet来管理所有的Version，用VersionEdit来表示Version�
 
 * BloomFilter：用k个哈希函数和一个m位数组表示包含n个数据的集合，支持快速查询一个数据是否属于这个集合。
 
+## FrequencyLevel
+
+**代价函数：**
+
+$f_{i,j}$，第$i$层的第$j$个SSTable文件的访问频率。
+$$
+E[Extra\_IO]=\sum_i \sum_j f_{i,j}\times i +
+$$
+**分配层数：**
+
+
+
+## RollBack
+
+类似LRU的MQ变形，对每个Level的SSTable的维护一个LRU队列。
+
 **数据记录：**
 
 为每个文件在内存中维护最近命中次数**Hit**。对每次查找，将最终命中的文件的Hit增加一。
@@ -120,17 +134,37 @@ LevelDB用VersionSet来管理所有的Version，用VersionEdit来表示Version�
 
 对$L_i$层来说，若发生了交换操作之前就已有已经标记好的文件$p$，则将新文件$q$与文件$p$合并。需要注意的是，当合并两个文件时，需要注意两个文件的新旧程度，根据文件的新旧程度抛弃旧文件中相同key的数据。文件原来属于层数越低，则文件的新鲜程度越高。
 
-**懒操作：**
+当$L_0$层的SSTable满足条件后，SSTable中的Key直接被提取到MemTable中，同时去除重复的Key。
+
+**Compaction：**
+
+向下Compaction时，选择第$L_i$层频率最低的一个SSTable向下Compaction。
+
+*<u>归并时，按照访问频率排序合并为新的SSTable。</u>*
+
+**懒操作（？）：**
 
 为了不破坏原来的LevelDB中的每层数据结构类型，当文件加入新的一层时应该与该层所有有Overlap的文件进行合并，但是这个合并操作的代价很大，同时若不合并的话，最多对原来的查找文件的数量每层增加一个，同时标记文件相比于原有的文件是旧文件。
 
 向下Compation时，选择频率最低的SSTable文件，合并文件若选择到了标记文件，则取消标记。
 
-**问题：**
+## LocalStorage
 
-**Hit**超出存储范围。
+**flash存储**
 
-磁盘读写次数未减少，增加。
+因为一个SSTable分为Data区域、BloomFilter区域、Index区域、Footer区域。
+
+设定一部分Block用于存储所有SSTable的BloomFilter区域，一部分Block用于存储所有SSTable的Index区域，剩下的Block用于存储所有SSTable的Data区域。
+
+index block存储data block的信息时，将原来的offset信息替换为block num和page num，便于查找。
+
+将最近频繁访问的index block存储在同一个page中，同时设置block cache，将index block预取到block cache。每次查找index的时候首先在block cache中查找是否用对应的index，若有则可直接读data block。
+
+## 问题
+
+**Hit**超出存储范围：（每层设着Hit阈值，达到阈值提升到上一层）
+
+磁盘读写次数未减少，增加。（LRU-MQ）
 
 ## 难点
 
@@ -151,8 +185,6 @@ ROLLBACK时机？哪些文件ROLLBACK？
   * 顺序读随机写
   * 随机读顺序写
   * 随机读随机写
-* 实验：在磁盘上开出一段空间模拟flash，拿到操作序列，再重新计算时间消耗。
-* 布谷鸟过滤器
 * **单个SSTable的大小？一个page若能放下多个SSTable，将哪些SSTable放在一起？一个page若放不下一个SSTable，将SSTable的哪部分放在一起？SSTable的Block大小？**
   * Flash中Block大小16MB，包含1024个Page，即每个Page大小16KB。
   * SSTable大小可调，一般为2MB。
