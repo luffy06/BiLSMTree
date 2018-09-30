@@ -35,7 +35,7 @@ private:
   const std::string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
   const int BLOCK_NUMS = 256;
   const int PAGE_NUMS = 8;
-  const int PAGE_SIZE = 16 * 1024 * 8; // 16KB
+  const int PAGE_SIZE = 16 * 1024; // 16KB
   const int LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
   const int LOG_LENGTH = 1000;
   const int BLOCK_THRESOLD = BLOCK_NUMS * 0.1;
