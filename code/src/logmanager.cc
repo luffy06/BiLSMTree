@@ -16,7 +16,7 @@ LogManager::~LogManager() {
 void LogManager::Append(const std::string &key, const std::string &value, std::string &location) {
   file_handle.open(LOG_PATH, std::ios::in | std::ios::out | std::ios::binary);
   file_handle.seekp(head);
-  location = Convertor::LongToString(head);
+  location = Util::LongToString(head);
   WriteKV(key, value);
   head = file_handle.tellp();
   record_count = record_count + 1;
@@ -24,7 +24,7 @@ void LogManager::Append(const std::string &key, const std::string &value, std::s
 }
 
 void LogManager::Get(const std::string &location, std::string &value) {
-  long loc = Convertor::StringToLong(location);
+  long loc = Util::StringToLong(location);
   file_handle.open(LOG_PATH, std::ios::in | std::ios::binary);
   file_handle.seekp(loc);
   std::string key;

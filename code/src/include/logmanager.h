@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "leveldb/db.h"
-#include "util.h"
+#include "fatfilesystem.h"
 
 class LogManager {
 public:

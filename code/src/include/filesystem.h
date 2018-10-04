@@ -3,22 +3,18 @@
 
 class FileSystem {
 public:
-  virtual FileSystem() = default;
-  virtual ~FileSystem() = default;
+  FileSystem();
+  ~FileSystem();
 
-  virtual int open(const std::string &filename, const int &mode) = 0;
+  int open(const std::string &filename, const int &mode);
 
-  virtual void read(const int &file_number, std::string &data) = 0;
+  void read(const int &file_number, std::string &data);
 
-  virtual void write(const int &file_number, const std::string &data) = 0;
+  void write(const int &file_number, const std::string &data);
 
-  virtual void close(const int &file_number) = 0;
-
-  virtual void seek(const int &file_number, const int &offset) = 0;
-
-  virtual int tell() = 0;
+  void close(const int &file_number);
 private:
-  const FILE_META_PATH = "";
+  const std::string FILE_META_PATH = "";
   const int MAX_FILE_OPEN = 1000;
 
   struct FileStatus {

@@ -22,18 +22,18 @@ include_directories(
 add_library(bilsmtree "")
 target_sources(bilsmtree
   PRIVATE
-    "${PROJECT_SOURCE_DIR}/flash.cc"
-    "${PROJECT_SOURCE_DIR}/filesystem.cc"
-    "${PROJECT_SOURCE_DIR}/kvserver.cc"
-    "${PROJECT_SOURCE_DIR}/logmanager.cc"
     "${PROJECT_SOURCE_DIR}/util.cc"
+    "${PROJECT_SOURCE_DIR}/flash.cc"
+    "${PROJECT_SOURCE_DIR}/fatfilesystem.cc"
+    "${PROJECT_SOURCE_DIR}/logmanager.cc"
+    "${PROJECT_SOURCE_DIR}/kvserver.cc"
 
   $<$<VERSION_GREATER:CMAKE_VERSION,3.2>:PUBLIC>
-    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/flash.h"
-    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/filesystem.h"
-    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/kvserver.h"
-    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/logmanager.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/util.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/flash.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/fatfilesystem.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/logmanager.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/kvserver.h"
 )
 
 target_include_directories(bilsmtree

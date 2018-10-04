@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "leveldb/db.h"
-#include "flash.h"
 #include "kvserver.h"
 
 using namespace std;
@@ -46,7 +45,7 @@ vector<pair<string, string>> GenerateRandomKVPairs() {
 
 void TestFlash() {
   cout << "TestFlash" << endl;
-  Flash flash = Flash();
+  Flash *flash = new Flash();
 
   vector<int> lba_list = {17, 17, 17, 19, 20, 20, 20, 20};
   vector<string> content = {"A", "A1", "A2", "B", "C", "C1", "C2", "C3"};
@@ -54,11 +53,11 @@ void TestFlash() {
     int lba = lba_list[i];
     string data = content[i];
     cout << "WRITE LBA:" << lba << " CONTENT:" << data << endl;
-    flash.write(lba, data.c_str());
+    flash->Write(lba, data.c_str());
   }
-  char *d = flash.read(17);
+  char *d = flash->Read(17);
   cout << "LBA:" << 17 << " CONTENT:" << d << endl; 
-  d = flash.read(20);
+  d = flash->Read(20);
   cout << "LBA:" << 20 << " CONTENT:" << d << endl;   
 }
 
@@ -134,11 +133,52 @@ void TestKVServer() {
   delete kvserver;
 }
 
+void TestFileSystem() {
+  cout << "TestFileSystem" << endl;
+  vector<pair<string, string>> kvs = GenerateRandomKVPairs();
+
+  FatFileSystem *fatfilesystem = new FatFileSystem();
+  int i = 0;
+  for (pair<string, string> kv : kvs) {
+    string filename = kv.first;
+    string data = kv.second;
+    cout << "OPEN " << filename << " " << i++ << "/" << kvs.size() << endl;
+    int fd = fatfilesystem->Open(filename, 1 << 1);
+    fatfilesystem->Write(fd, data, data.size());
+    fatfilesystem->Write(fd, data, data.size());
+    fatfilesystem->Close(fd);
+  }
+
+  bool success = true;
+  for (pair<string, string> kv : kvs) {
+    string filename = kv.first;
+    string data = kv.second;
+    int fd = fatfilesystem->Open(filename, 1);
+    string filedata;
+    fatfilesystem->Read(fd, filedata, data.size());
+    if (filedata != data) {
+      success = false;
+      cout << "DATA DOESN'T MATCH" << endl;
+      cout << "FILENAME:" << filename << endl;
+      cout << data << "$$$" << endl << data.size() << endl;
+      cout << filedata << "$$$" << endl << filedata.size() << endl;
+      cout << endl;
+    }
+    fatfilesystem->Close(fd);
+  }
+  if (success)
+    cout << "SUCCESS" << endl;
+  else
+    cout << "FAILURE" << endl;
+  delete fatfilesystem;
+}
+
 int main() {
   int seed = 1000000007;
   srand((unsigned int)seed);
   // TestFlash();
   // TestLevelDB();
-  TestKVServer();
+  // TestKVServer();
+  TestFileSystem();
   return 0;
 }
