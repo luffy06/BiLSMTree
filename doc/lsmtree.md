@@ -2,7 +2,14 @@
 
 ## Motivation
 
-**基于Flash的LevelDB，在不影响原有写性能的基础上优化读放大问题**。
+目标：**基于Flash的LevelDB，在不影响原有写性能的基础上优化读放大问题**。
+
+LevelDB原来的查找一个Key的步骤是：
+
+1. 在内存中，首先查找MemTable，若没有找到；检查Immutable MemTable是否存在，若存在，在Immutable MemTable中查找。
+2. 若在内存中均未找到，则在外存中查找。根据内存中所存储的所有SSTable的Meta信息$file\_[i][j]$，确定Key所在的SSTable。
+   1. 第0层因为SSTable是直接从Immutable MemTable复制过来的，其中的SSTable之间的键值表示范围可能存在Overlap，所以待查找的Key可能存在于多个SSTable中，只能依次遍历每个SSTable的Meta信息，判断待查找的Key是否在第$j$个SSTable的范围内，即$file\_[0][j].smallest\le Key\le file\_[0][j].largest$ 。
+   2. 第1层到第6层，因为SSTable都是通过Compaction得到的，Compaction的时候会对多个SSTable进行多路归并，SSTable之间的键值表示范围不会存在Overlap，所以待查找的Key至多只存在一个SSTable中，可以根据Meta信息中的最大键值做二分查找，最终确定潜在的SSTable。
 
 * 原有的查找方法
   * 查找MemTable，再查找Immutable MemTable。

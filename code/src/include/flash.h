@@ -77,7 +77,6 @@ private:
   std::queue<int> free_blocks;
   bool *free_block_tag; // tag those blocks in `free_blocks` queue whether free or not
   int free_blocks_num;
-  std::vector<std::pair<int, int>> linked_lists; // record all list and it's length
 
   std::string GetBlockPath(const int block_num) {
     char block_name[30];
