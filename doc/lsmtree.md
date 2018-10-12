@@ -28,7 +28,13 @@
 
 ### 二级缓存替换MemTable，多Immutable MemTable
 
-用LRU2Q来替换MemTable，当数据从2Q淘汰后，将其加入Immutable Memtable。当Immutable Memtable达到阈值时，开始向$L_0$层Dump，在Dump的同时创建一个新的Immutable Memtable用于接收新的被淘汰的数据。
+在原有的机制中，MemTable在满了以后就直接转换成Immutable MemTable，随后等待DUMP到$L_0$中。而此时在MemTable中频繁访问的数据，将会直接随着原有机制一直DUMP到$L_0$中，当再读这些数据时，都需要进行至少一次IO读写。基于此，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。
+
+![MemoryStructrue](./pic/memorystructrue.png)
+
+
+
+当Immutable Memtable达到阈值时，开始向$L_0$层Dump，在Dump的同时创建一个新的Immutable Memtable用于接收新的被淘汰的数据。
 
 LRU的每个队列用一个TreapTree实现。
 
