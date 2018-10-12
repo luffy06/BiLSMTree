@@ -6,6 +6,10 @@
 
 ### Read Amplification in LSM-tree
 
+![LevelDBStructure](./pic/structure.png)
+
+【图1：LevelDB结构】
+
 用LevelDB来解释LSM-tree中的读放大问题，在LevelDB查找一个Key的步骤可以分为在内存查找和在外存查找两步：
 
 1. 在内存中，首先查找MemTable，若没有找到；检查Immutable MemTable是否存在，若存在，在Immutable MemTable中查找。
@@ -20,7 +24,7 @@
    2. 读取IndexBlock，确定Key所在的DataBlock的索引。
    3. 读取Key所在DataBlock，查找Key对应的Value。若不存在Key，则检查下一个可能的SSTable，否则结束查找，返回对应的Value。
 
-从上述的查找流程发现，原本查找Key所在的一个SSTable，却因为LSM-tree的构造多读了好几个SSTable，才能找到待查找的Key真正所在的位置。根据统计可以知道，基于LSM-tree的DB的读放大平均达到了？倍，其中LevelDB高达？倍。造成读放大的原因是因为Compaction机制的引入，将数据逐渐向高层流动。当查找一个真正存在于高层的Key时，可能每一层都会有一个SSTable的范围包括了这个Key，那么在每一层都需要去检查一下这个Key是否存在在那个SSTable中。
+从上述的查找流程发现，原本查找Key所在的一个SSTable，却因为LSM-tree的构造多读了好几个SSTable，才能找到待查找的Key真正所在的位置。根据统计可以知道，基于LSM-tree的DB的读放大平均达到了<u>？</u>倍，其中LevelDB高达<u>？</u>倍。造成读放大的原因是因为Compaction机制的引入，将数据逐渐向高层流动。当查找一个真正存在于高层的Key时，可能每一层都会有一个SSTable的范围包括了这个Key，那么在每一层都需要去检查一下这个Key是否存在在那个SSTable中。
 
 为了解决这个读放大的问题，我们认为数据的流动方向不应该只是从$L_0$到$L_6$的，同时也应该可以从$L_6$流向$L_0$，LSM-tree中的数据应该是随着数据的访问频率而动态分布的。当高层数据最近频繁被访问时，应该将高层数据向低层流动，从而提高读性能。同时，因为原来一次的Compaction的overhead是十分巨大的，所以高层数据向低层流动时不应该再引入较大的overhead。
 
@@ -30,15 +34,19 @@
 
 在原有的机制中，MemTable在满了以后就直接转换成Immutable MemTable，随后等待DUMP到$L_0$中。而此时在MemTable中频繁访问的数据，将会直接随着原有机制一直DUMP到$L_0$中，当再读这些数据时，都需要进行至少一次IO读写。基于此，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。
 
-![MemoryStructrue](./pic/memorystructrue.png)
+![MemoryStructrue](./pic/memorystructure.png)
 
+【图2：内存结构】
 
+LRU2Q由两个队列构成，一个是基于LRU的队列，另一个是FIFO队列。新数据都被直接插入LRU队列；当数据在两个队列中被访问到时，将数据移动到LRU队列的头部；当数据被LRU队列淘汰时，将按照FIFO的规则插入FIFO队列的头部；当数据被FIFO队列淘汰后，则意味着被2Q所淘汰。
 
-当Immutable Memtable达到阈值时，开始向$L_0$层Dump，在Dump的同时创建一个新的Immutable Memtable用于接收新的被淘汰的数据。
+被2Q淘汰的数据将被回收，组成n个Immutable MemTable。这n个Immutable MemTable将同时存在于内存的一个长度为$N$的LRU队列中，新创建的Immutable MemTable将直接插入到LRU队列的头部；当其中某个Immutable MemTable中的Key被访问后，将这个Immutable MemTable移动到LRU队列的头部；当某个Immutable MemTable被这个LRU队列淘汰后，将它DUMP到$L_0$层中。
 
-LRU的每个队列用一个TreapTree实现。
-
-
+假设内存大小为$M$，LRU2Q中每个队列占的大小分别为$M_1, M_2$，每个Immutable MemTable的大小是$M_{IM}$，那么需要满足：
+$$
+M_1 + M_2 + N\times M_{IM} \le M\quad (1)
+$$
+一般假设每个Immutable MemTable的大小为固定大小，设定为2MB。LRU2Q的两个队列的大小相同，即$M_1= M_2$，一般设定为<u>？</u>。
 
 ### 数据上浮
 
