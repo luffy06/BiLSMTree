@@ -19,26 +19,26 @@ def generate_workload(project_path):
                   (0.03, 0.48, 0.02, 0.47)]
 
   attributes = {
-    'recordcount': 1000000
-    'operationcount': 1000
-    'workload': 'com.yahoo.ycsb.workloads.CoreWorkload'
-    'readallfields': 'true'
+    'recordcount': 1000000,
+    'operationcount': 1000,
+    'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
+    'readallfields': 'true',
     'requestdistribution': 'zipfian' # latest, uniform
   }
-  for i in workload_num:
+  for i in range(workload_num):
     dist = distribution[i]
     filename = project_path + 'workloads/workload' + str(i)
     f = open(filename, 'w')
     for k, v in attributes.items():
-      f.write(k + '=' + v)
-    for j in len(distribution_attr):
-      f.write(distribution_attr[j] + '=' + str(dist[j]))
+      f.write(k + '=' + str(v) + '\n')
+    for j in range(len(distribution_attr)):
+      f.write(distribution_attr[j] + '=' + str(dist[j]) + '\n')
     f.close()
 
 def get_data(project_path):
   cmdlist = []
 
-  for i in workload_num:
+  for i in range(workload_num):
     cmd = project_path + 'bin/ycsb.sh load basic -P ' + project_path + 'workloads/workload' + str(i) + ' > ' + dirname + 'data' + str(i) + '_load.in'
     cmdlist.append(cmd)
     cmd = project_path + 'bin/ycsb.sh run basic -P ' + project_path + 'workloads/workload' + str(i) + ' > ' + dirname + 'data' + str(i) + '_run.in'
@@ -82,7 +82,7 @@ if __name__ == '__main__':
   print('GET DATA')
   get_data(project_path)
   print('READ DATA')
-  for i in workload_num:
+  for i in range(workload_num):
     in_filename_load = dirname + prefix + str(i) + '_load' + sufix
     in_filename_run = dirname + prefix + str(i) + '_run' + sufix
     out_filename = dirname + prefix + str(i) + sufix
