@@ -1,10 +1,8 @@
-# Ideas
-
-## Motivation
+# Motivation
 
 目标：**基于Flash的LevelDB，在不影响原有写性能的基础上优化读放大问题**。
 
-### Read Amplification in LSM-tree
+## Read Amplification in LSM-tree
 
 ![LevelDBStructure](./pic/structure.png)
 
@@ -28,9 +26,9 @@
 
 为了解决这个读放大的问题，我们认为数据的流动方向不应该只是从$L_0$到$L_6$的，同时也应该可以从$L_6$流向$L_0$，LSM-tree中的数据应该是随着数据的访问频率而动态分布的。当高层数据最近频繁被访问时，应该将高层数据向低层流动，从而提高读性能。同时，因为原来一次的Compaction的overhead是十分巨大的，所以高层数据向低层流动时不应该再引入较大的overhead。
 
-## Solutions
+# Solutions
 
-### 二级缓存替换MemTable，多Immutable MemTable
+## 二级缓存替换MemTable，多Immutable MemTable
 
 在原有的机制中，MemTable在满了以后就直接转换成Immutable MemTable，随后等待DUMP到$L_0$中。而此时在MemTable中频繁访问的数据，将会直接随着原有机制一直DUMP到$L_0$中，当再读这些数据时，都需要进行至少一次IO读写。基于此，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。
 
@@ -46,53 +44,83 @@ LRU2Q由两个队列构成，一个是基于LRU的队列，另一个是FIFO队�
 $$
 M_1 + M_2 + N\times M_{IM} \le M\quad (1)
 $$
-一般假设每个Immutable MemTable的大小为固定大小，设定为2MB。LRU2Q的两个队列的大小相同，即$M_1= M_2$，一般设定为<u>？</u>。
+一般假设每个Immutable MemTable的大小为固定大小，设定为2MB，$N$个Immutable MemTable中包括一个缓存接受LRU2Q淘汰数据的Immutable MemTable。LRU2Q的两个队列的大小相同，即$M_1= M_2$。按一定比例分配内存空间，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable List。若分配给Immutable MemTable的内存空间不足2MB，则至少分配一个Immutable MemTable，剩下均分配给LRU2Q。
 
-### 数据上浮
+## 数据上浮，使用CuckooFilter替换BloomFilter
 
-每层维护一个LRU队列，$L_1$到$L_6$层均通过Rollback操作将SSTable提示至上一层。
+### 为什么数据要上浮？
 
-类似LRU的MQ变形，对每个Level的SSTable的维护一个LRU队列。
+### 数据如何上浮？
 
-**数据记录：**
+存储的数据虽然基于LSM-tree结构，是按层次存储的，但是从存储设备的角度来看，并不存在层次结构，每层的数据在存储设备中都是平等的。导致这种层次结构的主要原因是在于内存中的基于LSM-tree的索引结构，所以若想要将数据从高层次流动到低层次，例如从$L_5$层移动到$L_3$层，只需要修改内存中的索引结构，而不需要修改存储设备中存储的数据。
 
-为每个文件在内存中维护最近命中次数**Hit**。对每次查找，将最终命中的文件的Hit增加一。
+用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，那么若想要将第5层的第4个文件移动到第3层，则只需要$file\_[3].push\_back(file\_[5][4])$。
 
-**交换时机：**
+但是基于LSM-tree结构的LevelDB满足以下两个特性：
 
-当$Hit_{L_{i+1}, j}>=Hit_{L_i,k} \times \alpha$时，将存储在内存中$L_{i+1}$层的SSTable文件$j$和$L_i$层的SSTable文件$k$的逻辑地址（文件指针）交换，并分别在$L_i$层和$L_{i+1}$层标记记录这两个文件。
+1. 除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap。$L_0$层的数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，则DUMP的同时还需要进行多路归并，代价太大了，所以允许$L_0$层中的SSTable之间的键值范围存在Overlap，但$L_0$层至多只有4个SSTable，保证了查找时的依次遍历不会产生太大的代价。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
+2. 数据从$L_0$层到$L_6$层的新鲜度逐渐降低。换句话说就是$i$越小的$L_i$层的文件中的数据越新，若某个Key同时存在于多个SSTable中，则$i$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j$越小的SSTable中的数据越新。
 
-对$L_i$层来说，若发生了交换操作之前就已有已经标记好的文件$p$，则将新文件$q$与文件$p$合并。需要注意的是，当合并两个文件时，需要注意两个文件的新旧程度，根据文件的新旧程度抛弃旧文件中相同key的数据。文件原来属于层数越低，则文件的新鲜程度越高。
+当将某个SSTable文件从高层流到到底层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
 
-当$L_0$层的SSTable满足条件后，SSTable中的Key直接被提取到MemTable中，同时去除重复的Key。
-
-**Compaction：**
-
-向下Compaction时，选择第$L_i$层频率最低的一个SSTable向下Compaction。
-
-*<u>归并时，按照访问频率排序合并为新的SSTable。</u>*
-
-**懒操作：**
-
-为了不破坏原来的LevelDB中的每层数据结构类型，当文件加入新的一层时应该与该层所有有Overlap的文件进行合并，但是这个合并操作的代价很大，同时若不合并的话，最多对原来的查找文件的数量每层增加一个，同时标记文件相比于原有的文件是旧文件。
-
-向下Compation时，选择频率最低的SSTable文件，合并文件若选择到了标记文件，则取消标记。
-
-### 树自适应变形
-
-**评分函数：**
-
-LevelDB对每层计算一个score，
-
-## 问题
+### 上浮后存在Overlap
 
 
 
+### 上浮后去除旧数据
+
+某个文件需要上浮肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
+
+一个简单的想法就是利用和Compaction一样的方法，对上浮的文件同样做Compaction操作。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。
+
+BloomFilter可以看作整个SSTable的一个snapshot，删除数据时若只删除BloomFilter中的数据，而不删除原有数据block中的数据，将会大大减少上浮产生的代价。考虑到BloomFilter无法进行删除操作，同时还存在一定的错误率，我们将使用更高效，空间利用率更高，且无错误率的CuckooFilter来替换BloomFilter。
 
 
 
+#### 维护每个文件最近访问次数
 
-| 号   | 顺序读（scan） | 随机读（read） | 插入（insert） | 更新（update） | 类型                                     |
+
+
+#### 确定上浮层数
+
+![formula](./pic/formula.png)
+
+【图3：公式图】
+
+对于$L_i$层的文件S，将它移动到$L_j$层：
+
+设常量$F$为迄今为止最近的$F$次访问，$f$为迄今为止的最近$F$次访问中文件S被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件S也将会被访问$f$次，同时文件S不会被Compaction，那么
+
+* 不移动文件S，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
+* 将文件S移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件S的键值范围有Overlap的文件个数。
+
+定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间消耗，若为负数，则表示增加时间消耗，那么：
+$$
+T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_R \times \sum^j_{k=i-1}c_k
+\\
+T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(2)
+$$
+因为$T_W\approx 4\times T_R$，所以公式（2）可以转换为
+$$
+T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(3)
+$$
+其中$0\le j\le i-1$。
+
+因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件S移动到$L_j$层。
+
+# 问题
+
+1. 如何维护最近F次访问中，每个文件被访问的次数？
+
+   对于每个文件都记录最近$F$次的访问次数$f$。
+
+   对于较小的$F$，用一个FIFO队列来维护最近的$F$次访问的文件序号。当从队列中弹出一个文件序号$p$时，将对应文件序号的文件的访问次数减一；当加入一个文件序号$p$时，将对应文件序号的文件的访问次数加一。
+
+   对于较大的$F$，将最近的$F$次访问中间部分的文件序号存储在外存，仅仅在内存维护2个最大大小为$F^{'}$的FIFO队列，一个是存储最近的$F$次访问头部的文件序号的队列$Q_{head}$，另一个是存储最近的$F$次访问尾部的文件序号的队列$Q_{tail}$。当需要删除一个文件序号$p$时，从$Q_{head}$弹出这个文件序号，将对应文件序号的文件的访问次数减一；当需要添加一个文件序号$p$时，加入$Q_{tail}$，将对应文件序号的文件的访问次数加一。当$Q_{head}$为空时，将$Q_{tail}$写入外存，清空队列$Q_{tail}$；再从外存中读入前$F^{'}$个文件序号，依次加入$Q_{head}$。
+
+
+
+| 序号 | 顺序读（scan） | 随机读（read） | 插入（insert） | 更新（update） | 类型                                     |
 | ---- | -------------- | :------------- | :------------- | :------------- | ---------------------------------------- |
 | 1    | 45%            | 45%            | 5%             | 5%             | 读多写少、顺序读和随机读一样             |
 | 2    | 85%            | 5%             | 5%             | 5%             | 读多写少、顺序读多                       |
