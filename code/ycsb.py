@@ -20,7 +20,7 @@ def generate_workload(project_path):
 
   attributes = {
     'recordcount': 1000000,
-    'operationcount': 1000,
+    'operationcount': 3000000,
     'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
     'readallfields': 'true',
     'requestdistribution': 'zipfian' # latest, uniform
@@ -47,6 +47,19 @@ def get_data(project_path):
   for cmd in cmdlist:
     print('CMD:' + cmd)
     os.system(cmd)
+
+def clean_data(dirname, prefix, suffix):
+  cmdlist = []
+  for i in range(workload_num):
+    cmd1 = 'rm ' + dirname + prefix + str(i) + '_load' + suffix
+    cmd2 = 'rm ' + dirname + prefix + str(i) + '_run' + suffix
+    cmdlist.append(cmd1)
+    cmdlist.append(cmd2)
+
+  for cmd in cmdlist:
+    print('CMD:' + cmd)
+    os.system(cmd)
+
 
 def read(in_filename, out_filename):
   replace_key = [':', ',', ';', '$']
@@ -76,17 +89,19 @@ if __name__ == '__main__':
   project_path = 'lib/YCSB/'
   dirname = 'data/'
   prefix = 'data'
-  sufix = '.in'
+  suffix = '.in'
   print('GENERATE WORKLOAD')
   generate_workload(project_path)
   print('GET DATA')
   get_data(project_path)
   print('READ DATA')
   for i in range(workload_num):
-    in_filename_load = dirname + prefix + str(i) + '_load' + sufix
-    in_filename_run = dirname + prefix + str(i) + '_run' + sufix
-    out_filename = dirname + prefix + str(i) + sufix
+    in_filename_load = dirname + prefix + str(i) + '_load' + suffix
+    in_filename_run = dirname + prefix + str(i) + '_run' + suffix
+    out_filename = dirname + prefix + str(i) + suffix
     if os.path.exists(out_filename):
       os.remove(out_filename)
     read(in_filename_load, out_filename)
     read(in_filename_run, out_filename)
+  print('CLEAN DATA')
+  clean_data(dirname, prefix, suffix)
