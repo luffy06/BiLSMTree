@@ -46,11 +46,38 @@ M_1 + M_2 + N\times M_{IM} \le M\quad (1)
 $$
 一般假设每个Immutable MemTable的大小为固定大小，设定为2MB，$N$个Immutable MemTable中包括一个缓存接受LRU2Q淘汰数据的Immutable MemTable。LRU2Q的两个队列的大小相同，即$M_1= M_2$。按一定比例分配内存空间，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable List。若分配给Immutable MemTable的内存空间不足2MB，则至少分配一个Immutable MemTable，剩下均分配给LRU2Q。
 
-## 数据上浮，使用CuckooFilter替换BloomFilter
+## 数据下沉，从高层向低层流动
 
-### 为什么数据要上浮？
+### 挑战
 
-### 数据如何上浮？
+1. 哪些数据要下沉？
+2. 数据如何下沉？
+
+### 哪些数据要下沉？
+
+在基于LSM-tree结构的数据结构中，数据从低层到高层是按照新鲜度依次递减的。从访问时间来看，相比于低层的SSTable，查找高层的SSTable会消耗更多的时间，所以我们认为数据还应该从低层到高层同时满足访问频率依次递增，满足此条件我们才认为此时的LSM-tree是平衡的。当高层的SSTable的访问频率越来越高时，我们可以认为当前的树处于一个失衡的状态，需要调整树以达到平衡状态。
+
+我们对每个文件维护最近$F$次访问中的访问次数$f$，第$i$层的第$j$个SSTable的最近$F$次访问中的访问次数为$f_{i,j}$。我们认为若满足
+$$
+f_{i,j}\ge min(f_{i-1,k})  \times \beta\quad (2)
+$$
+其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为参数，那么认为这个文件需要进行下沉操作。
+
+每次更新文件访问次数时，就检查当前访问的文件是否需要下沉。若需要下沉，则类似Compaction操作，进行后台操作。若已有文件正在进行下沉，则当前下沉的文件需要等待之前的文件下沉完成后，再进行下沉操作。
+
+#### 维护每个文件最近访问次数
+
+对于每个文件都记录最近$F$次的访问次数$f$。
+
+对于较小的$F$，用一个FIFO队列来维护最近的$F$次访问的文件序号。当从队列中弹出一个文件序号$p$时，将对应文件序号的文件的访问次数减一；当加入一个文件序号$p$时，将对应文件序号的文件的访问次数加一。
+
+![filefrequency](D:/Program/LSMTREE/doc/pic/filefrequency.png)
+
+【图3：较大$F$时，文件最近访问频率记录图】
+
+对于较大的$F$，将最近的$F$次访问中间部分的文件序号存储在外存，仅仅在内存维护2个最大大小为$F^{'}$的FIFO队列，一个是存储最近的$F$次访问头部的文件序号的队列$Q_{head}$，另一个是存储最近的$F$次访问尾部的文件序号的队列$Q_{tail}$。当需要删除一个文件序号$p$时，从$Q_{head}$弹出这个文件序号，将对应文件序号的文件的访问次数减一；当需要添加一个文件序号$p$时，加入$Q_{tail}$，将对应文件序号的文件的访问次数加一。当$Q_{head}$为空时，将$Q_{tail}$写入外存，清空队列$Q_{tail}$；再从外存中读入前$F^{'}$个文件序号，依次加入$Q_{head}$。
+
+### 数据如何下沉？
 
 存储的数据虽然基于LSM-tree结构，是按层次存储的，但是从存储设备的角度来看，并不存在层次结构，每层的数据在存储设备中都是平等的。导致这种层次结构的主要原因是在于内存中的基于LSM-tree的索引结构，所以若想要将数据从高层次流动到低层次，例如从$L_5$层移动到$L_3$层，只需要修改内存中的索引结构，而不需要修改存储设备中存储的数据。
 
@@ -63,62 +90,52 @@ $$
 
 当将某个SSTable文件从高层流到到底层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
 
-### 上浮后存在Overlap
+#### 下沉后存在Overlap
 
 
 
-### 上浮后去除旧数据
+#### 下沉后去除旧数据
 
-某个文件需要上浮肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
+文件M需要下沉肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件下沉后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要下沉的过程去除该文件中的旧数据。
 
-一个简单的想法就是利用和Compaction一样的方法，对上浮的文件同样做Compaction操作。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。
+一个简单的想法就是利用和Compaction一样的方法，对下沉的文件同样做Compaction操作，在合并的过程中将旧数据丢弃。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。BloomFilter中存储了Key的个数和DataBlock中存储的Key的个数是相等，即DataBlock不存在某个Key，则BloomFilter中就不存在某个Key。那么可以把BloomFilter看作整个SSTable的一个snapshot，去除旧数据时若只删除BloomFilter中的数据，而不删除DataBlock中的数据，将会大大减少下沉产生的代价。若DataBlock中某个Key是旧数据，在BloomFilter中已经被删除了，那么在现有的查找机制中就永远不会被查询到。
 
-BloomFilter可以看作整个SSTable的一个snapshot，删除数据时若只删除BloomFilter中的数据，而不删除原有数据block中的数据，将会大大减少上浮产生的代价。考虑到BloomFilter无法进行删除操作，同时还存在一定的错误率，我们将使用更高效，空间利用率更高，且无错误率的CuckooFilter来替换BloomFilter。
+考虑到BloomFilter无法进行删除操作，同时还存在一定的错误率，我们将使用更查询效率更高，空间利用率更高，且无错误率的CuckooFilter来替换BloomFilter。
 
+对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{i-1}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S_1,\ldots,S_k$，那么将文件M移动到$L_{i-1}$层后，它的CuckooFilter变为$S^{'}_M=S_M-\bigcup^k_{j=1}S_j$，其中对于$L_0$层的CuckooFilter的并操作时，需要去除其中重复的旧数据，仅保留新数据。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O(k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]。
 
+考虑到Flash异地更新的问题，之前的SSTable都是整个文件一次一起写入，写入后就不再更新了，而加入下沉操作后，需要更新文件M的SSTable中的CuckooFilter所对应的Block。考虑到SSTable中一个Block的大小为4K，一个物理页的大小为16k，我们可以将SSTable中的数据分为Constant Data和Variant Data，其中DataBlock、IndexBlock、Footer都属于Constant Data，FilterBlock属于VariantData。为了便于管理，我们将Flash也分为Constant Area和Variant Area，将Constant Data存储在Constant Area，Variant Data存储在Variant Area。
 
-#### 维护每个文件最近访问次数
-
-
-
-#### 确定上浮层数
+##### 确定下沉层数
 
 ![formula](./pic/formula.png)
 
-【图3：公式图】
+【图4：文件M在$L_j$层存在Overlap图】
 
-对于$L_i$层的文件S，将它移动到$L_j$层：
+对于$L_i$层的文件M，将它移动到$L_j$层：
 
-设常量$F$为迄今为止最近的$F$次访问，$f$为迄今为止的最近$F$次访问中文件S被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件S也将会被访问$f$次，同时文件S不会被Compaction，那么
+设常量$F$为最近的$F$次访问，$f$为最近$F$次访问中文件M被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件M也将会被访问$f$次，同时文件M不会被Compaction，那么
 
-* 不移动文件S，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
-* 将文件S移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件S的键值范围有Overlap的文件个数。
+* 不移动文件M，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
+* 将文件M移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。
 
 定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间消耗，若为负数，则表示增加时间消耗，那么：
 $$
 T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_R \times \sum^j_{k=i-1}c_k
 \\
-T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(2)
+T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
 $$
 因为$T_W\approx 4\times T_R$，所以公式（2）可以转换为
 $$
-T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(3)
+T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(4)
 $$
 其中$0\le j\le i-1$。
 
-因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件S移动到$L_j$层。
+因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。
 
 # 问题
 
-1. 如何维护最近F次访问中，每个文件被访问的次数？
-
-   对于每个文件都记录最近$F$次的访问次数$f$。
-
-   对于较小的$F$，用一个FIFO队列来维护最近的$F$次访问的文件序号。当从队列中弹出一个文件序号$p$时，将对应文件序号的文件的访问次数减一；当加入一个文件序号$p$时，将对应文件序号的文件的访问次数加一。
-
-   对于较大的$F$，将最近的$F$次访问中间部分的文件序号存储在外存，仅仅在内存维护2个最大大小为$F^{'}$的FIFO队列，一个是存储最近的$F$次访问头部的文件序号的队列$Q_{head}$，另一个是存储最近的$F$次访问尾部的文件序号的队列$Q_{tail}$。当需要删除一个文件序号$p$时，从$Q_{head}$弹出这个文件序号，将对应文件序号的文件的访问次数减一；当需要添加一个文件序号$p$时，加入$Q_{tail}$，将对应文件序号的文件的访问次数加一。当$Q_{head}$为空时，将$Q_{tail}$写入外存，清空队列$Q_{tail}$；再从外存中读入前$F^{'}$个文件序号，依次加入$Q_{head}$。
-
-
+# Trace
 
 | 序号 | 顺序读（scan） | 随机读（read） | 插入（insert） | 更新（update） | 类型                                     |
 | ---- | -------------- | :------------- | :------------- | :------------- | ---------------------------------------- |
@@ -135,3 +152,6 @@ $$
 | 11   | 2%             | 3%             | 5%             | 90%            | 读少写多、更新数据多                     |
 | 12   | 2%             | 3%             | 47%            | 48%            | 读少写多、写新数据和更新数据一样         |
 
+# REF
+
+[LOCS]：An Efficient Design and Implementation of LSM-Tree based Key-Value Store on Open-Channel SSD 
