@@ -13,6 +13,8 @@ public:
   static long StringToLong(const std::string &value);
 
   static bool ExistFile(const std::string &filename);
+
+  static void Assert(const char* message, bool condition);
 };
 
 class Config {

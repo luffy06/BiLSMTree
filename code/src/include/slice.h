@@ -49,4 +49,13 @@ inline int Slice::compare(const Slice& b) const {
   return r;
 }
 
+struct KV {
+  Slice key_;
+  Slice value_;
+
+  KV() { }
+
+  KV(Slice& key, Slice& value) : key_(key), value_(value) {  }
+};
+
 }

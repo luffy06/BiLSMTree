@@ -1,5 +1,7 @@
 #include "util.h"
 
+namespace bilsmtree {
+
 Util::Util() {
 
 }
@@ -25,4 +27,12 @@ bool Util::ExistFile(const std::string &filename) {
   bool res = f.is_open();
   f.close();
   return res;
+}
+
+void Uitl::Assert(const char* message, bool condition) {
+  if (!condition)
+    printf("%s\n", message);
+  assert(condition);
+}
+
 }
