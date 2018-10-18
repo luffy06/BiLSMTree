@@ -1,6 +1,8 @@
 #include <string>
 #include <fstream>
 
+namespace bilsmtree {
+
 class Util {
 public:
   Util();
@@ -23,3 +25,5 @@ public:
   const static int WRITE_OPTION = 1 << 1;
   const static int APPEND_OPTION = 1 << 2;
 };
+
+}

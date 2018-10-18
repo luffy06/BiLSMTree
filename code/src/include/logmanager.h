@@ -5,14 +5,17 @@
 #include <fstream>
 
 #include "leveldb/db.h"
-#include "fatfilesystem.h"
+#include "filesystem.h"
+
+
+namespace bilsmtree {
 
 class LogManager {
 public:
   LogManager();
   ~LogManager();
 
-  void Append(const std::string &key, const std::string &value, std::string &location);
+  void Append(const Slice& key, const Slice& value, std::string &location);
 
   void Get(const std::string &location, std::string &value);
 
@@ -28,3 +31,5 @@ private:
 
   void ReadKV(std::string &key, std::string &value);
 };
+
+}

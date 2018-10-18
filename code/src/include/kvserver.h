@@ -4,6 +4,8 @@
 #include "leveldb/db.h"
 #include "logmanager.h"
 
+namespace bilsmtree {
+
 class KVServer {
 public:
   KVServer();
@@ -13,13 +15,8 @@ public:
   void Get(const std::string &key, std::string &value);
   void Delete(const std::string &key);
 private:
-  const std::string DB_PATH = "../logs/testdb";
-
-  leveldb::DB* db;
+  LSMTree* lsmtree_;
   LogManager* log_manager;
-  leveldb::Options options;
-  leveldb::ReadOptions roptions;
-  leveldb::WriteOptions woptions;
-
-
 };
+
+}
