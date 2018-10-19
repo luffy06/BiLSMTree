@@ -12,16 +12,16 @@ LRU2Q::~LRU2Q() {
   delete fifo_;
 }
 
-KV LRU2Q::Put(const Slice& key, const Slice& value) {
-  auto it = map_.find(key);
-  KV kv = NULL;
+KV LRU2Q::Put(const KV& kv) {
+  auto it = map_.find(kv.key_);
+  KV res = NULL;
   if (it != map_.end()) {
     // lru has the key
     int index = *it;
     if (index < LRU2QConfig::M1) {
       // in lru queue
       // update value
-      lru_.Set(index, KV(key, value));
+      lru_.Set(index, kv);
       // move to the head of lru
       lru_.MoveToHead(index);
     }
@@ -41,26 +41,28 @@ KV LRU2Q::Put(const Slice& key, const Slice& value) {
       Util::Assert("FIFO queue is full!\nMethod: LRU2Q::Put", (out == NULL));
     }
     // update map of data
-    map_[key] = lru_.Head();
+    map_[kv.key_] = lru_.Head();
   }
   else {
     // lru doesn't has the key
     // insert key into lru
-    KV ln = lru_.Insert(KV(key, value));
+    KV ln = lru_.Insert(kv);
     // lru is full
     if (ln != NULL) {
       // append data to fifo
       KV out = fifo_.Append(ln);
+
       // fifo is full
-      if (out != NULL)
-        kv = out;
+      if (out != NULL) {
+        res = out;
+        map_.earse(out.key_);
+      }
+      map_[ln.key_] = fifo.Tail();
     }
     // update map of data
-    map_[key] = lru_.Head();
-    // delete map
-    map_.erase(kv.key_);
+    map_[kv.key_] = lru_.Head();
   }
-  return kv;
+  return res;
 }
 
 Slice LRU2Q::Get(const Slice& key) {

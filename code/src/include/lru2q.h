@@ -19,7 +19,7 @@ public:
 
   ~LRU2Q();
 
-  KV Put(const Slice& key, const Slice& value);
+  KV Put(const KV& kv);
 
   Slice Get(const Slice& key);
 private:
