@@ -1,14 +1,24 @@
+# Background
+
+# Flash
+
+
+
+## LevelDB
+
+LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree的结构，对索引变更进行延迟及批量处理，并通过类归并排序的方法高效的将数据更新迁移到磁盘，降低索引插入的开销。
+
 # Motivation
 
 目标：**基于Flash的LevelDB，在不影响原有写性能的基础上优化读放大问题**。
 
-## Read Amplification in LSM-tree
+## Read Amplification in LevelDB
 
 ![LevelDBStructure](./pic/structure.png)
 
 【图1：LevelDB结构】
 
-用LevelDB来解释LSM-tree中的读放大问题，在LevelDB查找一个Key的步骤可以分为在内存查找和在外存查找两步：
+图1是现有的LevelDB的整体结构，在LevelDB查找一个Key的步骤主要可以分为**在内存查找**和**在外存查找**两步：
 
 1. 在内存中，首先查找MemTable，若没有找到；检查Immutable MemTable是否存在，若存在，在Immutable MemTable中查找。
 
@@ -125,7 +135,7 @@ T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_
 \\
 T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
 $$
-因为$T_W\approx 4\times T_R$，所以公式（2）可以转换为
+因为$T_W\approx 4\times T_R$，所以公式（3）可以转换为
 $$
 T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(4)
 $$
