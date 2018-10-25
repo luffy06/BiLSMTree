@@ -1,5 +1,16 @@
 namespace bilsmtree {
 
+struct KV {
+  Slice key_;
+  Slice value_;
+
+  KV() { }
+
+  KV(Slice& key, Slice& value) : key_(key), value_(value) {  }
+
+  size_t size() { return key_.size() + value_.size(); }
+};
+
 class Slice {
 public:
   Slice() : data_(""), size_(0) { }
@@ -49,13 +60,5 @@ inline int Slice::compare(const Slice& b) const {
   return r;
 }
 
-struct KV {
-  Slice key_;
-  Slice value_;
-
-  KV() { }
-
-  KV(Slice& key, Slice& value) : key_(key), value_(value) {  }
-};
 
 }

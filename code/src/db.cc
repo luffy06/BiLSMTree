@@ -11,10 +11,10 @@ DB::~DB() {
 
 void DB::Put(const Slice& key, const Slice& value) {
   KV kv_ = KV(key, value);
-  SkipList* res = cacheserver_->Put(kv);
-  if (res != NULL) {
+  SkipList* sl = cacheserver_->Put(kv);
+  if (sl != NULL) {
     // need compaction
-    kvserver_->Compact(res);
+    kvserver_->Compact(sl);
   }
 }
 

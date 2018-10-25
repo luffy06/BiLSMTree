@@ -1,43 +1,38 @@
 #include "kvserver.h"
 
 KVServer::KVServer() {
-  options.create_if_missing = true;
-  leveldb::Status s = leveldb::DB::Open(options, DB_PATH, &db);
-  if (!s.ok()) {
-    std::cout << "OPEN LEVELDB FAILED!" << std::endl;
-    std::cout << "Error Message:" << s.ToString() << std::endl;
-    exit(-1);
-  }
-
-  log_manager = new LogManager();
+  lsmtree_ = new LSMTree();
+  logmanager_ = new LogManager();
 }
 
 KVServer::~KVServer() {
-  delete db;
-  delete log_manager;
+  delete lsmtree_;
+  delete logmanager_;
 }
 
 
-void KVServer::Put(const std::string &key, const std::string &value) {
+void KVServer::Put(const KV& kv) {
   // put value into vLog
-  std::string location;
-  log_manager->Append(key, value, location);
+  Slice location_ = logmanager_->Append(kv);
   // put key into lsm-tree
-  leveldb::Status s = db->Put(woptions, key, location);
-  if (!s.ok()) {
-    std::cout << "Put Key in LSM-Tree Failed!" << std::endl << "Key:" << key << std::endl;
-    std::cout << "Error Message:" << s.ToString() << std::endl;
-    exit(-1);
-  }
+  lsmtree_->Put(kv.key_, location_);
 }
 
-void KVServer::Get(const std::string &key, std::string &value) {
-  std::string location;
-  leveldb::Status s = db->Get(roptions, key, &location);
-  if (s.ok()) {
-    log_manager->Get(location, value);
-  }
+Slice KVServer::Get(const Slice& key) {
+  Slice location_ = lsmtree_->Get(key);
+  Slice value_ = logmanager_->Get(location);
+  return value_;
 }
 
-void KVServer::Delete(const std::string &key) {
+void Compact(const SkipList* sl) {
+  std::vector<KV> data_ = sl->GetAll();
+  // TODO: RESIZE BEFORE PUSH_BACK
+  std::vector<KV> kvs_;
+  for (int i = 0; i < data_.size(); ++ i) {
+    KV kv_ = data_[i];
+    Slice location_ = logmanager_->Append(kv_);
+    kvs_.push_back(KV(kv_.key_, location_))
+  }
+  Table* table_ = new Table(kvs_, lsmtree_->GetSequenceNumber());
+  lsmtree_->AddTable(table_);
 }

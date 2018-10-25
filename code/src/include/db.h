@@ -9,8 +9,8 @@ public:
 
   Slice Get(const Slice& key);
 private:
-  CacherServer* cacherserver;
-  KVServer* kvserver;
+  CacherServer* cacheserver_;
+  KVServer* kvserver_;
 };
 
 }

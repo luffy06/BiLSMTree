@@ -21,6 +21,8 @@ public:
   void Insert(const KV& kv);
 
   void Delete(const Slice& key);
+
+  std::vector<KV> GetAll();
 private:
   struct ListNode {
     KV kv_;

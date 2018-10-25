@@ -79,6 +79,14 @@ void SkipList::Delete(const Slice& key) {
   }
 }
 
+// TODO: NEED TO REDESIGN
+std::vector<KV> SkipList::GetAll() {
+  std::vector<KV> res_;
+  for (int i = 0; i < data_size_; ++ i)
+    res_.push_back(head_[i].kv_);
+  return res_;
+}
+
 int SkipList::GenerateLevel() {
   int level_ = 1;
   while ((rand() * 1.0 / INT_MAX) < PROB && level_ < MAXLEVEL) 
