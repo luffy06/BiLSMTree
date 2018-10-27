@@ -1,24 +1,18 @@
 # Background
 
-# Flash
-
-
-
 ## LevelDB
 
-LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销。
+LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree[LSM-tree]的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销[GoogleWeb]。
 
 ![LevelDBStructure](./pic/structure.png)
 
-【图1：LevelDB结构】
+【图1：LevelDB结构】【**图待修改**】
 
-图1是LevelDB的整体结构，在内存中键值对数据存储在一个由跳表实现的MemTable中，当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable。在外存中，键值对数据存储在一系列的有序字符表SSTable，这些SSTable被划分为7个层级，依次是$L_0$层到$L_6$层。同时外存中还存储一些辅助用的日志文件，如每层都对应一个MANIFEST文件，罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
+图1是LevelDB的整体结构，在内存中键值对数据存储在一个由跳表实现的MemTable中，当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable接受新的输入。在外存中，键值对数据存储在一系列SSTable中，这些SSTable被划分为7个层级，依次是$L_0$层到$L_6$层，每层所包含的文件数依次成倍数增长。同时外存中还存储一些辅助用的日志文件，如每层都对应一个MANIFEST文件，它罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
 
-SSTable是LevelDB在外存中主要的数据组织形式，主要由4个部分构成，数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，其他区域均只包含一个块。数据块中
+SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件可以划分成4个区域：数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，每个数据块包含许多个键值对数据。索引块区域包含一个索引块，它存储了每个数据块的最大值、在文件中的偏移量等相关信息，偏于快速定位到数据所在的数据块。过滤器块区域包含一个或多个过滤器块，为了加速查找过程，快速确定一个数据是否存在于一个SSTable文件中， LevelDB给每个SSTable增加了一个布隆过滤器[BloomFilter]。footer块区域存储了每个区域在SSTable文件中的相应位置。
 
-其他每个SSTable存储了一系列根据key的值排序的条目，每个条目要么是key对应的value，要么是key对应的删除标志。这些SSTable被分为7个等级，自顶向下依次用$L_0$到$L_6$来表示。除了$L_0$层以外，其他层中不包含重复的key，$L_0$层中的数据从Immutable MemTable中得到。每一层都有一个最大SSTable的数量，且随着层数增大依次按一定比率增大。
-
-每个SSTable文件的上限是2MB，由若干个4KB大小的block组成，最后一个block用于存储每个block的index信息和第一个key的值。同一个block中的key可以共享前缀，每个key只需存储自己唯一的后缀即可。若仅有部分key可以共享前缀，这部分key和其它key之间插入“reset”标识。
+$L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示的键值范围不存在Overlap。当$L_i$层的SSTable数量达到了上限或某个SSTable长时间未被命中，LevelDB将从$L_i$层中选择一个SSTable，通过Compaction操作将其中的有效数据流动到$L_{i+1}$层。LevelDB的Compaction操作主要可以分为2种类型：minor compaction，major compaction。LevelDB会自动检查Immutable MemTable是否存在，若存在则执行minor compaction，将Immutable MemTable封装成一个SSTable，加入$L_0$层。major compaction是在外存中主要的Compaction操作，它将$L_i$层的一个SSTable中的有效数据流动到$L_{i+1}$层。具体操作为首先从$L_i$层中确定需要compaction的SSTable，同时在$L_{i+1}$层中选择所有与其表示的键值范围有交集的SSTable。将这些SSTable利用类归并排序的思想按照键值范围进行多路归并。当某个键在$L_i$层和$L_{i+1}$层的SSTable同时出现时，按照数据的新鲜程度，将$L_{i+1}$层的键值抛弃，保留$L_i$层的键值。最后合并好的数据再划分成新的多个SSTable，插入到$L_{i +1}​$层中，此时这几个SSTable表示的键值范围不存在Overlap。
 
 # Motivation
 
@@ -64,14 +58,14 @@ M_1 + M_2 + N\times M_{IM} \le M\quad (1)
 $$
 一般假设每个Immutable MemTable的大小为固定大小，设定为2MB，$N$个Immutable MemTable中包括一个缓存接受LRU2Q淘汰数据的Immutable MemTable。LRU2Q的两个队列的大小相同，即$M_1= M_2$。按一定比例分配内存空间，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable List。若分配给Immutable MemTable的内存空间不足2MB，则至少分配一个Immutable MemTable，剩下均分配给LRU2Q。
 
-## 数据下沉，从高层向低层流动
+## 数据上浮，从高层向低层流动
 
 ### 挑战
 
-1. 哪些数据要下沉？
-2. 数据如何下沉？
+1. 哪些数据要上浮？
+2. 数据如何上浮？
 
-### 哪些数据要下沉？
+### 哪些数据要上浮？
 
 在基于LSM-tree结构的数据结构中，数据从低层到高层是按照新鲜度依次递减的。从访问时间来看，相比于低层的SSTable，查找高层的SSTable会消耗更多的时间，所以我们认为数据还应该从低层到高层同时满足访问频率依次递增，满足此条件我们才认为此时的LSM-tree是平衡的。当高层的SSTable的访问频率越来越高时，我们可以认为当前的树处于一个失衡的状态，需要调整树以达到平衡状态。
 
@@ -79,9 +73,9 @@ $$
 $$
 f_{i,j}\ge min(f_{i-1,k})  \times \beta\quad (2)
 $$
-其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为参数，那么认为这个文件需要进行下沉操作。
+其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为参数，那么认为这个文件需要进行上浮操作。
 
-每次更新文件访问次数时，就检查当前访问的文件是否需要下沉。若需要下沉，则类似Compaction操作，进行后台操作。若已有文件正在进行下沉，则当前下沉的文件需要等待之前的文件下沉完成后，再进行下沉操作。
+每次更新文件访问次数时，就检查当前访问的文件是否需要上浮。若需要上浮，则类似Compaction操作，进行后台操作。若已有文件正在进行上浮，则当前上浮的文件需要等待之前的文件上浮完成后，再进行上浮操作。
 
 #### 维护每个文件最近访问次数
 
@@ -95,7 +89,7 @@ $$
 
 对于较大的$F$，将最近的$F$次访问中间部分的文件序号存储在外存，仅仅在内存维护2个最大大小为$F^{'}$的FIFO队列，一个是存储最近的$F$次访问头部的文件序号的队列$Q_{head}$，另一个是存储最近的$F$次访问尾部的文件序号的队列$Q_{tail}$。当需要删除一个文件序号$p$时，从$Q_{head}$弹出这个文件序号，将对应文件序号的文件的访问次数减一；当需要添加一个文件序号$p$时，加入$Q_{tail}$，将对应文件序号的文件的访问次数加一。当$Q_{head}$为空时，将$Q_{tail}$写入外存，清空队列$Q_{tail}$；再从外存中读入前$F^{'}$个文件序号，依次加入$Q_{head}$。
 
-### 数据如何下沉？
+### 数据如何上浮？
 
 存储的数据虽然基于LSM-tree结构，是按层次存储的，但是从存储设备的角度来看，并不存在层次结构，每层的数据在存储设备中都是平等的。导致这种层次结构的主要原因是在于内存中的基于LSM-tree的索引结构，所以若想要将数据从高层次流动到低层次，例如从$L_5$层移动到$L_3$层，只需要修改内存中的索引结构，而不需要修改存储设备中存储的数据。
 
@@ -108,23 +102,23 @@ $$
 
 当将某个SSTable文件从高层流到到底层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
 
-#### 下沉后存在Overlap
+#### 上浮后存在Overlap
 
-下沉到$L_j$层的文件可能会与本层的其他文件出现Overlap，为了能够保持原有的二分查找策略，并不影响原有的查找效率，我们为每层都添加一个额外的列表$list\_[j]$，但这个列表的长度是十分小的，甚至可以只存一个文件。当移动文件到$L_j$层时，我们直接将文件加入$list\_[j]$。若$list\_[j]$的大小达到每层设定的阈值，则执行针对这几个文件的Compaction操作。由于$list\_[j]$的大小不会很大，同时短时间内多个文件上浮到同一层的概率很小，所以Compaction的代价不会很大，不会对下沉操作带来很大的时间消耗。
+上浮到$L_j$层的文件可能会与本层的其他文件出现Overlap，为了能够保持原有的二分查找策略，并不影响原有的查找效率，我们为每层都添加一个额外的列表$list\_[j]$，但这个列表的长度是十分小的，甚至可以只存一个文件。当移动文件到$L_j$层时，我们直接将文件加入$list\_[j]$。若$list\_[j]$的大小达到每层设定的阈值，则执行针对这几个文件的Compaction操作。由于$list\_[j]$的大小不会很大，同时短时间内多个文件上浮到同一层的概率很小，所以Compaction的代价不会很大，不会对上浮操作带来很大的时间消耗。
 
-#### 下沉后去除旧数据
+#### 上浮后去除旧数据
 
-文件M需要下沉肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件下沉后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要下沉的过程去除该文件中的旧数据。
+文件M需要上浮肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
 
-一个简单的想法就是利用和Compaction一样的方法，对下沉的文件同样做Compaction操作，在合并的过程中将旧数据丢弃。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。BloomFilter中存储了Key的个数和DataBlock中存储的Key的个数是相等，即DataBlock不存在某个Key，则BloomFilter中就不存在某个Key。那么可以把BloomFilter看作整个SSTable的一个snapshot，去除旧数据时若只删除BloomFilter中的数据，而不删除DataBlock中的数据，将会大大减少下沉产生的代价。若DataBlock中某个Key是旧数据，在BloomFilter中已经被删除了，那么在现有的查找机制中就永远不会被查询到。
+一个简单的想法就是利用和Compaction一样的方法，对上浮的文件同样做Compaction操作，在合并的过程中将旧数据丢弃。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。BloomFilter中存储了Key的个数和DataBlock中存储的Key的个数是相等，即DataBlock不存在某个Key，则BloomFilter中就不存在某个Key。那么可以把BloomFilter看作整个SSTable的一个snapshot，去除旧数据时若只删除BloomFilter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。若DataBlock中某个Key是旧数据，在BloomFilter中已经被删除了，那么在现有的查找机制中就永远不会被查询到。
 
 考虑到BloomFilter无法进行删除操作，同时还存在一定的错误率，我们将使用更查询效率更高，空间利用率更高，且无错误率的CuckooFilter来替换BloomFilter。
 
 对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{i-1}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S_1,\ldots,S_k$，那么将文件M移动到$L_{i-1}$层后，它的CuckooFilter变为$S^{'}_M=S_M-\bigcup^k_{j=1}S_j$，其中对于$L_0$层的CuckooFilter的并操作时，需要去除其中重复的旧数据，仅保留新数据。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O(k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]。
 
-考虑到Flash异地更新的问题，之前的SSTable都是整个文件一次一起写入，写入后就不再更新了，而加入下沉操作后，需要更新文件M的SSTable中的CuckooFilter所对应的Block。考虑到SSTable中一个Block的大小为4K，一个物理页的大小为16k，我们可以将SSTable中的数据分为Constant Data和Variant Data，其中DataBlock、IndexBlock、Footer都属于Constant Data，FilterBlock属于VariantData。为了便于管理，我们将Flash也分为Constant Area和Variant Area，将Constant Data存储在Constant Area，Variant Data存储在Variant Area。
+考虑到Flash异地更新的问题，之前的SSTable都是整个文件一次一起写入，写入后就不再更新了，而加入上浮操作后，需要更新文件M的SSTable中的CuckooFilter所对应的Block。考虑到SSTable中一个Block的大小为4K，一个物理页的大小为16k，我们可以将SSTable中的数据分为Constant Data和Variant Data，其中DataBlock、IndexBlock、Footer都属于Constant Data，FilterBlock属于VariantData。为了便于管理，我们将Flash也分为Constant Area和Variant Area，将Constant Data存储在Constant Area，Variant Data存储在Variant Area。
 
-##### 确定下沉层数
+##### 确定上浮层数
 
 ![formula](./pic/formula.png)
 
@@ -173,5 +167,11 @@ $$
 | 12   | 0.03           | 0.48           | 0.02           | 0.47           | 读少写多、写新数据和更新数据一样         |
 
 # REF
+
+[LSM-tree]：The Log-Structured Merge-Tree
+
+[GoogleWeb]：https://github.com/google/leveldb
+
+[BloomFilter]：
 
 [LOCS]：An Efficient Design and Implementation of LSM-Tree based Key-Value Store on Open-Channel SSD 
