@@ -2,7 +2,7 @@
 
 ## LevelDB
 
-LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree[LSM-tree]的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销[GoogleWeb]。
+LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree*[LSM-tree]*的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销*[GoogleWeb]*。
 
 ![LevelDBStructure](./pic/structure.png)
 
@@ -10,9 +10,11 @@ LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺�
 
 图1是LevelDB的整体结构，在内存中键值对数据存储在一个由跳表实现的MemTable中，当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable接受新的输入。在外存中，键值对数据存储在一系列SSTable中，这些SSTable被划分为7个层级，依次是$L_0$层到$L_6$层，每层所包含的文件数依次成倍数增长。同时外存中还存储一些辅助用的日志文件，如每层都对应一个MANIFEST文件，它罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
 
-SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件可以划分成4个区域：数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，每个数据块包含许多个键值对数据。索引块区域包含一个索引块，它存储了每个数据块的最大值、在文件中的偏移量等相关信息，偏于快速定位到数据所在的数据块。过滤器块区域包含一个或多个过滤器块，为了加速查找过程，快速确定一个数据是否存在于一个SSTable文件中， LevelDB给每个SSTable增加了一个布隆过滤器[BloomFilter]。footer块区域存储了每个区域在SSTable文件中的相应位置。
+SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件可以划分成4个区域：数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，每个数据块包含许多个键值对数据。索引块区域包含一个索引块，它存储了每个数据块的最大值、在文件中的偏移量等相关信息，偏于快速定位到数据所在的数据块。过滤器块区域包含一个或多个过滤器块，为了加速查找过程，快速确定一个数据是否存在于一个SSTable文件中， LevelDB给每个SSTable增加了一个布隆过滤器*[BloomFilter]*。footer块区域存储了每个区域在SSTable文件中的相应位置。
 
 $L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示的键值范围不存在Overlap。当$L_i$层的SSTable数量达到了上限或某个SSTable长时间未被命中，LevelDB将从$L_i$层中选择一个SSTable，通过Compaction操作将其中的有效数据流动到$L_{i+1}$层。LevelDB的Compaction操作主要可以分为2种类型：minor compaction，major compaction。LevelDB会自动检查Immutable MemTable是否存在，若存在则执行minor compaction，将Immutable MemTable封装成一个SSTable，加入$L_0$层。major compaction是在外存中主要的Compaction操作，它将$L_i$层的一个SSTable中的有效数据流动到$L_{i+1}$层。具体操作为首先从$L_i$层中确定需要compaction的SSTable，同时在$L_{i+1}$层中选择所有与其表示的键值范围有交集的SSTable。将这些SSTable利用类归并排序的思想按照键值范围进行多路归并。当某个键在$L_i$层和$L_{i+1}$层的SSTable同时出现时，按照数据的新鲜程度，将$L_{i+1}$层的键值抛弃，保留$L_i$层的键值。最后合并好的数据再划分成新的多个SSTable，插入到$L_{i +1}$层中，此时这几个SSTable表示的键值范围不存在Overlap。
+
+## Flash
 
 # Motivation
 
@@ -36,7 +38,7 @@ $L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示�
 
 # Algorithm
 
-主要贡献：
+major contribution：
 
 1. 重新设计了内存的存储结构；
 2. 用CuckooFilter替换BloomFilter；
@@ -44,33 +46,35 @@ $L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示�
 
 ## 内存：二级缓存替换MemTable，多Immutable MemTable
 
+![MemoryStructrue](D:/Program/LSMTREE/doc/pic/memorystructure.png)
+
+【图2：内存存储结构】**【图待修改】**
+
 在原有的机制中，MemTable在满了以后就直接转换成Immutable MemTable，随后等待DUMP到$L_0$中。而**此时在MemTable中频繁访问的数据，将会直接随着原有机制一直DUMP到$L_0$中，当再读这些数据时，都需要读取外存中的SSTable**。为了改进这个问题，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。我们还提出内存中不再只有一个Immutable Memtable，而是同时存在n个Immutable MemTable，这n个Immutable MemTable存在于内存的一个长度为$N$的LRU队列中，每次将从该LRU队列中淘汰的Immutable MemTable DUMP到$L_0$中。
-
-![MemoryStructrue](./pic/memorystructure.png)
-
-【图2：内存存储结构】
 
 LRU2Q由两个队列构成，一个是基于LRU的队列，另一个是FIFO队列。新数据都被直接插入LRU队列；当数据在两个队列中被访问到时，将数据移动到LRU队列的头部；当数据被LRU队列淘汰时，将按照FIFO的规则插入FIFO队列的头部；当数据被FIFO队列淘汰后，则意味着被2Q所淘汰。
 
 被2Q淘汰的数据直接加入到一个缓冲Immutable MemTable中。当这个Immutable MemTable达到阈值后，将其直接插入到LRU队列的头部。当LRU队列其中某个Immutable MemTable中的Key被访问后，将这个Immutable MemTable移动到LRU队列的头部；当某个Immutable MemTable被这个LRU队列淘汰后，将它DUMP到$L_0$层中。
 
-**Algorithm 1 内存数据读取**
-
->Input：a requested key
->Ouput：corresponding value
->value 
->
->
-
-
-
-假设内存大小为$M$，LRU2Q中每个队列占的大小分别为$M_1, M_2$，每个Immutable MemTable的大小是$M_{IM}$，那么需要满足：
+假设内存大小为$M$，LRU2Q中每个队列占的大小分别为$M_1, M_2$，默认认为$M_1 = M_2$；每个Immutable MemTable的大小固定为$M_{IM}$，默认2MB，那么需要满足：
 $$
 M_1 + M_2 + N\times M_{IM} \le M\quad (1)
 $$
-一般假设每个Immutable MemTable的大小为固定大小，设定为2MB，$N$个Immutable MemTable中包括一个缓存接受LRU2Q淘汰数据的Immutable MemTable。LRU2Q的两个队列的大小相同，即$M_1= M_2$。按一定比例分配内存空间，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable List。若分配给Immutable MemTable的内存空间不足2MB，则至少分配一个Immutable MemTable，剩下均分配给LRU2Q。
+在分配内存空间时，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable 。内存中至少预留1个Immutable MemTable的空间，若不够，则降低Immutable MemTable的大小。
 
-## 数据上浮，从高层向低层流动
+**Algorithm 1 内存数据读取**
+
+![algo1](pic/algo1.png)
+
+算法3.1展示在新的内存结构中如何查询一个key对应的value的过程。首先在LRU2Q中通过$Get(key)$方法查询对应的value，若找到，则直接返回结果。若未找到，在缓冲的immutable Memtable中通过$Get(key)$方法查找。同样的，若找到，则直接返回结果。若未找到，在immutable MemTable的LRU2Q队列中，从队首到队尾，依次在每个immutable MemTable中查找，若找到，则直接返回结果，否则继续查找。若在内存中，都未找到，则返回NULL。
+
+**Algorithm 2 内存存储数据**
+
+![algo2](pic/algo2.png)
+
+算法3.2展示在新的内存结构中如何存储一对key和value。首先在LRU2Q中通过$Put(key, value)$的方法将key和value存储在LRU2Q的中LRU队列的队首，若$key$已经存在了，则直接更新$value$。同时，该方法还会返回从LRU2Q中淘汰的数据$d\_key, d\_value$。若有数据被淘汰，则需要将其加入到缓冲的Immutable MemTable$imm\_temp\_$中。若$imm\_temp\_$已经满了，则将它加入到immutable MemTable的LRU队列$imms\_$的头部，重新分配一个新的Immutable MemTable。同时，若$imms\_$已经满了，则淘汰队尾的Immutable MemTable，用指针$imm\_dump\_$指向淘汰的Immutable MemTable，将其返回，等待DUMP到$L_0$层。
+
+## 外存：数据上浮，从高层向低层流动
 
 ### 挑战
 
