@@ -6,7 +6,19 @@
 
 ## LevelDB
 
-LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree的结构，对索引变更进行延迟及批量处理，并通过类归并排序的方法高效的将数据更新迁移到磁盘，降低索引插入的开销。
+LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销。
+
+![LevelDBStructure](./pic/structure.png)
+
+【图1：LevelDB结构】
+
+图1是LevelDB的整体结构，在内存中键值对数据存储在一个由跳表实现的MemTable中，当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable。在外存中，键值对数据存储在一系列的有序字符表SSTable，这些SSTable被划分为7个层级，依次是$L_0$层到$L_6$层。同时外存中还存储一些辅助用的日志文件，如每层都对应一个MANIFEST文件，罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
+
+SSTable是LevelDB在外存中主要的数据组织形式，主要由4个部分构成，数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，其他区域均只包含一个块。数据块中
+
+其他每个SSTable存储了一系列根据key的值排序的条目，每个条目要么是key对应的value，要么是key对应的删除标志。这些SSTable被分为7个等级，自顶向下依次用$L_0$到$L_6$来表示。除了$L_0$层以外，其他层中不包含重复的key，$L_0$层中的数据从Immutable MemTable中得到。每一层都有一个最大SSTable的数量，且随着层数增大依次按一定比率增大。
+
+每个SSTable文件的上限是2MB，由若干个4KB大小的block组成，最后一个block用于存储每个block的index信息和第一个key的值。同一个block中的key可以共享前缀，每个key只需存储自己唯一的后缀即可。若仅有部分key可以共享前缀，这部分key和其它key之间插入“reset”标识。
 
 # Motivation
 
@@ -14,11 +26,7 @@ LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺�
 
 ## Read Amplification in LevelDB
 
-![LevelDBStructure](./pic/structure.png)
-
-【图1：LevelDB结构】
-
-图1是现有的LevelDB的整体结构，在LevelDB查找一个Key的步骤主要可以分为**在内存查找**和**在外存查找**两步：
+在LevelDB查找一个Key的步骤主要可以分为**在内存查找**和**在外存查找**两步：
 
 1. 在内存中，首先查找MemTable，若没有找到；检查Immutable MemTable是否存在，若存在，在Immutable MemTable中查找。
 
