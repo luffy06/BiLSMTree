@@ -6,11 +6,9 @@ public:
   
   ~KVServer();
 
-  void Put(const KV& kv);
-
   Slice Get(const Slice& value);
 
-  void Compact(const SkipList* sl);
+  void MinorCompact(const SkipList* sl);
 private:
   LSMTree* lsmtree_;
   LogManager* logmanager_;

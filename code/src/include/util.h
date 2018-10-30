@@ -3,6 +3,20 @@
 
 namespace bilsmtree {
 
+class GlobalConfig {
+public:
+  GlobalConfig();
+
+  ~GlobalConfig();
+  
+  enum Algorithms {
+    LevelDB,
+    BiLSMTree
+  };
+
+  Algorithms algorithm;
+};
+
 class Util {
 public:
   Util();

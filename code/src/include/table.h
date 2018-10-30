@@ -21,15 +21,15 @@ private:
 struct Meta {
   Slice largest_;
   Slice smallest_;
-  int file_number_;
-  int frequency_;
+  size_t file_number_;
+  size_t frequency_;
 };
 
 class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs, int sequence_number);
+  Table(const std::vector<KV>& kvs, size_t sequence_number);
   
   ~Table();
 
@@ -37,8 +37,8 @@ private:
   Block** data_blocks_;
   Block* index_block_;
   Filter* filter_;
-  int data_block_number_;
-  int file_number_;
+  size_t data_block_number_;
+  size_t file_number_;
 };
 
 

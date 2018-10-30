@@ -4,30 +4,27 @@ public:
   LSMTreeConfig();
   ~LSMTreeConfig();
   
-  const static int LEVEL = 7;
-  const static
+  const static size_t LEVEL = 7;
 };
 
 class LSMTree {
 public:
   LSMTree();
   ~LSMTree();
-  
-  void Put(const KV& kv);
 
   Slice Get(const Slice& key);
 
-  void AddTable(const Table* table);
+  void AddTableToL0(const Table* table);
 
-  void Compact(int level);
-
-  void Rollback(int file_number);
-
-  int GetSequenceNumber();
+  size_t GetSequenceNumber();
 private:
   std::vector<Meta> file_[LSMTreeConfig::LEVEL];
-  std::queue<int> recent_files_;
+  VisitFrequency recent_files_;
 
-  int sequnce_number_;
+  size_t sequence_number_;
+
+  void RollBack(size_t file_number);
+
+  void MajorCompact(size_t level);
 };
 }

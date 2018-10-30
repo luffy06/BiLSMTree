@@ -3,7 +3,7 @@ namespace bilsmtree {
 Table::Table() {
   data_blocks_ = NULL;
   index_block_ = NULL;
-  filter_ = new CuckooFilter();
+  filter_ = NULL;
   file_number_ = -1;
   data_block_number_ = 0;
 }
@@ -13,14 +13,16 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
   std::vector<int> offsets_;
   std::vector<std::string> buffers_;
   std::vector<Slice> last_keys_;
-  filter_ = new CuckooFilter();
+  std::vector<Slice> keys_;
+
   file_number_ = sequence_number;
   size_t size_ = 0;
   std::string buffer_;
   Slice last_key_ = NULL;
+
   for (int i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
-    filter_.Add(kv_.key_);
+    keys_.push_bakc(kv_.key_);
     size_t add_ = kv_.size();
     if (size_ + add_ > TableConfig::BLOCKSIZE) {
       buffers_.push_back(buffer_);
@@ -52,6 +54,7 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
     offsets_.push_back(size_);
     last_keys_.push_back(last_key_);
   }
+
   data_block_number_ = buffers_.size_();
   data_blocks_ = new (Block *)[data_block_number_];
   buffer_.clear();
@@ -64,6 +67,12 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
     buffer_.append(offset_.data(), offset_.size());
   }
   index_block_ = new Block(buffer_.data(), buffer_.size());
+  if (GlobalConfig::algorithm == GlobalConfig::LevelDB)
+    filter_ = new BloomFilter(10, keys_); // 10 bits per key 
+  else if (GlobalConfig::algorithm == GlobalConfig::BiLSMTree)
+    filter_ = new CuckooFilter(keys_.size() * 2, keys_);
+  else
+    Util::Assert("Algorithm Error", false);
 }
 
 Table::~Table() {
@@ -74,7 +83,7 @@ Table::~Table() {
 
 void Table::DumpToFile() {
   std::string filename_(TableConfig::TABLEPATH + Util::LongToString(file_number_) + ".ldb");
-
+  
 }
 
 }

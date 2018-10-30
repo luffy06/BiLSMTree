@@ -10,21 +10,13 @@ KVServer::~KVServer() {
   delete logmanager_;
 }
 
-
-void KVServer::Put(const KV& kv) {
-  // put value into vLog
-  Slice location_ = logmanager_->Append(kv);
-  // put key into lsm-tree
-  lsmtree_->Put(kv.key_, location_);
-}
-
 Slice KVServer::Get(const Slice& key) {
   Slice location_ = lsmtree_->Get(key);
   Slice value_ = logmanager_->Get(location);
   return value_;
 }
 
-void Compact(const SkipList* sl) {
+void MinorCompact(const SkipList* sl) {
   std::vector<KV> data_ = sl->GetAll();
   // TODO: RESIZE BEFORE PUSH_BACK
   std::vector<KV> kvs_;
@@ -34,5 +26,5 @@ void Compact(const SkipList* sl) {
     kvs_.push_back(KV(kv_.key_, location_))
   }
   Table* table_ = new Table(kvs_, lsmtree_->GetSequenceNumber());
-  lsmtree_->AddTable(table_);
+  lsmtree_->AddTableToL0(table_);
 }
