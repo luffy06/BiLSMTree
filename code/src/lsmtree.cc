@@ -35,6 +35,9 @@ Slice LSMTree::Get(const Slice& key) {
       if (key.compare(file_[i][r].smallest_) >= 0)
         check_files_.push_back(file_[i][r]);
     }
+    for (size_t j = 0; j < check_files_.size(); ++ j) {
+      
+    }
   }
 }
 
