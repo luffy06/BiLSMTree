@@ -19,7 +19,7 @@ public:
   size_t GetSequenceNumber();
 private:
   std::vector<Meta> file_[LSMTreeConfig::LEVEL];
-  VisitFrequency recent_files_;
+  VisitFrequency* recent_files_;
 
   size_t sequence_number_;
 

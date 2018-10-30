@@ -37,9 +37,6 @@ public:
   ~Config();
   
   const static bool PERSISTENCE = false;
-  const static int READ_OPTION = 1;
-  const static int WRITE_OPTION = 1 << 1;
-  const static int APPEND_OPTION = 1 << 2;
 };
 
 }

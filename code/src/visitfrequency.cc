@@ -55,11 +55,24 @@ int VisitFrequency::Append(size_t file_number) {
 }
 
 void VisitFrequency::Dump() {
-  
+  int file_number = FileSystem.Open(FREQUENCYPATH, FileSystemConfig::WRITE_OPTION | FileSystemConfig::APPEND_OPTION);
+  while (!visit_[1].empty()) {
+    size_t d = visit_[1].front();
+    visit_[1].pop();
+    std::string data = Util::LongToString(d);
+    FileSystem.Write(file_number, data.data(), data.size());    
+  }
+  FileSystem.Close(file_number);
 }
 
 void VisitFrequency::Load() {
-  
+  int file_number = FileSystem.Open(FREQUENCYPATH, FileSystemConfig::READ_OPTION);
+  std::string data;
+  for (size_t i = 0; i < VisitFrequencyConfig::MAXQUEUESIZE; ++ i) {
+    FileSystem.Read(file_number, data, sizeof(size_t));
+    visit_[0].push(static_cast<size_t>(Util::StringToLong(data)));
+  }
+  FileSystem.Close(file_number);
 }
 
 }

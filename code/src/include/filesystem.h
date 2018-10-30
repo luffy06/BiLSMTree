@@ -1,25 +1,31 @@
-#include <iostream>
-#include <fstream>
-#include <queue>
+namespace bilsmtree {
 
-#include "flash.h"
+class FileSystemConfig {
+public:
+  FileSystemConfig();
+  ~FileSystemConfig();
+
+  const static int READ_OPTION = 1;
+  const static int WRITE_OPTION = 1 << 1;
+  const static int APPEND_OPTION = 1 << 2;
+};
 
 class FileSystem {
 public:
   FileSystem();
   ~FileSystem();
 
-  int Open(const std::string &filename, const int &mode);
+  static int Open(const std::string& filename, const int& mode);
 
-  void Read(const int &file_number, std::string &data, const int &read_size);
+  static void Read(const int& file_number, std::string& data, const int& read_size);
 
-  void Write(const int &file_number, const std::string &data, const int &write_size);
+  static void Write(const int& file_number, const char* data, const int& write_size);
 
-  void Close(const int &file_number);
+  static void Close(const int& file_number);
 
-  // void Seek(const int &file_number, const int &offset);
+  static void Seek(const int& file_number, const int& offset);
 
-  // int Tell();
+  static int Tell();
   
 private:
   const int BLOCK_SIZE = 16;
@@ -61,9 +67,10 @@ private:
 
   int AssignFreeBlocks();
 
-  void FreeBlock(const int &lba);
+  void FreeBlock(const int& lba);
 
-  int BinarySearchInBuffer(const int &file_number);
+  int BinarySearchInBuffer(const int& file_number);
 
-  static bool CmpByFileNumber(const FileStatus &fs1, const FileStatus &fs2);
+  static bool CmpByFileNumber(const FileStatus& fs1, const FileStatus& fs2);
 };
+}
