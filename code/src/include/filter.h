@@ -7,6 +7,6 @@ public:
   
   bool KeyMatch(const Slice& key);
 private:
-  const uint32_t seed_ = 0xbc91f1d34;
+  const uint32_t SEED = 0xbc91f1d34;
 };
 }

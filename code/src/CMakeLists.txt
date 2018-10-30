@@ -16,7 +16,6 @@ set(BILSMTREE_PUBLIC_INCLUDE_DIR "include")
 include_directories(
   "${PROJECT_BINARY_DIR}/include"
   "${PROJECT_SOURCE_DIR}"
-  "${PROJECT_SOURCE_DIR}/../lib/leveldb/include"
 )
 
 add_library(bilsmtree "")
@@ -24,14 +23,14 @@ target_sources(bilsmtree
   PRIVATE
     "${PROJECT_SOURCE_DIR}/util.cc"
     "${PROJECT_SOURCE_DIR}/flash.cc"
-    "${PROJECT_SOURCE_DIR}/fatfilesystem.cc"
+    "${PROJECT_SOURCE_DIR}/filesystem.cc"
     "${PROJECT_SOURCE_DIR}/logmanager.cc"
     "${PROJECT_SOURCE_DIR}/kvserver.cc"
 
   $<$<VERSION_GREATER:CMAKE_VERSION,3.2>:PUBLIC>
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/util.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/flash.h"
-    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/fatfilesystem.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/filesystem.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/logmanager.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/kvserver.h"
 )

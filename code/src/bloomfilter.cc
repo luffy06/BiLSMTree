@@ -20,7 +20,7 @@ BloomFilter::~BloomFilter() {
 
 
 bool BloomFilter::KeyMatch(const Slice& key) {
-  uint32_t h = Hash(key.data(), key.size(), seed_);
+  uint32_t h = Hash(key.data(), key.size(), SEED);
   const uint32_t delta = (h >> 17) | (h << 15);
   for (size_t j = 0; j < k_; ++ j) {
     const uint32_t bitpos = h % bits_;
@@ -32,7 +32,7 @@ bool BloomFilter::KeyMatch(const Slice& key) {
 }
 
 void BloomFilter::Add(const Slice& key) {
-  uint32_t h = Hash(key.data(), key.size(), seed_);
+  uint32_t h = Hash(key.data(), key.size(), SEED);
   const uint32_t delta_ = (h >> 17) | (h << 15);
   for (size_t j = 0; j < k_; ++ j) {
     const uint32_t bitpos = h % bits_;
