@@ -34,7 +34,7 @@ int VisitFrequency::Append(size_t file_number) {
         visit_[1].push(file_number);
       }
       else {
-        Dump(1);
+        Dump();
         visit_[1].clear();
         visit_[1].push(file_number);
       }
@@ -42,8 +42,8 @@ int VisitFrequency::Append(size_t file_number) {
     else {
       Util::Assert("Head size is not equal Tail", (visit_[0].size() == visit_[1].size()));
       if (visit_[0].empty()) {
-        Dump(1);
-        Load(0);
+        Dump();
+        Load();
       }
       res = visit_[0].front();
       visit_[0].pop();
@@ -52,6 +52,14 @@ int VisitFrequency::Append(size_t file_number) {
   }
   size_ ++;
   return res;
+}
+
+void VisitFrequency::Dump() {
+  
+}
+
+void VisitFrequency::Load() {
+  
 }
 
 }

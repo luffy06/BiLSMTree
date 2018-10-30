@@ -5,7 +5,7 @@ public:
   ~VisitFrequencyConfig();
 
   const static size_t MAXQUEUESIZE = 100000;
-  
+  const static std::string FREQUENCYPATH = "../logs/frequency.log"
 };
 
 class VisitFrequency {
@@ -25,8 +25,8 @@ private:
 
   size_t mode_; // 0 for small queue 1 for big queue 
 
-  void Dump(size_t queue_index);
+  void Dump();
 
-  void Load(size_t queue_index);
+  void Load();
 };
 }
