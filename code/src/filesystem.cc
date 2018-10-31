@@ -114,7 +114,7 @@ int FileSystem::Open(const std::string &filename, const int &mode) {
   return file_number;
 }
 
-void FileSystem::Read(const int &file_number, std::string &data, const int &read_size) {
+std::string FileSystem::Read(const int &file_number, const int &read_size) {
   int size = read_size;
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
@@ -128,7 +128,7 @@ void FileSystem::Read(const int &file_number, std::string &data, const int &read
     exit(-1);
   }
 
-  data = "";
+  std::string data = "";
   while (size > 0 && fat[fs.lba] != fs.lba) {
     char *c_data = flash->Read(fs.lba);
     c_data[std::min(size, BLOCK_SIZE)] = '\0';
@@ -136,6 +136,7 @@ void FileSystem::Read(const int &file_number, std::string &data, const int &read
     size = size - BLOCK_SIZE;
     fs.lba = fat[fs.lba];
   }
+  return data;
 }
 
 void FileSystem::Write(const int &file_number, const std::string &data, const int &write_size) {

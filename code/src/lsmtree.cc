@@ -1,6 +1,7 @@
 namespace bilsmtree {
 
 LSMTree::LSMTree() {
+  total_sequence_number_ = 0;
   recent_files_ = new VisitFrequency();
 }
 
@@ -36,9 +37,17 @@ Slice LSMTree::Get(const Slice& key) {
         check_files_.push_back(file_[i][r]);
     }
     for (size_t j = 0; j < check_files_.size(); ++ j) {
-      
+      Slice value = GetFromFile(check_files_[j], key);
+      if (value != NULL) {
+        int deleted = recent_files_->Append(check_files_[j].sequence_number_);
+        frequency_[check_files_[j].sequence_number_] ++;
+        if (deleted != -1) frequency_[deleted] --;
+        RollBack(check_files_[j].sequence_number_);
+        return value;
+      }
     }
   }
+  return NULL;
 }
 
 void LSMTree::AddTableToL0(const Table* table) {
@@ -46,10 +55,24 @@ void LSMTree::AddTableToL0(const Table* table) {
 }
 
 size_t LSMTree::GetSequenceNumber() {
-  return sequence_number_ ++;
+  return total_sequence_number_ ++;
 }
 
-void RollBack(size_t file_number) {
+std::string LSMTree::GetFilename(size_t sequence_number_) {
+
+}
+
+Slice LSMTree::GetFromFile(const Meta& meta, const Slice& key) {
+  std::string filename = GetFilename(meta.sequence_number_);
+  int file_number_ = FileSystem.Open(filename, FileSystemConfig::READ_OPTION);
+  FileSystem.Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
+  std::string index_offset_ = FileSystem.Read(file_number_, sizeof(size_t));
+  std::string filter_offset_ = FileSystem.Read(file_number_, sizeof(size_t));
+  
+  FileSystem.Close(file_number_);
+}
+
+void RollBack(size_t sequence_number) {
 
 }
 

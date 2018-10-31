@@ -6,6 +6,7 @@ public:
   ~TableConfig();
 
   const static size_t BLOCKSIZE = 4 * 1024; // 4KB
+  const static size_t FOOTERSIZE = ;
   const static std::string TABLEPATH = "../logs/leveldb/";
 };
 
@@ -16,13 +17,6 @@ public:
 private:
   const char* data_;
   size_t size_;
-};
-
-struct Meta {
-  Slice largest_;
-  Slice smallest_;
-  size_t file_number_;
-  size_t frequency_;
 };
 
 class Table {
@@ -38,7 +32,7 @@ private:
   Block* index_block_;
   Filter* filter_;
   size_t data_block_number_;
-  size_t file_number_;
+  size_t sequence_number_;
 };
 
 

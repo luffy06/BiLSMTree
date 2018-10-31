@@ -4,7 +4,7 @@ Table::Table() {
   data_blocks_ = NULL;
   index_block_ = NULL;
   filter_ = NULL;
-  file_number_ = -1;
+  sequence_number_ = -1;
   data_block_number_ = 0;
 }
 
@@ -15,7 +15,7 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
   std::vector<Slice> last_keys_;
   std::vector<Slice> keys_;
 
-  file_number_ = sequence_number;
+  sequence_number_ = sequence_number;
   size_t size_ = 0;
   std::string buffer_;
   Slice last_key_ = NULL;
@@ -82,7 +82,7 @@ Table::~Table() {
 }
 
 void Table::DumpToFile() {
-  std::string filename_(TableConfig::TABLEPATH + Util::LongToString(file_number_) + ".ldb");
+  std::string filename_(TableConfig::TABLEPATH + Util::LongToString(sequence_number_) + ".ldb");
   
 }
 

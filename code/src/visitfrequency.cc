@@ -67,9 +67,8 @@ void VisitFrequency::Dump() {
 
 void VisitFrequency::Load() {
   int file_number = FileSystem.Open(FREQUENCYPATH, FileSystemConfig::READ_OPTION);
-  std::string data;
   for (size_t i = 0; i < VisitFrequencyConfig::MAXQUEUESIZE; ++ i) {
-    FileSystem.Read(file_number, data, sizeof(size_t));
+    std::string data = FileSystem.Read(file_number, sizeof(size_t));
     visit_[0].push(static_cast<size_t>(Util::StringToLong(data)));
   }
   FileSystem.Close(file_number);

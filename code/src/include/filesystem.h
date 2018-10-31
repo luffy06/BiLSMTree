@@ -17,7 +17,7 @@ public:
 
   static int Open(const std::string& filename, const int& mode);
 
-  static void Read(const int& file_number, std::string& data, const int& read_size);
+  static std::string Read(const int& file_number, const int& read_size);
 
   static void Write(const int& file_number, const char* data, const int& write_size);
 
