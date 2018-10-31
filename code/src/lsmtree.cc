@@ -68,7 +68,6 @@ Slice LSMTree::GetFromFile(const Meta& meta, const Slice& key) {
   FileSystem.Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
   std::string index_offset_ = FileSystem.Read(file_number_, sizeof(size_t));
   std::string filter_offset_ = FileSystem.Read(file_number_, sizeof(size_t));
-  
   FileSystem.Close(file_number_);
 }
 
