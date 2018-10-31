@@ -9,12 +9,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(LEVELDB_SOURCE_DIR "lib/leveldb")
 set(BILSMTREE_SOURCE_DIR "src")
 
-add_subdirectory(${LEVELDB_SOURCE_DIR})
 add_subdirectory(${BILSMTREE_SOURCE_DIR})
 
 add_executable(main "main.cc")
 
-target_link_libraries(main leveldb bilsmtree)
+target_link_libraries(main bilsmtree)
