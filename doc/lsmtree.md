@@ -79,7 +79,8 @@ $$
 ### 需要解决的问题
 
 1. 哪些数据需要上浮？
-2. 数据如何上浮？
+2. 数据上浮的层数？
+3. 数据如何上浮？
 
 ### 哪些数据要上浮？
 
@@ -113,18 +114,51 @@ $$
 
 算法3.3 展示了如何维护最近$F$次访问的文件序号。若$F$较小，则等价于将所有的文件序号放在一个FIFO中。若$F$较大，则在内存中维护2个FIFO，分别表示原来的一个FIFO的头部和尾部。删除数据时从头部FIFO$visit\_[0]$头部删除，添加数据时从尾部FIFO$visit\_[1]$尾部添加。
 
+### 数据上浮的层数？
+
+![formula](D:/Program/BiLSMTree/doc/pic/formula.png)
+
+【图4：文件M在$L_j$层存在Overlap图】
+
+对于$L_i$层的文件M，将它移动到$L_j$层：
+
+设常量$F$为最近的$F$次访问，$f$为最近$F$次访问中文件M被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件M也将会被访问$f$次，同时文件M不会被Compaction，那么
+
+- 不移动文件M，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
+- 将文件M移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。
+
+定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间消耗，若为负数，则表示增加时间消耗，那么：
+$$
+T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_R \times \sum^j_{k=i-1}c_k
+\\
+T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
+$$
+因为$T_W\approx 4\times T_R$，所以公式（3）可以转换为
+$$
+T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(4)
+$$
+其中$0\le j\le i-1$。
+
+因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。 
+
 ### 数据如何上浮？
 
-存储的数据虽然基于LSM-tree结构，是按层次存储的，但是从存储设备的角度来看，并不存在层次结构，每层的数据在存储设备中都是平等的。导致这种层次结构的主要原因是在于内存中的基于LSM-tree的索引结构，所以若想要将数据从高层次流动到低层次，例如从$L_5$层移动到$L_3$层，只需要修改内存中的索引结构，而不需要修改存储设备中存储的数据。
+#### mind-flow
 
-用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，那么若想要将第5层的第4个文件移动到第3层，则只需要$file\_[3].push\_back(file\_[5][4])$。
+1. 存储设备中不存在树状结构 --> 移动数据时只需要修改内存中树状结构
+2. 修改破坏了LevelDB树状结构的特性
+3. 如何高效的维护树状结构的特性
 
-但是基于LSM-tree结构的LevelDB满足以下两个特性：
+存储在外存中的数据虽然被划分成$L_0$到$L_6$共7层，但是如果从存储设备的角度来看这些数据，它们之间并不存在层次结构，不同层的数据在存储器中都是平等的。而真正导致这种层次结构是因为内存中的基于LSM-tree的索引结构控制了数据的访问顺序，从而形成了树状的结构。基于这一点，对于数据的上浮，只需要修改内存中的索引结构不移动真正存储在外存中的数据就可以实现是数据的上浮。
 
-1. 除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap。$L_0$层的数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，则DUMP的同时还需要进行多路归并，代价太大了，所以允许$L_0$层中的SSTable之间的键值范围存在Overlap，但$L_0$层至多只有4个SSTable，保证了查找时的依次遍历不会产生太大的代价。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
-2. 数据从$L_0$层到$L_6$层的新鲜度逐渐降低。换句话说就是$i$越小的$L_i$层的文件中的数据越新，若某个Key同时存在于多个SSTable中，则$i$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j$越小的SSTable中的数据越新。
+在内存中，用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，包括该文件中的最大键$lagerest\_$，最小键$smallest\_$等等。若想把$L_5$层的第2个SSTable上浮到$L_3 $层，那么只需要将该文件的Meta信息移动到$L_3 $层中即可。
 
-当将某个SSTable文件从高层流到到底层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
+LevelDB之所以能够实现高效的查找，主要是因为满足了以下两个特性：
+
+1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap**。对于$L_0$层来说，数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，在DUMP的同时还需要进行多路归并，但是考虑到*<u>IO读写的代价对性能的影响</u>*，所以允许Immutable MemTable直接生成SSTable，直接DUMP到$L_0$层，其该层的SSTable之间的键值范围存在Overlap。$L_0$层至多只有4个SSTable，这也相对有了一定的折中，保证了查找效率。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
+2. **数据从$L_0$层到$L_6$层的新鲜度逐渐降低。**换句话说就是$i$越小的$L_i$层的文件中的数据越新，若某个Key同时存在于多层的多个SSTable中，则$i$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j$越小的SSTable中的数据越新。
+
+当将某个SSTable文件按照索引地址移动的方式从低层流到到高层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
 
 #### 上浮后存在Overlap
 
@@ -142,32 +176,7 @@ $$
 
 考虑到Flash异地更新的问题，之前的SSTable都是整个文件一次一起写入，写入后就不再更新了，而加入上浮操作后，需要更新文件M的SSTable中的CuckooFilter所对应的Block。考虑到SSTable中一个Block的大小为4K，一个物理页的大小为16k，我们可以将SSTable中的数据分为Constant Data和Variant Data，其中DataBlock、IndexBlock、Footer都属于Constant Data，FilterBlock属于VariantData。为了便于管理，我们将Flash也分为Constant Area和Variant Area，将Constant Data存储在Constant Area，Variant Data存储在Variant Area。
 
-##### 确定上浮层数
 
-![formula](./pic/formula.png)
-
-【图4：文件M在$L_j$层存在Overlap图】
-
-对于$L_i$层的文件M，将它移动到$L_j$层：
-
-设常量$F$为最近的$F$次访问，$f$为最近$F$次访问中文件M被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件M也将会被访问$f$次，同时文件M不会被Compaction，那么
-
-* 不移动文件M，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
-* 将文件M移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。
-
-定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间消耗，若为负数，则表示增加时间消耗，那么：
-$$
-T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_R \times \sum^j_{k=i-1}c_k
-\\
-T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
-$$
-因为$T_W\approx 4\times T_R$，所以公式（3）可以转换为
-$$
-T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(4)
-$$
-其中$0\le j\le i-1$。
-
-因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。
 
 # 问题
 
