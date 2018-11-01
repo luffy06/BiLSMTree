@@ -52,7 +52,12 @@ Slice LSMTree::Get(const Slice& key) {
 }
 
 void LSMTree::AddTableToL0(const Table* table) {
-  
+  size_t sequence_number_ = GetSequenceNumber();
+  std::string filename = GetFilename(sequence_number_);
+  table -> DumpToFile(filename);
+  Meta meta = table -> GetMeta();
+  meta.sequence_number_ = sequence_number_;
+  file_[0].insert(file_[0].begin(), meta);
 }
 
 size_t LSMTree::GetSequenceNumber() {

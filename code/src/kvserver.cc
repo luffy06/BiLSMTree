@@ -25,6 +25,6 @@ void MinorCompact(const SkipList* sl) {
     Slice location_ = logmanager_->Append(kv_);
     kvs_.push_back(KV(kv_.key_, location_))
   }
-  Table* table_ = new Table(kvs_, lsmtree_->GetSequenceNumber());
+  Table* table_ = new Table(kvs_);
   lsmtree_->AddTableToL0(table_);
 }

@@ -4,26 +4,26 @@ Table::Table() {
   data_blocks_ = NULL;
   index_block_ = NULL;
   filter_ = NULL;
-  sequence_number_ = -1;
   data_block_number_ = 0;
+  meta = NULL;
 }
 
-Table::Table(const std::vector<KV>& kvs, int sequence_number) {
+Table::Table(const std::vector<KV>& kvs) {
   assert(kvs.size() > 0);
   std::vector<int> offsets_;
   std::vector<std::string> buffers_;
   std::vector<Slice> last_keys_;
   std::vector<Slice> keys_;
 
-  sequence_number_ = sequence_number;
   size_t size_ = 0;
+  size_t total_size_ = 0;
   std::string buffer_;
   Slice last_key_ = NULL;
 
   for (int i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_.push_bakc(kv_.key_);
-    size_t add_ = kv_.size();
+    size_t add_ = kv_.size() + 2 * sizeof(size_t);
     if (size_ + add_ > TableConfig::BLOCKSIZE) {
       buffers_.push_back(buffer_);
       offsets_.push_back(size_);
@@ -73,6 +73,12 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
     filter_ = new CuckooFilter(FilterConfig::CUCKOOFILTER_SIZE, keys_);
   else
     Util::Assert("Algorithm Error", false);
+  
+  meta = Meta();
+  meta.largest_ = kvs[0].key_;
+  meta.smallest_ = kvs[kvs.size() - 1].key_;
+  meta.level_ = 0;
+  meta.file_size_ = (data_block_number_ + 1) * TableConfig::BLOCKSIZE + TableConfig::FILTERSIZE + TableConfig::FOOTERSIZE;
 }
 
 Table::~Table() {
@@ -81,9 +87,18 @@ Table::~Table() {
   delete[] data_blocks_;
 }
 
-void Table::DumpToFile() {
-  std::string filename_(TableConfig::TABLEPATH + Util::LongToString(sequence_number_) + ".ldb");
-  
+void Table::DumpToFile(const std::string& filename) {
+  int file_number = FileSystem::Open(filename, FileSystemConfig::WRITE_OPTION);
+  for (size_t i = 0; i < data_block_number_; ++ i) {
+    FileSystem::Seek(file_number, i * TableConfig::BLOCKSIZE);
+    FileSystem::Write(file_number, data_blocks_[i] -> data(), data_blocks_[i] -> size());
+  }
+  FileSystem::Seek(file_number, data_block_number_ * TableConfig::BLOCKSIZE);
+  FileSystem::Write(file_number, index_block_[i] -> data(), index_block_[i] -> size());
+  FileSystem::Seek(file_number, (data_block_number_ + 1) * TableConfig::BLOCKSIZE);
+  std::string filter_data = filter_ -> ToString();
+  FileSystem::Write(file_number, filter_data.data(), filter_data.size());
+  FileSystem::Close(file_number);
 }
 
 }

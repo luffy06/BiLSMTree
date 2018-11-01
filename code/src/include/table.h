@@ -15,7 +15,12 @@ public:
 class Block {
 public:
   Block(const char* data, const size_t size) : data_(data), size_(size) { }
+  
   ~Block();
+
+  char* data() { return data_; }
+
+  size_t size() { return size_; }
 private:
   const char* data_;
   size_t size_;
@@ -25,16 +30,19 @@ class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs, size_t sequence_number);
+  Table(const std::vector<KV>& kvs);
   
   ~Table();
 
+  Meta GetMeta();
+
+  void DumpToFile(const std::string& filename);
 private:
   Block** data_blocks_;
   Block* index_block_;
   Filter* filter_;
   size_t data_block_number_;
-  size_t sequence_number_;
+  Meta meta;
 };
 
 
