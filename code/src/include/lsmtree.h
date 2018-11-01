@@ -5,12 +5,14 @@ public:
   ~LSMTreeConfig();
   
   const static size_t LEVEL = 7;
+  const static double LSMTreeConfig = 0.2;
 };
 
 struct Meta {
   Slice largest_;
   Slice smallest_;
   size_t sequence_number_;
+  size_t level_;
   size_t file_size_;
 };
 
@@ -27,6 +29,7 @@ public:
 private:
   std::vector<Meta> file_[LSMTreeConfig::LEVEL];
   VisitFrequency* recent_files_;
+  size_t min_frequency_number_[LSMTreeConfig::LEVEL];
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
 
@@ -34,7 +37,9 @@ private:
 
   Slice GetFromFile(const Meta& meta, const Slice& key);
 
-  void RollBack(size_t file_number);
+  size_t GetTargetLevel(const size_t now_level, const Meta& meta);
+
+  void RollBack(const size_t now_level, const Meta& meta);
 
   void MajorCompact(size_t level);
 };

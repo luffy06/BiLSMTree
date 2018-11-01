@@ -72,6 +72,33 @@ CuckooFilter::CuckooFilter(const size_t capacity, const std::vector<Slice>& keys
     Add(keys[i]);
 }
 
+CuckooFilter::CuckooFilter(std::string data) {
+  std::istringstream is(data);
+  char temp[100];
+  is.read(temp, sizeof(size_t));
+  capacity_ = Util::StringToLong(std::string(temp));
+  is.read(temp, sizeof(size_t));
+  size_ = Util::StringToLong(std::string(temp));
+  array_ = new Bucket[capacity_];
+  for (size_t i = 0; i < capacity_; ++ i)
+    array_[i] = new Bucket();
+  for (size_t i = 0; i < size_; ++ i) {
+    is.read(temp, sizeof(size_t));
+    array_[i] -> size_ = Util::StringToLong(std::string(temp));
+    array_[i] -> data_ = new Slice[CuckooFilterConfig::MAXBUCKETSIZE];
+    for (size_t j = 0; j < array_[i] -> size_; ++ j)
+      array_[i] -> data_[j] = NULL;
+    for (size_t j = 0; j < array_[i] -> size_; ++ j) {
+      is.read(temp, sizeof(uint32_t));
+      array_[i] -> data_[j] = new Slice(temp);
+    }
+  }
+}
+
+CuckooFilter::~CuckooFilter() {
+  delete[] array_;
+}
+
 bool CuckooFilter::Delete(const Slice& key) {
   Info info = GetInfo(key);
   return array_[info.pos1].Delete(info.fp_) || array_[info.pos2].Delete(info.fp_);  
@@ -132,5 +159,15 @@ void CuckooFilter::Add(const Slice& key) {
   size_ = size_ + 1;
 }
 
+std::string CuckooFilter::ToString() {
+  std::string data;
+  data = Util::LongToString(capacity_) + Util::LongToString(size_);
+  for (size_t i = 0; i < size_; ++ i) {
+    data = data + Util::LongToString(array_[i] -> size_);
+    for (size_t j = 0; j < array_[i] -> size_; ++ j) 
+      data = data + array_[i] -> data_[j] -> ToString();
+  }
+  return data;
+}
 
 }

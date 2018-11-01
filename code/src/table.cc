@@ -68,9 +68,9 @@ Table::Table(const std::vector<KV>& kvs, int sequence_number) {
   }
   index_block_ = new Block(buffer_.data(), buffer_.size());
   if (GlobalConfig::algorithm == GlobalConfig::LevelDB)
-    filter_ = new BloomFilter(10, keys_); // 10 bits per key 
+    filter_ = new BloomFilter(FilterConfig::BITS_PER_KEY, keys_); // 10 bits per key 
   else if (GlobalConfig::algorithm == GlobalConfig::BiLSMTree)
-    filter_ = new CuckooFilter(keys_.size() * 2, keys_);
+    filter_ = new CuckooFilter(FilterConfig::CUCKOOFILTER_SIZE, keys_);
   else
     Util::Assert("Algorithm Error", false);
 }

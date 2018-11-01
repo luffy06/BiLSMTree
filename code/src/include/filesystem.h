@@ -17,13 +17,13 @@ public:
 
   static int Open(const std::string& filename, const int& mode);
 
-  static std::string Read(const int& file_number, const int& read_size);
+  static std::string Read(const int& file_number, const size_t& read_size);
 
-  static void Write(const int& file_number, const char* data, const int& write_size);
+  static void Write(const int& file_number, const char* data, const size_t& write_size);
 
   static void Close(const int& file_number);
 
-  static void Seek(const int& file_number, const int& offset);
+  static void Seek(const int& file_number, const size_t& offset);
 
   static int Tell();
   

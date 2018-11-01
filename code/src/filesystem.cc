@@ -78,7 +78,7 @@ FileSystem::~FileSystem() {
   delete flash;
 }
 
-int FileSystem::Open(const std::string &filename, const int &mode) {
+int FileSystem::Open(const std::string &filename, const size_t& mode) {
   if (open_number >= MAX_FILE_OPEN) {
     std::cout << "FILE OPEN MAX" << std::endl;
     exit(-1);
@@ -114,7 +114,7 @@ int FileSystem::Open(const std::string &filename, const int &mode) {
   return file_number;
 }
 
-std::string FileSystem::Read(const int &file_number, const int &read_size) {
+std::string FileSystem::Read(const int &file_number, const size_t& read_size) {
   int size = read_size;
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
@@ -139,7 +139,7 @@ std::string FileSystem::Read(const int &file_number, const int &read_size) {
   return data;
 }
 
-void FileSystem::Write(const int &file_number, const std::string &data, const int &write_size) {
+void FileSystem::Write(const int &file_number, const std::string &data, const size_t& write_size) {
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;

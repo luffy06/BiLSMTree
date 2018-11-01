@@ -6,9 +6,10 @@ public:
   ~TableConfig();
 
   const static size_t BLOCKSIZE = 4 * 1024; // 4KB
-  const static size_t FILTERSIZE = ;
-  const static size_t FOOTERSIZE = ;
+  const static size_t FILTERSIZE = 4 * 1024;
+  const static size_t FOOTERSIZE = 2 * sizeof(size_t);
   const static std::string TABLEPATH = "../logs/leveldb/";
+  const static std::string TABLENAME = "sstable";
 };
 
 class Block {

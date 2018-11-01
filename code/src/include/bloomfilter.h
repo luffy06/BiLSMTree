@@ -4,12 +4,13 @@ class BloomFilter : Filter {
 public:
   BloomFilter() { }
 
-  BloomFilter(const size_t bits_per_key, const std::vector<Slice>& keys);
+  BloomFilter(const std::vector<Slice>& keys);
+
+  BloomFilter(std::string data);
   
   ~BloomFilter();
 
 private:
-  const size_t bits_per_key_;
   const size_t k_;
 
   char* array_;

@@ -14,13 +14,13 @@ public:
  
   ~Bucket();
 
-  bool Insert(const Slice& key);
+  bool Insert(const Slice& fp);
 
-  Slice Kick(const Slice& key);
+  Slice Kick(const Slice& fp);
 
-  bool Delete(const Slice& key);
+  bool Delete(const Slice& fp);
 
-  bool Find(const Slice& key);
+  bool Find(const Slice& fp);
 
   void Diff(const uint32_t& pos, const CuckooFilter* cuckoofilter);
 private:
@@ -33,6 +33,8 @@ public:
   CuckooFilter() { }
 
   CuckooFilter(const size_t capacity, const std::vector<Slice>& keys);
+
+  CuckooFilter(std::string data);
 
   ~CuckooFilter();
 

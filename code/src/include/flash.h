@@ -18,6 +18,15 @@
 * Page formation: DATA LBA STATUS
 * Log formation: OPERATION\tLBA\tBLOCK_NUM\tPAGE_NUM\tDATA
 */
+class FlashConfig {
+public:
+  FlashConfig();
+  ~FlashConfig();
+
+  const static double READ_WRITE_RATE = 4;
+  
+};
+
 class Flash {
 public:
   Flash();
