@@ -14,6 +14,10 @@ SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件�
 
 $L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示的键值范围不存在Overlap。当$L_i$层的SSTable数量达到了上限或某个SSTable长时间未被命中，LevelDB将从$L_i$层中选择一个SSTable，通过Compaction操作将其中的有效数据流动到$L_{i+1}$层。LevelDB的Compaction操作主要可以分为2种类型：minor compaction，major compaction。LevelDB会自动检查Immutable MemTable是否存在，若存在则执行minor compaction，将Immutable MemTable封装成一个SSTable，加入$L_0$层。major compaction是在外存中主要的Compaction操作，它将$L_i$层的一个SSTable中的有效数据流动到$L_{i+1}$层。具体操作为首先从$L_i$层中确定需要compaction的SSTable，同时在$L_{i+1}$层中选择所有与其表示的键值范围有交集的SSTable。将这些SSTable利用类归并排序的思想按照键值范围进行多路归并。当某个键在$L_i$层和$L_{i+1}$层的SSTable同时出现时，按照数据的新鲜程度，将$L_{i+1}$层的键值抛弃，保留$L_i$层的键值。最后合并好的数据再划分成新的多个SSTable，插入到$L_{i +1}$层中，此时这几个SSTable表示的键值范围不存在Overlap。
 
+## CuckooFilter
+
+
+
 ## Flash
 
 # Motivation
@@ -151,7 +155,7 @@ $$
 
 存储在外存中的数据虽然被划分成$L_0$到$L_6$共7层，但是如果从存储设备的角度来看这些数据，它们之间并不存在层次结构，不同层的数据在存储器中都是平等的。而真正导致这种层次结构是因为内存中的基于LSM-tree的索引结构控制了数据的访问顺序，从而形成了树状的结构。基于这一点，对于数据的上浮，只需要修改内存中的索引结构不移动真正存储在外存中的数据就可以实现是数据的上浮。
 
-在内存中，用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，包括该文件中的最大键$lagerest\_$，最小键$smallest\_$等等。若想把$L_5$层的第2个SSTable上浮到$L_3 $层，那么只需要将该文件的Meta信息移动到$L_3 $层中即可。
+在内存中，用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，包括该文件中的最大键$lagerest\_$，最小键$smallest\_$等等。若想把$L_5$层的第2个SSTable上浮到$L_3 $层，那么只需要将该文件的Meta信息移动到$L_3 ​$层中即可。
 
 LevelDB之所以能够实现高效的查找，主要是因为满足了以下两个特性：
 
@@ -162,34 +166,44 @@ LevelDB之所以能够实现高效的查找，主要是因为满足了以下两�
 
 #### 上浮后存在Overlap
 
+![extra_list](pic/extra_list.jpeg)
 
+【图5：额外列表结构】**【图待修改】**
 
 上浮到$L_j$层的文件可能会与本层的其他文件出现Overlap，为了能够不影响原有的二分查找策略，我们为每层都添加一个额外的定长列表$list\_[j]$，列表的长度是十分小的，甚至可以只存一个文件。当移动文件$M$到$L_j$层时，我们直接将文件的Meta信息加入$list\_[j]$。
 
 对原有的查找和compaction操作需要进行相应的调整：
 
 * 在查找完原有的$file\_[j]$后，若未查找到数据，再依次查找$list\_[j]$。若还未查找到，再查找下一个level。
-* 对$L_j$层进行compaction时，需要在$L_{j+1}$层选择与之Overlap的文件。在这个新的结构下，不仅仅从$file\_[j+1]$中选择，同时也从$list\_[j+1]$中选择。
+* Compaction的触发条件仍为$file\_[j]$的大小超过阈值。
+* 对$L_j$层进行Compaction时，需要在$L_{j+1}$层选择与之Overlap的文件。在这个新的结构下，不仅仅从$file\_[j+1]$中选择，同时也从$list\_[j+1]$中选择。
 
-若$list\_[j]$的大小达到每层设定的阈值，则执行针对这几个文件的Compaction操作。由于$list\_[j]$的大小不会很大，同时短时间内多个文件上浮到同一层的概率很小，所以Compaction的代价不会很大，不会对上浮操作带来很大的时间消耗。
+若$list\_[j]$的大小达到每层设定的阈值，则通过与Compaction相同的操作进行多路合并，将这几个文件合并，若与$file\_[j]$中的文件不存在Overlap，直接加入$file\_[j]$，否则重新加入$list\_[j]$。
 
 #### 上浮后去除旧数据
 
-文件M需要上浮肯定是因为它拥有了低层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
+**文件M需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。**文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
 
-一个简单的想法就是利用和Compaction一样的方法，对上浮的文件同样做Compaction操作，在合并的过程中将旧数据丢弃。但是Compaction操作所带来的代价太大了，需要进行大量的IO读写操作，这不是我们所期待的。通过观察查找Key的步骤发现，查找一个Key之前，LevelDB为了提高查找效率都会先读取BloomFilter的数据，根据BloomFilter判断该Key是否存在于该SSTable中，再进行更细粒度的查找。BloomFilter中存储了Key的个数和DataBlock中存储的Key的个数是相等，即DataBlock不存在某个Key，则BloomFilter中就不存在某个Key。那么可以把BloomFilter看作整个SSTable的一个snapshot，去除旧数据时若只删除BloomFilter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。若DataBlock中某个Key是旧数据，在BloomFilter中已经被删除了，那么在现有的查找机制中就永远不会被查询到。
+可以发现，在查找一个Key之前，LevelDB为了提高查找效率，对每个SSTable增加了一个Filter，用于快速判断一个Key是否存在在当前的SSTable中。因为Filter所能表示的Key的个数和实际SSTable的Key的个数时一样的，那么**可以把Filter看作整个SSTable的一个snapshot**。在去除旧数据时若能够只删除Filter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。**若DataBlock中某个Key是旧数据，那么上浮完成后在对应的Filter中这个Key已经被删除了，在Filter中就永远不会被查询到，就不会进一步查询DataBlock**。
 
-考虑到BloomFilter无法进行删除操作，同时还存在一定的错误率，我们将使用更查询效率更高，空间利用率更高，且无错误率的CuckooFilter来替换BloomFilter。
+考虑LevelDB中使用的Filter是BloomFilter，它具有以下几点缺陷：
 
-对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{i-1}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S_1,\ldots,S_k$，那么将文件M移动到$L_{i-1}$层后，它的CuckooFilter变为$S^{'}_M=S_M-\bigcup^k_{j=1}S_j$，其中对于$L_0$层的CuckooFilter的并操作时，需要去除其中重复的旧数据，仅保留新数据。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O(k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]。
+1. 无法进行删除操作。
+2. 存在一定的错误率，将不存在的Key可能会返回存在。
 
-考虑到Flash异地更新的问题，之前的SSTable都是整个文件一次一起写入，写入后就不再更新了，而加入上浮操作后，需要更新文件M的SSTable中的CuckooFilter所对应的Block。考虑到SSTable中一个Block的大小为4K，一个物理页的大小为16k，我们可以将SSTable中的数据分为Constant Data和Variant Data，其中DataBlock、IndexBlock、Footer都属于Constant Data，FilterBlock属于VariantData。为了便于管理，我们将Flash也分为Constant Area和Variant Area，将Constant Data存储在Constant Area，Variant Data存储在Variant Area。
+我们使用查询效率更高，空间利用率更高，且无错误率的CuckooFilter[CuckooFilter]来替换BloomFilter。
+
+对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
+
+**Algorithm 4 上浮求CuckooFilter差积**
+
+![algo4](pic/algo4.png)
 
 
 
-# 问题
+# 改进
 
-1. 添加新$list\_[]$后，对原有的查找、Compaction的更新。
+1. Data、Index、Filter分别存储，Meta信息中存储SSTable文件对应的Filter的在Filter文件的offset，Index存储在Index的offset，Index中存储Datablock对应的value为对应的文件序列号和offset，Data可以分别存在多个固定大小文件中。尽量不对Data区域进行更新，Filter文件将会被频繁更新。
 
 # Trace
 
@@ -215,5 +229,7 @@ LevelDB之所以能够实现高效的查找，主要是因为满足了以下两�
 [GoogleWeb]：https://github.com/google/leveldb
 
 [BloomFilter]：
+
+[CuckooFilter]
 
 [LOCS]：An Efficient Design and Implementation of LSM-Tree based Key-Value Store on Open-Channel SSD 
