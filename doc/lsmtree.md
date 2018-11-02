@@ -46,7 +46,7 @@ major contribution：
 
 ## 内存：二级缓存替换MemTable，多Immutable MemTable
 
-![MemoryStructrue](/pic/memorystructure.png)
+![MemoryStructrue](pic/memorystructure.png)
 
 【图2：内存存储结构】**【图待修改】**
 
@@ -116,9 +116,9 @@ $$
 
 ### 数据上浮的层数？
 
-![formula](D:/Program/BiLSMTree/doc/pic/formula.png)
+![formula](pic/formula.png)
 
-【图4：文件M在$L_j$层存在Overlap图】
+【图4：文件M在$L_j$层存在Overlap的文件】
 
 对于$L_i$层的文件M，将它移动到$L_j$层：
 
@@ -133,9 +133,9 @@ T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_
 \\
 T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
 $$
-因为$T_W\approx 4\times T_R$，所以公式（3）可以转换为
+因为$T_W\approx \alpha\times T_R$，所以公式（3）可以转换为
 $$
-T_{diff}=f\times 3\times (i-j)-4 - \sum^j_{k=i-1}c_k\quad(4)
+T_{diff}=f\times 3\times (i-j)-\alpha - \sum^j_{k=i-1}c_k\quad(4)
 $$
 其中$0\le j\le i-1$。
 
