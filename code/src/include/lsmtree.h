@@ -5,6 +5,7 @@ public:
   ~LSMTreeConfig();
   
   const static size_t LEVEL = 7;
+  const static size_t L0SIZE = 4;
   const static double LSMTreeConfig = 0.2;
 };
 

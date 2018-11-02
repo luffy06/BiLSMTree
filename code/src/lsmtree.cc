@@ -58,6 +58,8 @@ void LSMTree::AddTableToL0(const Table* table) {
   Meta meta = table -> GetMeta();
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
+  if (file_[0].size() > LSMTreeConfig::L0SIZE)
+    MajorCompact(0);
 }
 
 size_t LSMTree::GetSequenceNumber() {
@@ -133,7 +135,7 @@ Slice LSMTree::GetFromFile(const Meta& meta, const Slice& key) {
   return NULL;
 }
 
-size_t GetTargetLevel(const size_t now_level, const Meta& meta) {
+size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta& meta) {
   size_t overlaps[7];
   overlaps[now_level] = 0;
   for (int i = now_level - 1; i >= 0; -- i) {
@@ -155,7 +157,7 @@ size_t GetTargetLevel(const size_t now_level, const Meta& meta) {
   return target_level;
 }
 
-void RollBack(const size_t now_level, const Meta& meta) {
+void LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   if (now_level == 0)
     return ;
   size_t to_level = GetTargetLevel(now_level, meta);
@@ -199,6 +201,14 @@ void RollBack(const size_t now_level, const Meta& meta) {
   filter_data_ = filter->ToString();
   FileSystem::Write(file_number_, filter_data_.data(), filter_data_.size());
   FileSystem::Close(file_number_);
+}
+
+void LSMTree::MajorCompact(size_t level) {
+  Meta meta_ = NULL;
+  size_t f_ = 0;
+  for (size_t i = 0; i < file_[level].size(); ++ i) {
+    
+  }
 }
 
 }
