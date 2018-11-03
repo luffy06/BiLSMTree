@@ -50,6 +50,8 @@ private:
 
   void RollBack(const size_t now_level, const Meta& meta);
 
+  std::vector<Table*> MergeTables(const std::vector<Table*>& tables);
+
   void CompactList(size_t level);
 
   void MajorCompact(size_t level);
