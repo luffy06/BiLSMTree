@@ -15,5 +15,13 @@
 [x] ------ Slice
 [x] ------ Hash
 [x] --- LogManager
-[x] - FileSystem
+[ ] - FileSystem
 [x] - Flash
+
+# TODO
+
+1. Table::Table(const std::string& filename);
+2. void LSMTree::CompactList(size_t level);
+3. std::vector<Table*> LSMTree::MergeTables(const std::vector<Table*> tables);
+4. void FileSystem::Seek(const int& file_number, const size_t& offset);
+5. Flash change algorithm.
