@@ -44,7 +44,7 @@ private:
 
   std::string GetFilename(size_t sequence_number_);
 
-  Slice GetFromFile(const Meta& meta, const Slice& key);
+  Slice GetValueFromFile(const Meta& meta, const Slice& key);
 
   size_t GetTargetLevel(const size_t now_level, const Meta& meta);
 

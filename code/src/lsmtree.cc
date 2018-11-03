@@ -74,7 +74,7 @@ std::string LSMTree::GetFilename(size_t sequence_number_) {
   return std::string(filename);
 }
 
-Slice LSMTree::GetFromFile(const Meta& meta, const Slice& key) {
+Slice LSMTree::GetValueFromFile(const Meta& meta, const Slice& key) {
   std::string filename = GetFilename(meta.sequence_number_);
   int file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
@@ -214,6 +214,10 @@ void LSMTree::CompactList(size_t level) {
 
 }
 
+std::vector<Table*> LSMTree::MergeTables(const std::vector<Table*> tables) {
+
+}
+
 void LSMTree::MajorCompact(size_t level) {
   if (level == LSMTreeConfig::LEVEL)
     return ;
@@ -235,7 +239,31 @@ void LSMTree::MajorCompact(size_t level) {
       ++ i;
     }
   }
+  std::vector<Table*> tables_;
+  Table* t = new Table(GetFilename(meta.sequence_number_));
+  tables_.push_back(t);
+  for (size_t i = 0; i < metas.size(); ++ i) {
+    t = new Table(GetFilename(metas[i].sequence_number_));
+    tables_.push_back(t);
+  }
+  std::vector<Table*> merged_tables = MergeTables(tables_);
+  for (size_t i = 0; i < merged_tables.size(); ++ i) {
+    size_t sequence_number_ = GetSequenceNumber();
+    std::string filename = GetFilename(sequence_number_);
+    merged_tables[i] -> DumpToFile(filename);
+    Meta meta = table -> GetMeta();
+    meta.sequence_number_ = sequence_number_;
+    file_[level + 1].insert(meta);
+  }
   
+  sort(file_[level + 1].begin(), file_[level + 1].end(), [](const Meta& a, const Meta& b) -> bool { 
+    if (a.largest_.compare(b.largest_) != 0)
+      return a.largest_.compare(b.largest_) <= 0;
+    return a.smallest_.compare(b.smallest_) <= 0;
+  });
+
+  if (file_[level + 1].size() > static_cast<uint32_t>(pow(10, level)))
+    MajorCompact(level + 1);
 }
 
 }

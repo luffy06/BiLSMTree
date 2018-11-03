@@ -31,6 +31,8 @@ public:
   Table();
 
   Table(const std::vector<KV>& kvs);
+
+  Table(const std::string filename);
   
   ~Table();
 

@@ -24,8 +24,6 @@ public:
   static void Close(const int& file_number);
 
   static void Seek(const int& file_number, const size_t& offset);
-
-  static int Tell();
   
 private:
   const int BLOCK_SIZE = 16;
