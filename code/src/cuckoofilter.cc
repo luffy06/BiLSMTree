@@ -128,14 +128,14 @@ Slice CuckooFilter::GetFingerPrint(const Slice& key) {
   return Slice(std::string(str));
 }
 
-Info GetInfo(const Slice& key) {
+Info CuckooFilter::GetInfo(const Slice& key) {
   Slice fp = GetFingerPrint(key);
   uint32_t p1 = Hash(key.data(), key.size(), SEED) % capacity_;
   uint32_t p2 = GetAlternatePos(fp, p1);
   return Info(f, p1, p2);  
 }
 
-uint32_t GetAlternatePos(const Slice& fp, const uint32_t& p) {
+uint32_t CuckooFilter::GetAlternatePos(const Slice& fp, const uint32_t& p) {
   uint32_t hash = Hash(fp.data(), fp.size(), SEED);
   return (p ^ hash) % capacity_;
 }

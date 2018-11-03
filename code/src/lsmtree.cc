@@ -11,11 +11,11 @@ LSMTree::~LSMTree() {
 
 Slice LSMTree::Get(const Slice& key) {
   for (size_t i = 0; i < LSMTreeConfig::LEVEL; ++ i) {
-    std::vector<Meta> check_files_;
+    std::vector<size_t> check_files_;
     if (i == 0) {
       for (size_t j = 0; j < file_[i].size(); ++ j) {
         if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0)
-          check_files_.push_back(file_[i][j]);
+          check_files_.push_back(j);
       }
     }
     else {
@@ -34,16 +34,18 @@ Slice LSMTree::Get(const Slice& key) {
           l = m;
       }
       if (key.compare(file_[i][r].smallest_) >= 0)
-        check_files_.push_back(file_[i][r]);
+        check_files_.push_back(r);
     }
     for (size_t j = 0; j < check_files_.size(); ++ j) {
-      Slice value = GetFromFile(check_files_[j], key);
+      size_t p = check_files_[j];
+      Slice value = GetFromFile(file_[i][p], key);
       if (value != NULL) {
-        int deleted = recent_files_->Append(check_files_[j].sequence_number_);
-        frequency_[check_files_[j].sequence_number_] ++;
+        int deleted = recent_files_->Append(file_[i][p].sequence_number_);
+        frequency_[file_[i][p].sequence_number_] ++;
         if (deleted != -1) frequency_[deleted.sequence_number_] --;
         // TODO: RUN BY ALPHA
-        RollBack(i, check_files_[j]);
+        if (RollBack(i, file_[i][p]))
+          file_[i].erase(file_[i],begin() + p);
         return value;
       }
     }
@@ -141,7 +143,7 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta& meta) {
   for (int i = now_level - 1; i >= 0; -- i) {
     overlaps[i] = overlaps[i  + 1];
     for (size_t j = 0; j < file_[i].size(); ++ j) {
-      if (meta.largest_.compare(file_[i][j].smallest_) >= 0 || meta.smallest_.compare(file_[i][j].largest_) <= 0)
+      if (meta.Intersect(file_[i][j]))
         overlaps[i] = overlaps[i] + 1;
     }
   }
@@ -157,12 +159,12 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta& meta) {
   return target_level;
 }
 
-void LSMTree::RollBack(const size_t now_level, const Meta& meta) {
+bool LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   if (now_level == 0)
-    return ;
+    return false;
   size_t to_level = GetTargetLevel(now_level, meta);
   if (to_level == now_level)
-    return ;
+    return false;
   std::string filename = GetFilename(meta.sequence_number_);
   int file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
@@ -201,14 +203,39 @@ void LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   filter_data_ = filter->ToString();
   FileSystem::Write(file_number_, filter_data_.data(), filter_data_.size());
   FileSystem::Close(file_number_);
+  // add to list_
+  list_[to_level].push_back(meta);
+  if (list_[to_level].size() >= LSMTreeConfig::LISTSIZE)
+    CompactList(to_level);
+  return true;
+}
+
+void LSMTree::CompactList(size_t level) {
+
 }
 
 void LSMTree::MajorCompact(size_t level) {
-  Meta meta_ = NULL;
-  size_t f_ = 0;
+  if (level == LSMTreeConfig::LEVEL)
+    return ;
+  int index = -1;
   for (size_t i = 0; i < file_[level].size(); ++ i) {
-    
+    Meta m = file_[level][i];
+    if (index == -1 || frequency_[m.sequence_number_] < frequency_[file_[level][index].sequence_number_]) 
+      index = i;
   }
+  Meta meta = file_[level][index];
+  file_[level].erase(file_[level].begin() + index);
+  std::vector<Meta> metas;
+  for (size_t i = 0; i < file_[level + 1].size(); ) {
+    if (file_[level + 1][i].Intersect(meta)) {
+      metas.push_back(file_[level + 1][i]);
+      file_[level + 1].erase(file_[level + 1].begin() + i);
+    }
+    else {
+      ++ i;
+    }
+  }
+  
 }
 
 }
