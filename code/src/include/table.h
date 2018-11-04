@@ -8,6 +8,7 @@ public:
   const static size_t BLOCKSIZE = 4 * 1024; // 4KB
   const static size_t FILTERSIZE = 4 * 1024;
   const static size_t FOOTERSIZE = 2 * sizeof(size_t);
+  const static size_t TABLESIZE = 2 * 1024 * 1024; // 2MB
   const static std::string TABLEPATH = "../logs/leveldb/";
   const static std::string TABLENAME = "sstable";
 };
@@ -31,8 +32,6 @@ public:
   Table();
 
   Table(const std::vector<KV>& kvs);
-
-  Table(const std::string filename);
   
   ~Table();
 

@@ -36,16 +36,25 @@ Slice LSMTree::Get(const Slice& key) {
       if (key.compare(file_[i][r].smallest_) >= 0)
         check_files_.push_back(r);
     }
+    for (size_t j = 0; j < list_[i].size(); ++ j) {
+      if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0)
+        check_files_.push_back(j + file_[i].size());
+    }
     for (size_t j = 0; j < check_files_.size(); ++ j) {
       size_t p = check_files_[j];
-      Slice value = GetFromFile(file_[i][p], key);
+      Meta meta = (p < file_[i].size() ? file_[i][p] : list_[i][p - file_[i].size()]);
+      Slice value = GetFromFile(meta, key);
       if (value != NULL) {
-        int deleted = recent_files_->Append(file_[i][p].sequence_number_);
-        frequency_[file_[i][p].sequence_number_] ++;
+        int deleted = recent_files_->Append(meta.sequence_number_);
+        frequency_[meta.sequence_number_] ++;
         if (deleted != -1) frequency_[deleted.sequence_number_] --;
         // TODO: RUN BY ALPHA
-        if (RollBack(i, file_[i][p]))
-          file_[i].erase(file_[i],begin() + p);
+        if (RollBack(i, meta)) {
+          if (p >= file_[i].size())
+            list_[i].erase(list_[i].begin() + p - file_[i].size());
+          else
+            file_[i].erase(file_[i].begin() + p);
+        }
         return value;
       }
     }
@@ -210,14 +219,44 @@ bool LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   return true;
 }
 
-std::vector<Table*> LSMTree::MergeTables(const std::vector<Table*>& tables) {
-
+std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tables) {
+  std::vector<KV> buffers_;
+  std::vector<Table*> result_;
+  size_t size_ = 0;
+  std::priority_queue<TableIterator*> q;
+  for (size_t i = 0; i < tables.size(); ++ i) {
+    TableIterator* ti = tables[i];
+    ti->SetId(i);
+    q.push(ti);
+  }
+  while (!q.empty()) {
+    TableIterator* ti = q.top();
+    q.pop();
+    if (ti.HasNext()) {
+      KV kv = ti.Next();
+      q.push(ti);
+      if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
+        if (size_ + kv.size() > TableConfig::TABLESIZE) {
+          Table* t = new Table(buffers_);
+          result_.push_back(t);
+          buffers_.clear();
+          size_ = 0;
+        }
+        buffers_.push(kv);
+      }
+    }
+  }
+  if (size_ > 0) {
+    Table* t = new Table(buffers_);
+    result_.push_back(t);
+  }
+  return result_;
 }
 
 void LSMTree::CompactList(size_t level) {
-  std::vector<Table*> tables_;
+  std::vector<TableIterator*> tables_;
   for (size_t i = 0; i < list_[level].size(); ++ i) {
-    t = new Table(GetFilename(list_[level][i].sequence_number_));
+    TableIterator* t = new TableIterator(GetFilename(list_[level][i].sequence_number_));
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
@@ -233,19 +272,32 @@ void LSMTree::CompactList(size_t level) {
     // TODO
 }
 
-// TODO Check list_
 void LSMTree::MajorCompact(size_t level) {
   if (level == LSMTreeConfig::LEVEL)
     return ;
-  int index = -1;
-  for (size_t i = 0; i < file_[level].size(); ++ i) {
+  std::vector<Meta> metas;
+  size_t index = 0;
+  for (size_t i = 1; i < file_[level].size(); ++ i) {
     Meta m = file_[level][i];
-    if (index == -1 || frequency_[m.sequence_number_] < frequency_[file_[level][index].sequence_number_]) 
+    size_t last_seq_ = file_[level][index].sequence_number_;
+    if (frequency_[m.sequence_number_] < frequency_[last_seq_]) 
       index = i;
   }
-  Meta meta = file_[level][index];
-  file_[level].erase(file_[level].begin() + index);
-  std::vector<Meta> metas;
+  for (size_t i = 0; i < list_[level].size(); ++ i) {
+    Meta m = list_[level][i];
+    size_t last_seq_ = (index >= file_[level].size() ? list_[level][index - file_[level].size()] : file_[level][index]);
+    if (frequency_[m.sequence_number_] < frequency_[last_seq_])
+      index = i + file_[level].size();
+  }
+  if (index >= file_[level].size()) {
+    index = index - file_[level].size();
+    metas.push_back(list_[level][index]);
+    list_[level].erase(list_[level].begin() + index);
+  }
+  else {
+    metas.push_back(file_[level][index]);
+    file_[level].erase(file_[level].begin() + index);
+  }
   for (size_t i = 0; i < file_[level + 1].size(); ) {
     if (file_[level + 1][i].Intersect(meta)) {
       metas.push_back(file_[level + 1][i]);
@@ -255,11 +307,18 @@ void LSMTree::MajorCompact(size_t level) {
       ++ i;
     }
   }
-  std::vector<Table*> tables_;
-  Table* t = new Table(GetFilename(meta.sequence_number_));
-  tables_.push_back(t);
+  for (size_t i = 0; i < list_[level + 1].size(); ) {
+    if (list_[level + 1][i].Intersect(meta)) {
+      metas.push_back(list_[level + 1][i]);
+      list_[level + 1].erase(list_.begin() + i);
+    }
+    else {
+      ++ i;
+    }
+  }
+  std::vector<TableIterator*> tables_;
   for (size_t i = 0; i < metas.size(); ++ i) {
-    t = new Table(GetFilename(metas[i].sequence_number_));
+    TableIterator* t = new TableIterator(GetFilename(metas[i].sequence_number_));
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
