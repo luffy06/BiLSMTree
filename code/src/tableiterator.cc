@@ -6,7 +6,7 @@ TableIterator::TableIterator() {
 }
 
 TableIterator::TableIterator(std::string filename) {
-  int file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
   size_t index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
   size_t filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
@@ -25,6 +25,7 @@ TableIterator::TableIterator(std::string filename) {
     std::string block_data = FileSystem::Read(file_number_, TableConfig::BLOCKSIZE);
     ParseBlock(block_data);
   }
+  FileSystem::Close(file_number_);
   id_ = 0;
   iter_ = 0;
 }

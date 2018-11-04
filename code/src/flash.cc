@@ -1,4 +1,4 @@
-#include "flash.h"
+namespace bilsmtree {
 
 Flash::Flash() {
   std::cout << "CREATING FLASH" << std::endl;
@@ -373,4 +373,6 @@ int Flash::AssignFreeBlock(const int &block_num) {
     prev_block[new_block_num] = block_num;
   }
   return new_block_num;
+}
+
 }

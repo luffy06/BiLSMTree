@@ -1,11 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <queue>
-#include <vector>
-
-#include "util.h"
-
+namespace bilsmtree {
 /*
 * The implement of Original NFTL
 * LBA --> VBA: BLOCK_NUM = LBA / MAX_PAGE_NUM, PAGE_NUM = LBA % MAX_PAGE_NUM
@@ -115,3 +108,5 @@ private:
 
   void UpdateLinkedList(const int &block_num);
 };
+
+}

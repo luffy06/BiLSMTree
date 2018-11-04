@@ -88,17 +88,17 @@ Table::~Table() {
 }
 
 void Table::DumpToFile(const std::string& filename) {
-  int file_number = FileSystem::Open(filename, FileSystemConfig::WRITE_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, FileSystemConfig::WRITE_OPTION);
   for (size_t i = 0; i < data_block_number_; ++ i) {
-    FileSystem::Seek(file_number, i * TableConfig::BLOCKSIZE);
-    FileSystem::Write(file_number, data_blocks_[i] -> data(), data_blocks_[i] -> size());
+    FileSystem::Seek(file_number_, i * TableConfig::BLOCKSIZE);
+    FileSystem::Write(file_number_, data_blocks_[i] -> data(), data_blocks_[i] -> size());
   }
-  FileSystem::Seek(file_number, data_block_number_ * TableConfig::BLOCKSIZE);
-  FileSystem::Write(file_number, index_block_[i] -> data(), index_block_[i] -> size());
-  FileSystem::Seek(file_number, (data_block_number_ + 1) * TableConfig::BLOCKSIZE);
+  FileSystem::Seek(file_number_, data_block_number_ * TableConfig::BLOCKSIZE);
+  FileSystem::Write(file_number_, index_block_[i] -> data(), index_block_[i] -> size());
+  FileSystem::Seek(file_number_, (data_block_number_ + 1) * TableConfig::BLOCKSIZE);
   std::string filter_data = filter_ -> ToString();
-  FileSystem::Write(file_number, filter_data.data(), filter_data.size());
-  FileSystem::Close(file_number);
+  FileSystem::Write(file_number_, filter_data.data(), filter_data.size());
+  FileSystem::Close(file_number_);
 }
 
 }

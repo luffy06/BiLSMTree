@@ -85,7 +85,7 @@ std::string LSMTree::GetFilename(size_t sequence_number_) {
 
 Slice LSMTree::GetValueFromFile(const Meta& meta, const Slice& key) {
   std::string filename = GetFilename(meta.sequence_number_);
-  int file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
   size_t index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
   size_t filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
@@ -175,7 +175,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   if (to_level == now_level)
     return false;
   std::string filename = GetFilename(meta.sequence_number_);
-  int file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
   size_t index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
   size_t filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
