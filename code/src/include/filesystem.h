@@ -13,8 +13,8 @@ public:
 
 struct FCB {
   std::string filename_;
-  size_t block_start_;
-  size_t filesize_; // the number of blocks
+  size_t block_start_;      // the start of block
+  size_t filesize_;         // the number of blocks
 
   FCB(std::string a, size_t b, size_t c) {
     filename_ = a;
@@ -25,8 +25,8 @@ struct FCB {
 
 struct FileStatus {
   size_t file_number_;
-  size_t lba_;
-  size_t offset_
+  size_t lba_;              // current block number
+  size_t offset_;           // current block offset
   size_t mode_;
   
   FileStatus() {
@@ -50,6 +50,8 @@ public:
 
   static void Write(const size_t file_number, const char* data, const size_t write_size);
 
+  static void Delete(const std::string& filename);
+
   static void Close(const size_t file_number);  
 private:
   const size_t BLOCK_SIZE = 16;
@@ -59,8 +61,9 @@ private:
   const size_t MAX_FILE_OPEN = 1000;  
 
   std::vector<FileStatus> file_buffer_;
-  std::vector<FCB> fcbs_;
+  std::map<size_t, FCB> fcbs_;
   size_t *fat_;
+  size_t total_file_number_;
   size_t open_number_;
   Flash *flash_;
   std::queue<size_t> free_blocks_;

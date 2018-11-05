@@ -10,6 +10,7 @@ FileSystem::FileSystem() {
   
   flash_ = new Flash_();
   open_number_ = 0;
+  total_file_number_ = 0;
 }
 
 FileSystem::~FileSystem() {
@@ -25,17 +26,17 @@ size_t FileSystem::Open(const std::string& filename, const size_t mode) {
 
   size_t file_number_ = 0;
   bool found = false;
-  for (size_t i = 0; i < fcbs_.size(); ++ i) {
-    if (filename == fcbs_[i].filename) {
-      file_number_ = i;
+  for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
+    if (filename == it -> second.filename) {
+      file_number_ = it -> first;
       found = true;
     }
   }
 
   if (!found) {
     FCB fcb = FCB(filename, AssignFreeBlocks(), 0);
-    fcbs_.push_back(fcb);
-    file_number_ = fcbs_.size() - 1;
+    file_number_ = total_file_number_ ++;
+    fcbs_[file_number_] = fcb;
   }
 
   int index = BinarySearchInBuffer(file_number_);
@@ -46,7 +47,8 @@ size_t FileSystem::Open(const std::string& filename, const size_t mode) {
 
   FileStatus fs;
   fs.file_number_ = file_number_;
-  fs.lba_ = fcbs_[file_number_].block_start;
+  fs.lba_ = fcbs_[file_number_].block_start_;
+  fs.offset_ = 0;
   fs.mode_ = mode;
 
   file_buffer_.push_back(fs);
@@ -58,11 +60,22 @@ size_t FileSystem::Open(const std::string& filename, const size_t mode) {
 }
 
 void FileSystem::Seek(const size_t file_number, const size_t offset) {
-  
+  size_t lba_ = fcbs_[file_number].block_start_;
+  while (offset >= BLOCK_SIZE && fat_[lba_] != lba_) {
+    offset = offset - BLOCK_SIZE;
+    lba_ = fat_[lba_];
+  }
+  int index = BinarySearchInBuffer(file_number);
+  if (index == -1) {
+    std::cout << "FILE IS NOT OPEN" << std::endl;
+    exit(-1);
+  }
+  FileStatus& fs = file_buffer_[index];
+  fs.lba_ = lba_;
+  fs.offset_ = offset;
 }
 
 std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
-  int size = read_size;
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
@@ -70,18 +83,42 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
   }
 
   FileStatus& fs = file_buffer_[index];
-  if (!(fs.mode & Config::READ_OPTION)) {
+  if (!(fs.mode & FileSystemConfig::READ_OPTION)) {
     std::cout << "CANNOT READ WITHOUT READ PERMISSION" << std::endl;
     exit(-1);
   }
-
+  
   std::string data = "";
-  while (size > 0 && fat_[fs.lba_] != fs.lba_) {
-    char* c_data = flash_->Read(fs.lba_);
-    c_data[std::min(size, static_cast<int>(BLOCK_SIZE))] = '\0';
-    data = data + std::string(c_data);
-    size = size - BLOCK_SIZE;
+  if (read_size <= BLOCK_SIZE - fs.offset_) {
+    char* c_data = flash_ -> Read(fs.lba_);
+    c_data[fs.offset_ + read_size] = '\0';
+    data = data + std::string(c_data + fs.offset_);
+    fs.offset_ = fs.offset_ + read_size;
+  }
+  else {
+    // read left offset
+    char* c_data = flash_ -> Read(fs.lba_);
+    c_data[BLOCK_SIZE] = '\0';
+    data = data + std::string(c_data + fs.offset_);
+    read_size = read_size - (BLOCK_SIZE - fs.offset_);
     fs.lba_ = fat_[fs.lba_];
+    fs.offset_ = 0;
+    // read total block
+    while (read_size >= BLOCK_SIZE && fat_[fs.lba_] != fs.lba_) {
+      c_data = flash_ -> Read(fs.lba_);
+      c_data[BLOCK_SIZE] = '\0';
+      data = data + std::string(c_data);
+      size = size - BLOCK_SIZE;
+      fs.lba_ = fat_[fs.lba_];
+      fs.offset_ = 0;
+    }
+    // read left read_size
+    if (read_size > 0) {
+      c_data = flash_ -> Read(fs.lba_);
+      c_data[read_size] = '\0';
+      data = data + std::string(c_data);
+      fs.offset_ = read_size;
+    }
   }
   return data;
 }
@@ -102,46 +139,66 @@ void FileSystem::Write(const size_t file_number, const std::string& data, const 
     exit(-1);
   }
 
-  size_t need_blocks = (data.size() % BLOCK_SIZE == 0 ? data.size() / BLOCK_SIZE : data.size() / BLOCK_SIZE + 1);
-  // std::cout << "NEED BLOCKS:" << need_blocks << std::endl;
-  if (fs.mode & Config::APPEND_OPTION) {
-    while (fs.lba_ != fat_[fs.lba_]) fs.lba_ = fat_[fs.lba_];
+  size_t need_blocks = (write_size % BLOCK_SIZE == 0 ? write_size / BLOCK_SIZE : write_size / BLOCK_SIZE + 1);
+  if (fs.mode & Config::APPEND_OPTION)
+    Seek(file_number, fcbs_[file_number].filesize_);
 
-    for (size_t i = 0; i < need_blocks; ++ i) {
-      size_t l = i * BLOCK_SIZE;
-      size_t r = std::min(data.size(), (i + 1) * BLOCK_SIZE);
-      flash_->Write(fs.lba_, data.substr(l, r).c_str()); // TODO: LOW EFFCIENCY
-      size_t new_block = AssignFreeBlocks();
-      fat_[fs.lba_] = new_block;
-      fs.lba_ = fat_[fs.lba_];
+  size_t size_ = 0;
+  if (fs.offset_ < BLOCK_SIZE) {
+    // write [0, write_size) or [0, BLOCK_SIZE - fs.offset_)
+    char* c_data = flash_ -> Read(fs.lba_);
+    c_data[BLOCK_SIZE] = '\0';
+    std::string data = std::string(c_data) + data.substr(0, std::min(write_size, BLOCK_SIZE - fs.offset_));
+    flash_ -> Write(fs.lba_, data.c_str());
+    size_ = size_ + std::min(write_size, BLOCK_SIZE - fs.offset_);
+    size_t new_lba_ = AssignFreeBlocks();
+    fat_[fs.lba_] = new_lba_;
+    fs.lba_ = new_lba_;
+    fs.offset_ = 0;
+  }  
+  while (size_ + BLOCK_SIZE <= write_size) {
+    // write [size_, size_ + BLOCK_SIZE)
+    flash_ -> Write(fs.lba_, data.substr(size_, size_ + BLOCK_SIZE).c_str());
+    size_ = size_ + BLOCK_SIZE;
+    size_t new_lba_ = AssignFreeBlocks();
+    fat_[fs.lba_] = new_lba_;
+    fs.lba_ = new_lba_;
+    fs.offset_ = 0;
+  }
+  if (size_ < write_size) {
+    flash_ -> Write(fs.lba_, data.substr(size_, write_size),c_str());
+    fs.offset_ = write_size - size_;
+  }
+  fcbs_[file_number].filesize_ = fcbs_[file_number].filesize_ + write_size;
+}
+
+void FileSystem::Delete(const std::string& filename) {
+  size_t file_number_ = 0;
+  bool found = false;
+  for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
+    if (filename == it -> second.filename) {
+      file_number_ = it -> first;
+      found = true;
     }
   }
-  else {
-    fs.lba_ = fcbs_[fs.file_number_].block_start_;
-    for (size_t i = 0, j = 0; j < need_blocks && fs.lba_ != fat_[fs.lba_]; ++ i, ++ j) {
-      size_t l = i * BLOCK_SIZE;
-      size_t r = std::min(data.size(), (i + 1) * BLOCK_SIZE);
-      flash_->Write(fs.lba_, data.substr(l, r).c_str()); // TODO: LOW EFFCIENCY
-      fs.lba_ = fat_[fs.lba_];
+
+  if (found) {
+    int index = BinarySearchInBuffer(file_number_);
+    if (index == -1) {
+      std::cout << "FILE IS NOT OPEN" << std::endl;
+      exit(-1);
     }
-    if (j < need_blocks) {
-      for (int i = 0; i < need_blocks; ++ i) {
-        int l = i * BLOCK_SIZE;
-        int r = std::min((int)data.size(), (i + 1) * BLOCK_SIZE);
-        flash_->Write(fs.lba_, data.substr(l, r).c_str()); // TODO: LOW EFFCIENCY
-        int new_block = AssignFreeBlocks();
-        fat_[fs.lba_] = new_block;
-        fs.lba_ = fat_[fs.lba_];
-      }
+
+    file_buffer_.erase(file_buffer_.begin() + index);
+    size_t lba_ = fcbs_[file_number].block_start_;
+    while (fat_[lba_] != lba_) {
+      free_blocks_.push(lba_);
+      size_t old_lba_ = lba_;
+      lba_ = fat_[lba_];
+      fat_[old_lba_] = old_lba_;
     }
-    else if (fs.lba_ != fat_[fs.lba_]) {
-      int lba_ = fs.lba_;
-      while (lba_ != fat_[lba_]) {
-        int next_lba_ = fat_[lba_];
-        FreeBlock(lba_);
-        lba_ = next_lba;
-      }
-    }
+    free_blocks_.push(lba_);
+    fcbs_.erase(file_number_);
   }
 }
 
