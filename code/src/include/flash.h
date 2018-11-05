@@ -26,9 +26,9 @@ public:
   
   ~Flash();
 
-  char* Read(const int lba);
+  char* Read(const size_t lba);
 
-  void Write(const int lba, const char* data);
+  void Write(const size_t lba, const char* data);
   
 private:
   const std::string BASE_PATH = "../logs/flashblocks/";
@@ -38,49 +38,49 @@ private:
   const std::string NEXT_BLOCK_INFO_PATH = BASE_PATH + "nextblockinfo.txt";
   const std::string PREV_BLOCK_INFO_PATH = BASE_PATH + "prevblockinfo.txt";
   const std::string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
-  const int BLOCK_NUMS = 256;
-  const int PAGE_NUMS = 8;
-  const int PAGE_SIZE = 16 * 1024; // 16KB
-  const int LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
-  const int LOG_LENGTH = 1000;
-  const int BLOCK_THRESOLD = BLOCK_NUMS * 0.8;
+  const size_t BLOCK_NUMS = 256;
+  const size_t PAGE_NUMS = 8;
+  const size_t PAGE_SIZE = 16 * 1024; // 16KB
+  const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
+  const size_t LOG_LENGTH = 1000;
+  const size_t BLOCK_THRESOLD = BLOCK_NUMS * 0.8;
   
   struct PBA {
-    int block_num;
-    int page_num;
+    size_t block_num;
+    size_t page_num;
     bool used;
 
     PBA() {
       used = false;
     }
 
-    void SetData(int bn, int pn) {
+    void SetData(size_t bn, size_t pn) {
       block_num = bn;
       page_num = pn;
       used = true;
     }
   };
 
-  struct BlockInfo {
-    int lba;
-    int status; // 0 free 1 valid 2 invalid
+  struct PageInfo {
+    size_t lba;
+    size_t status; // 0 free 1 valid 2 invalid
 
-    BlockInfo() {
+    PageInfo() {
       status = 0;
       lba = -1;
     }
   };
 
 
-  int *next_block;
-  int *prev_block;
-  BlockInfo **block_info;
-  PBA *page_table;
-  std::queue<int> free_blocks;
+  size_t *next_block;
+  size_t *prev_block;
+  PageInfo **page_info_;
+  PBA *page_table_;
+  std::queue<size_t> free_blocks;
   bool *free_block_tag; // tag those blocks in `free_blocks` queue whether free or not
-  int free_blocks_num;
+  size_t free_blocks_num;
 
-  std::string GetBlockPath(const int block_num) {
+  std::string GetBlockPath(const size_t block_num) {
     char block_name[30];
     sprintf(block_name, "blocks/block_%d.txt", block_num);
     return BASE_PATH + block_name;
@@ -96,17 +96,17 @@ private:
     f.close();
   }
 
-  void ReadByPageNum(const int block_num, const int page_num, const int &lba, char *data);
+  char* ReadByPageNum(const size_t block_num, const size_t page_num, const size_t lba);
 
-  void WriteByPageNum(const int block_num, const int page_num, const int lba, const char *data);
+  void WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char *data);
 
-  void Erase(const int block_num);
+  void Erase(const size_t block_num);
 
   void CollectGarbage();
 
-  int AssignFreeBlock(const int &block_num);
+  int AssignFreeBlock(const size_t block_num);
 
-  void UpdateLinkedList(const int &block_num);
+  void UpdateLinkedList(const size_t block_num);
 };
 
 }
