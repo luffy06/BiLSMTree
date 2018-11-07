@@ -1,4 +1,15 @@
+#ifndef BILSMTREE_FILESYSTEM_H
+#define BILSMTREE_FILESYSTEM_H
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include "flash.h"
+
 namespace bilsmtree {
+
+class Flash;
 
 class FileSystemConfig {
 public:
@@ -75,3 +86,5 @@ private:
   int BinarySearchInBuffer(const size_t file_number);
 };
 }
+
+#endif

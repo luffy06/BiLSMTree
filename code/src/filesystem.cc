@@ -1,3 +1,5 @@
+#include "filesystem.h"
+
 namespace bilsmtree {
 
 FileSystem::FileSystem() {
