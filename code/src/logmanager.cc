@@ -1,78 +1,50 @@
 #include "logmanager.h"
 
+namespace bilsmtree {
+
 LogManager::LogManager() {
-  file_handle.open(LOG_PATH, std::ios::in | std::ios::binary);
-  if (!file_handle.is_open()) {
-    file_handle.open(LOG_PATH, std::ios::app | std::ios::out | std::ios::binary);
-  }
-  file_handle.close();
-  head = tail = record_count = 0;
+  head_ = tail_ = record_count_ = 0;
 }
 
 LogManager::~LogManager() {
-  head = tail = record_count = 0;
+  head_ = tail_ = record_count_ = 0;
 }
 
-void LogManager::Append(const std::string &key, const std::string &value, std::string &location) {
-  file_handle.open(LOG_PATH, std::ios::in | std::ios::out | std::ios::binary);
-  file_handle.seekp(head);
-  location = Util::LongToString(head);
-  WriteKV(key, value);
-  head = file_handle.tellp();
+Slice LogManager::Append(const KV& kv) {
+  Slice location_ = Util::IntToString(tail_);
+  WriteKV(kv);
   record_count = record_count + 1;
-  file_handle.close();
+  return location_;
 }
 
-void LogManager::Get(const std::string &location, std::string &value) {
-  long loc = Util::StringToLong(location);
-  file_handle.open(LOG_PATH, std::ios::in | std::ios::binary);
-  file_handle.seekp(loc);
-  std::string key;
-  ReadKV(key, value);
-  file_handle.close();
+Slice LogManager::Get(const Slice& location) {
+  size_t loc = Util::StringToInt(location.ToString());
+  KV kv = ReadKV(loc);
+  return kv.value_;
 }
 
-void LogManager::CollectGarbage(leveldb::DB* db, leveldb::ReadOptions roptions, leveldb::WriteOptions woptions) {
-  file_handle.open(LOG_PATH, std::ios::in | std::ios::out | std::ios::binary);
-  file_handle.seekp(tail);
-  int len = record_count < GARBARGE_THRESOLD ? record_count : GARBARGE_THRESOLD;
-  for (int i = 0; i < len; ++ i) {
-    std::string key, value, db_value;
-    ReadKV(key, value);
-    leveldb::Status s = db->Get(roptions, key, &db_value);
-    // check kv valid or not
-    if (s.ok()) {
-      std::string location;
-      Append(key, value, location);
-      db->Put(woptions, key, location);
-    }
-    tail = file_handle.tellp();
-  }
-  record_count = record_count - len;
-  file_handle.close();
+void LogManager::WriteKV(const KV& kv) {
+  std::string key_size_ = Util::IntToString(kv.key_.size());
+  std::string value_size_ = Util::IntToString(kv.value_.size());
+  size_t file_number_ = FileSystem::Open(LOG_PATH, FileSystemConfig::APPEND_OPTION);
+  FileSystem::Write(file_number_, key_size_.data(), key_size_.size());
+  FileSystem::Write(file_number_, kv.key_.data(), kv.key_.size());
+  FileSystem::Write(file_number_, value_size_.data(), value_size_.size());
+  FileSystem::Write(file_number_, kv.value_.data(), kv.value_.size());  
+  tail_ = tail_ + kv.size() + 2 * sizeof(size_t);
+  FileSystem::Close(file_number_);
 }
 
-void LogManager::WriteKV(const std::string &key, const std::string &value) {
-  int key_size = key.size();
-  int value_size = value.size();
-  file_handle.write((char *)&key_size, sizeof(int));
-  file_handle.write((char *)&value_size, sizeof(int));
-  file_handle.write(key.c_str(), sizeof(char) * key_size);
-  file_handle.write(value.c_str(), sizeof(char) * value_size);
+KV LogManager::ReadKV(const size_t location) {
+  size_t file_number_ = FileSystem::Open(LOG_PATH, FileSystemConfig::READ_OPTION);
+  FileSystem::Seek(file_number_, location);
+  std::string key_size_str_ = FileSystem::Read(file_number_, sizeof(size_t));
+  size_t key_size_ = Util::IntToString(key_size_str_);
+  Slice key_ = FileSystem::Read(file_number_, key_size_);
+  std::string value_size_str_ = FileSystem::Read(file_number_, sizeof(size_t));
+  size_t value_size_ = Util::IntToString(value_size_str_);
+  Slice value_ = FileSystem::Read(file_number_, value_size_);
+  return KV(key_, value_);
 }
 
-
-void LogManager::ReadKV(std::string &key, std::string &value) {
-  int key_size, value_size;
-  file_handle.read((char *)&key_size, sizeof(int));
-  file_handle.read((char *)&value_size, sizeof(int));
-  char* key_c = new char[key_size + 1];
-  char* value_c = new char[value_size + 1];
-  file_handle.read(key_c, sizeof(char) * key_size);
-  file_handle.read(value_c, sizeof(char) * value_size); 
-  // TODO: right or not?
-  key_c[key_size] = '\0';
-  value_c[value_size] = '\0';
-  key = std::string(key_c);
-  value = std::string(value_c);
 }

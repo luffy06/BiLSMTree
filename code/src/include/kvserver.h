@@ -1,4 +1,15 @@
+#ifndef BILSMTREE_KVSERVER_H
+#define BILSMTREE_KVSERVER_H
+
+#include <vector>
+
 namespace bilsmtree {
+
+class Slice;
+struct KV;
+class SkipList;
+class LSMTree;
+class LogManager;
 
 class KVServer {
 public:
@@ -10,8 +21,10 @@ public:
 
   void MinorCompact(const SkipList* sl);
 private:
-  LSMTree* lsmtree_;
-  LogManager* logmanager_;
+  LSMTree *lsmtree_;
+  LogManager *logmanager_;
 };
 
 }
+
+#endif

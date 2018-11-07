@@ -1,3 +1,5 @@
+#include "visitfrequency.h"
+
 namespace bilsmtree {
 
 VisitFrequency::VisitFrequency(size_t max_size) {
@@ -55,23 +57,23 @@ int VisitFrequency::Append(size_t file_number) {
 }
 
 void VisitFrequency::Dump() {
-  size_t file_number_ = FileSystem.Open(FREQUENCYPATH, FileSystemConfig::WRITE_OPTION | FileSystemConfig::APPEND_OPTION);
+  size_t file_number_ = FileSystem::Open(VisitFrequencyConfig::FREQUENCYPATH, FileSystemConfig::WRITE_OPTION | FileSystemConfig::APPEND_OPTION);
   while (!visit_[1].empty()) {
     size_t d = visit_[1].front();
     visit_[1].pop();
-    std::string data = Util::LongToString(d);
-    FileSystem.Write(file_number_, data.data(), data.size());    
+    std::string data = Util::IntToString(d);
+    FileSystem::Write(file_number_, data.data(), data.size());    
   }
-  FileSystem.Close(file_number_);
+  FileSystem::Close(file_number_);
 }
 
 void VisitFrequency::Load() {
-  size_t file_number_ = FileSystem.Open(FREQUENCYPATH, FileSystemConfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(VisitFrequencyConfig::FREQUENCYPATH, FileSystemConfig::READ_OPTION);
   for (size_t i = 0; i < VisitFrequencyConfig::MAXQUEUESIZE; ++ i) {
-    std::string data = FileSystem.Read(file_number_, sizeof(size_t));
-    visit_[0].push(static_cast<size_t>(Util::StringToLong(data)));
+    std::string data = FileSystem::Read(file_number_, sizeof(size_t));
+    visit_[0].push(static_cast<size_t>(Util::StringToInt(data)));
   }
-  FileSystem.Close(file_number_);
+  FileSystem::Close(file_number_);
 }
 
 }

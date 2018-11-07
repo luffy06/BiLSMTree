@@ -1,4 +1,12 @@
+#ifndef BILSMTREE_DB_H
+#define BILSMTREE_DB_H
+
 namespace bilsmtree {
+
+class Slice;
+struct KV;
+class CacheServer;
+class KVServer;
 
 class DB {
 public:
@@ -9,8 +17,10 @@ public:
 
   Slice Get(const Slice& key);
 private:
-  CacherServer* cacheserver_;
-  KVServer* kvserver_;
+  CacherServer *cacheserver_;
+  KVServer *kvserver_;
 };
 
 }
+
+#endif

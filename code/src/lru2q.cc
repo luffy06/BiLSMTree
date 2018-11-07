@@ -1,3 +1,5 @@
+#include "lru2q.h"
+
 namespace bilsmtree {
 
 LRU2Q::LRU2Q() {
@@ -17,7 +19,7 @@ KV LRU2Q::Put(const KV& kv) {
   KV res = NULL;
   if (it != map_.end()) {
     // lru has the key
-    int index = *it;
+    size_t index = *it;
     if (index < LRU2QConfig::M1) {
       // in lru queue
       // update value
@@ -31,7 +33,7 @@ KV LRU2Q::Put(const KV& kv) {
       // delete data of fifo
       KV ln = fifo_.Delete(index);
       // copy data of the tail of lru 
-      int lru_tail_ = lru_.Tail();
+      size_t lru_tail_ = lru_.Tail();
       KV ln_tail = lru_.Get(lru_tail_);
       // set data to the tail of lru and move to the head of lru
       lru_.Set(lru_tail_, ln);
@@ -68,7 +70,7 @@ KV LRU2Q::Put(const KV& kv) {
 Slice LRU2Q::Get(const Slice& key) {
   auto it = map_[key];
   if (it != map_.end()) {
-    int index = *it;
+    size_t index = *it;
     if (index < LRU2QConfig::M1)
       return lru_.Get(index).value_;
     else

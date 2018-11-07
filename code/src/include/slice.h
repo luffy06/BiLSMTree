@@ -1,3 +1,8 @@
+#ifndef BILSMTREE_SLICE_H
+#define BILSMTREE_SLICE_H
+
+#include <string>
+
 namespace bilsmtree {
 
 struct KV {
@@ -62,3 +67,5 @@ inline int Slice::compare(const Slice& b) const {
 
 
 }
+
+#endif

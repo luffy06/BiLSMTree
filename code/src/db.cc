@@ -1,3 +1,5 @@
+#include "db.h"
+
 namespace bilsmtree {
 DB::DB() {
   cacheserver_ = new CacheServer();

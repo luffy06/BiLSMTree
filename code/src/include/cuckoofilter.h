@@ -1,4 +1,15 @@
+#ifndef BILSMTREE_CUCKOOFILTER_H
+#define BILSMTREE_CUCKOOFILTER_H
+
+#include <iostream>
+#include <vector>
+#include <string>
+
 namespace bilsmtree {
+
+class Slice;
+class Filter;
+class Util;
 
 class CuckooFilterConfig {
 public:
@@ -22,7 +33,7 @@ public:
 
   bool Find(const Slice& fp);
 
-  void Diff(const uint32_t& pos, const CuckooFilter* cuckoofilter);
+  void Diff(const uint32_t pos, const CuckooFilter* cuckoofilter);
 private:
   Slice* data_;
   size_t size_;
@@ -53,7 +64,7 @@ private:
     Info(Slice a, uint32_t b, uint32_t c) { fp_ = a; pos1 = b; pos2 = c;}
   };
 
-  Bucket* array_;
+  Bucket *array_;
   size_t capacity_;
   size_t size_;
 
@@ -71,3 +82,5 @@ private:
   void Add(const Slice& key);
 };
 }
+
+#endif

@@ -1,11 +1,19 @@
+#ifndef BILSMTREE_SKIPLIST_H
+#define BILSMTREE_SKIPLIST_H
+
+#include <vector>
+
 namespace bilsmtree {
+
+class Slice;
+struct KV;
 
 class ImmutableMemTableConfig {
 public:
   ImmutableMemTableConfig() { }
   ~ImmutableMemTableConfig() { }
 
-  const static int MAXSIZE = 4096;
+  const static size_t MAXSIZE = 4096;
 };
 
 class SkipList {
@@ -26,16 +34,18 @@ public:
 private:
   struct ListNode {
     KV kv_;
-    int level_;
-    ListNode** forward_;
+    size_t level_;
+    ListNode **forward_;
   };
 
   const double PROB = 0.5;
-  const int MAXLEVEL = 4096;
-  int data_size_;
-  ListNode* head_;
+  const size_t MAXLEVEL = 4096;
+  size_t data_size_;
+  ListNode *head_;
 
-  int GenerateLevel();
+  size_t GenerateLevel();
 };
 
 }
+
+#endif

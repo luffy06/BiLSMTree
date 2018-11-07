@@ -1,3 +1,5 @@
+#include "table.h"
+
 namespace bilsmtree {
 
 Table::Table() {
@@ -30,8 +32,8 @@ Table::Table(const std::vector<KV>& kvs) {
       last_keys_.push_back(last_key_);
       size_ = add_;
       buffer_.clear();
-      std::string key_size_ = Util::LongToString(kv_.key_.size());
-      std::string value_size_ = Util::LongToString(kv_.value_.size()); 
+      std::string key_size_ = Util::IntToString(kv_.key_.size());
+      std::string value_size_ = Util::IntToString(kv_.value_.size()); 
       buffer_.append(keysize_.data(), keysize_.size())
       buffer_.append(kv_.key_.data(), kv_.key_.size());
       buffer_.append(value_size_.data(), value_size_.size());
@@ -39,8 +41,8 @@ Table::Table(const std::vector<KV>& kvs) {
       last_key_ = kv_.key_;
     }
     else {
-      std::string key_size_ = Util::LongToString(kv_.key_.size());
-      std::string value_size_ = Util::LongToString(kv_.value_.size()); 
+      std::string key_size_ = Util::IntToString(kv_.key_.size());
+      std::string value_size_ = Util::IntToString(kv_.value_.size()); 
       buffer_.append(keysize_.data(), keysize_.size())
       buffer_.append(kv_.key_.data(), kv_.key_.size());
       buffer_.append(value_size_.data(), value_size_.size());
@@ -60,8 +62,8 @@ Table::Table(const std::vector<KV>& kvs) {
   buffer_.clear();
   for (int i = 0; i < data_block_number_; ++ i) {
     data_blocks_[i] = new Block(buffers_[i].data(), buffers_[i].size());
-    std::string last_key_size_ = Util::LongToString(last_keys_[i].size());
-    std::string offset_ = Util::LongToString(offsets_[i]);
+    std::string last_key_size_ = Util::IntToString(last_keys_[i].size());
+    std::string offset_ = Util::IntToString(offsets_[i]);
     buffer_.append(last_key_size_.data(), last_key_size_.size());
     buffer_.append(last_keys_[i], last_keys_[i].size());
     buffer_.append(offset_.data(), offset_.size());

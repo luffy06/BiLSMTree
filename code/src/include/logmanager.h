@@ -1,35 +1,37 @@
-#include <cstring>
+#ifndef BILSMTREE_LOGMANAGER_H
+#define BILSMTREE_LOGMANAGER_H
 
-#include <iostream>
 #include <string>
-#include <fstream>
-
-#include "leveldb/db.h"
-#include "filesystem.h"
-
 
 namespace bilsmtree {
+
+class Slice;
+struct KV;
+class FileSystem;
+class Util;
 
 class LogManager {
 public:
   LogManager();
   ~LogManager();
 
-  void Append(const Slice& key, const Slice& value, std::string &location);
+  Slice Append(const KV& kv);
 
-  void Get(const std::string &location, std::string &value);
+  Slice Get(const Slice& location);
 
-  void CollectGarbage(leveldb::DB* db, leveldb::ReadOptions roptions, leveldb::WriteOptions woptions);
 private:
   const std::string LOG_PATH = "../logs/VLOG";
-  const int GARBARGE_THRESOLD = 20;
+  const size_t GARBARGE_THRESOLD = 20;
 
-  long head, tail, record_count;
-  std::fstream file_handle;
+  size_t head_;
+  size_t tail_;
+  size_t record_count_;
 
-  void WriteKV(const std::string &key, const std::string &value);
+  void WriteKV(const KV& kv);
 
-  void ReadKV(std::string &key, std::string &value);
+  KV ReadKV(const size_t location);
 };
 
 }
+
+#endif

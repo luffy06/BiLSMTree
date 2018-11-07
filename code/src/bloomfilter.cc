@@ -1,3 +1,5 @@
+#include "bloomfilter.h"
+
 namespace bilsmtree {
 
 BloomFilter::BloomFilter(const std::vector<Slice>& keys) {
@@ -17,7 +19,7 @@ BloomFilter::BloomFilter(std::string data) {
   std::istringstream is(data);
   char temp[100];
   is.read(temp, sizeof(size_t));
-  bits_ = Util::StringToLong(std::string(temp));
+  bits_ = Util::StringToInt(std::string(temp));
   size_t bytes = bits_ / 8;
   array_ = new char[bytes];
   is.read(array_, bytes);
@@ -51,8 +53,7 @@ void BloomFilter::Add(const Slice& key) {
 }
 
 std::string BloomFilter::ToString() {
-  std::string data;
-  data = Util::LongToString(bits_);
+  std::string data = Util::IntToString(bits_);
   data = data + std::string(array_);
   return data;
 }

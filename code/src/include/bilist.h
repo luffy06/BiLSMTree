@@ -1,19 +1,26 @@
+#ifndef BILSMTREE_BILIST_H
+#define BILSMTREE_BILIST_H
+
+#include <queue>
+
 namespace bilsmtree {
 
+class Slice;
+struct KV;
 
 class BiList {
 public:
-  BiList(uint size);
+  BiList(size_t size);
   
   ~BiList();
   
-  void Set(int pos, KV kv);
+  void Set(size_t pos, KV kv);
 
-  void MoveToHead(int pos);
+  void MoveToHead(size_t pos);
 
-  KV Get(int pos);
+  KV Get(size_t pos);
 
-  KV Delete(int pos);
+  KV Delete(size_t pos);
 
   // insert after tail
   void Append(KV kv);
@@ -21,26 +28,28 @@ public:
   // insert before head
   KV Insert(KV kv);
 
-  int Head() { return data[head_].next_; }
+  size_t Head() { return data[head_].next_; }
 
-  int Tail() { return tail_; }
+  size_t Tail() { return tail_; }
 
 private:
   struct ListNode {
     KV kv_;
-    int next_, prev_;
+    size_t next_, prev_;
 
     Node() { }
 
     Node(Slice& key, Slice& value) : kv_(key, value) { }
   };
 
-  int head_;        // refer to the head of list which doesn't store data
-  int tail_;        // refer to last data's position
-  int max_size_;
-  int data_size_;
-  queue<int> free_;
-  ListNode* data_;
+  size_t head_;        // refer to the head of list which doesn't store data
+  size_t tail_;        // refer to last data's position
+  size_t max_size_;
+  size_t data_size_;
+  queue<size_t> free_;
+  ListNode *data_;
 };
 
 }
+
+#endif

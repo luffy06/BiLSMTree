@@ -1,4 +1,17 @@
+#ifndef BILSMTREE_TABLE_H
+#define BILSMTREE_TABLE_H
+
+#include <vector>
+#include <string>
+
 namespace bilsmtree {
+
+class Slice;
+struct KV;
+struct Meta
+class Filter;
+class FileSystem;
+class Util;
 
 class TableConfig {
 public:
@@ -23,7 +36,7 @@ public:
 
   size_t size() { return size_; }
 private:
-  const char* data_;
+  const char *data_;
   size_t size_;
 };
 
@@ -39,12 +52,14 @@ public:
 
   void DumpToFile(const std::string& filename);
 private:
-  Block** data_blocks_;
-  Block* index_block_;
-  Filter* filter_;
+  Block **data_blocks_;
+  Block *index_block_;
+  Filter *filter_;
   size_t data_block_number_;
   Meta meta;
 };
 
 
 }
+
+#endif

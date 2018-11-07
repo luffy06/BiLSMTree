@@ -1,3 +1,5 @@
+#include "cuckoofilter.h"
+
 namespace bilsmtree {
 
 Bucket::Bucket() {
@@ -42,7 +44,7 @@ bool Bucket::Find(const Slice& fp) {
   return false;
 }
 
-void Bucket::Diff(const uint32_t& pos, const CuckooFilter* cuckoofilter) {
+void Bucket::Diff(const uint32_t pos, const CuckooFilter* cuckoofilter) {
   std::vector<size_t> deleted_indexs;
   for (size_t i = 0; i < size_; ++ i) {
     if (cuckoofilter.FindFingerPrint(data_[i], pos))
@@ -61,7 +63,7 @@ void Bucket::Diff(const uint32_t& pos, const CuckooFilter* cuckoofilter) {
 }
 
 CuckooFilter::CuckooFilter(const size_t capacity, const std::vector<Slice>& keys) {
-  assert(capacity > 0);
+  Util::Assert("CAPACITY IS ZERO", capacity > 0);
   capacity_ = capacity;
   array_ = new Bucket[capacity_];
   size_ = 0;
@@ -76,15 +78,15 @@ CuckooFilter::CuckooFilter(std::string data) {
   std::istringstream is(data);
   char temp[100];
   is.read(temp, sizeof(size_t));
-  capacity_ = Util::StringToLong(std::string(temp));
+  capacity_ = Util::StringToInt(std::string(temp));
   is.read(temp, sizeof(size_t));
-  size_ = Util::StringToLong(std::string(temp));
+  size_ = Util::StringToInt(std::string(temp));
   array_ = new Bucket[capacity_];
   for (size_t i = 0; i < capacity_; ++ i)
     array_[i] = new Bucket();
   for (size_t i = 0; i < size_; ++ i) {
     is.read(temp, sizeof(size_t));
-    array_[i] -> size_ = Util::StringToLong(std::string(temp));
+    array_[i] -> size_ = Util::StringToInt(std::string(temp));
     array_[i] -> data_ = new Slice[CuckooFilterConfig::MAXBUCKETSIZE];
     for (size_t j = 0; j < array_[i] -> size_; ++ j)
       array_[i] -> data_[j] = NULL;
@@ -160,10 +162,9 @@ void CuckooFilter::Add(const Slice& key) {
 }
 
 std::string CuckooFilter::ToString() {
-  std::string data;
-  data = Util::LongToString(capacity_) + Util::LongToString(size_);
+  std::string data = Util::IntToString(capacity_) + Util::IntToString(size_);
   for (size_t i = 0; i < size_; ++ i) {
-    data = data + Util::LongToString(array_[i] -> size_);
+    data = data + Util::IntToString(array_[i] -> size_);
     for (size_t j = 0; j < array_[i] -> size_; ++ j) 
       data = data + array_[i] -> data_[j] -> ToString();
   }

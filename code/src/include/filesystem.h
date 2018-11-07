@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "flash.h"
+#include <algorithm>
 
 namespace bilsmtree {
 

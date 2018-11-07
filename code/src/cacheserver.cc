@@ -1,3 +1,5 @@
+#include "cacheserver.h"
+
 namespace bilsmtree {
 CacherServer::CacherServer() {
   lru_ = new LRU2Q();
@@ -20,6 +22,7 @@ CacherServer::~CacherServer() {
   }
 }
 
+// TODO
 SkipList* Put(const KV& kv) {
   KV kv_ = lru_->Put(kv);
   SkipList* res = NULL;

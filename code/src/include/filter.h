@@ -1,4 +1,12 @@
+#ifndef BILSMTREE_FILTER_H
+#define BILSMTREE_FILTER_H
+
+#include <string>;
+
 namespace bilsmtree {
+
+class Slice;
+
 class FilterConfig {
 public:
   FilterConfig();
@@ -21,3 +29,5 @@ private:
   const uint32_t SEED = 0xbc91f1d34;
 };
 }
+
+#endif

@@ -10,13 +10,13 @@ Util::~Util() {
 
 }
 
-std::string Util::LongToString(long value) {
+std::string Util::IntToString(long value) {
   char buf[100];
   sprintf(buf, "%ld", value);
   return std::string(buf);
 }
 
-long Util::StringToLong(const std::string &value) {
+long Util::StringToInt(const std::string &value) {
   long buf;
   sscanf(value.c_str(), "%ld", &buf);
   return buf;

@@ -92,14 +92,14 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
   
   std::string data = "";
   if (read_size <= BLOCK_SIZE - fs.offset_) {
-    char* c_data = flash_ -> Read(fs.lba_);
+    char *c_data = flash_ -> Read(fs.lba_);
     c_data[fs.offset_ + read_size] = '\0';
     data = data + std::string(c_data + fs.offset_);
     fs.offset_ = fs.offset_ + read_size;
   }
   else {
     // read left offset
-    char* c_data = flash_ -> Read(fs.lba_);
+    char *c_data = flash_ -> Read(fs.lba_);
     c_data[BLOCK_SIZE] = '\0';
     data = data + std::string(c_data + fs.offset_);
     read_size = read_size - (BLOCK_SIZE - fs.offset_);
@@ -148,7 +148,7 @@ void FileSystem::Write(const size_t file_number, const std::string& data, const 
   size_t size_ = 0;
   if (fs.offset_ < BLOCK_SIZE) {
     // write [0, write_size) or [0, BLOCK_SIZE - fs.offset_)
-    char* c_data = flash_ -> Read(fs.lba_);
+    char *c_data = flash_ -> Read(fs.lba_);
     c_data[BLOCK_SIZE] = '\0';
     std::string data = std::string(c_data) + data.substr(0, std::min(write_size, BLOCK_SIZE - fs.offset_));
     flash_ -> Write(fs.lba_, data.c_str());

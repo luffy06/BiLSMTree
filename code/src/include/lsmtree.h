@@ -1,4 +1,20 @@
+#ifndef BILSMTREE_LSMTREE_H
+#define BILSMTREE_LSMTREE_H
+
+#include <vector>
+#include <queue>
+#include <algorithm>
+
 namespace bilsmtree {
+
+class Slice;
+struct KV;
+class Table;
+class TableIterator;
+class VisitFrequency;
+class FileSystem;
+class Util;
+
 class LSMTreeConfig {
 public:
   LSMTreeConfig();
@@ -37,7 +53,7 @@ public:
 private:
   std::vector<Meta> file_[LSMTreeConfig::LEVEL];
   std::vector<Meta> list_[LSMTreeConfig::LEVEL];
-  VisitFrequency* recent_files_;
+  VisitFrequency *recent_files_;
   size_t min_frequency_number_[LSMTreeConfig::LEVEL];
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
@@ -57,3 +73,5 @@ private:
   void MajorCompact(size_t level);
 };
 }
+
+#endif

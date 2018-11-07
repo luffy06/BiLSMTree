@@ -1,4 +1,12 @@
+#ifndef BILSMTREE_VISITFREQUENCY_H
+#define BILSMTREE_VISITFREQUENCY_H
+
+#include <queue>
+
 namespace bilsmtree {
+
+class FileSystem;
+
 class VisitFrequencyConfig {
 public:
   VisitFrequencyConfig();
@@ -30,3 +38,5 @@ private:
   void Load();
 };
 }
+
+#endif

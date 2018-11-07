@@ -22,9 +22,9 @@ public:
   Util();
   ~Util();
   
-  static std::string LongToString(long value);
+  static std::string IntToString(long value);
 
-  static long StringToLong(const std::string &value);
+  static long StringToInt(const std::string &value);
 
   static bool ExistFile(const std::string &filename);
 

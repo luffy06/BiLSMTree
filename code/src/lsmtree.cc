@@ -1,3 +1,5 @@
+#include "lsmtree.h"
+
 namespace bilsmtree {
 
 LSMTree::LSMTree() {
@@ -62,7 +64,8 @@ Slice LSMTree::Get(const Slice& key) {
   return NULL;
 }
 
-void LSMTree::AddTableToL0(const Table* table) {
+void LSMTree::AddTableToL0(const std::vector<KV> kvs) {
+  Table *table_ = new Table(kvs);
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
   table -> DumpToFile(filename);
@@ -87,8 +90,8 @@ Slice LSMTree::GetValueFromFile(const Meta& meta, const Slice& key) {
   std::string filename = GetFilename(meta.sequence_number_);
   size_t file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
-  size_t index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
-  size_t filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
   // READ FILTER
   FileSystem::Seek(file_number_, filter_offset_);
   std::string filter_data_ = FileSystem::Read(file_number_, TableConfig::FILTERSIZE);
@@ -113,11 +116,11 @@ Slice LSMTree::GetValueFromFile(const Meta& meta, const Slice& key) {
   char temp[1000];
   while (!is.eof()) {
     is.read(temp, sizeof(size_t));
-    size_t key_size_ = Util::StringToLong(std::string(temp));
+    size_t key_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, key_size_);
     key_ = std::string(temp);
     is.read(temp, sizeof(size_t));
-    offset_ = Util::StringToLong(std::string(temp));
+    offset_ = Util::StringToInt(std::string(temp));
     if (key.compare(key_) <= 0)
       break;
   }
@@ -133,11 +136,11 @@ Slice LSMTree::GetValueFromFile(const Meta& meta, const Slice& key) {
   std::string value_;
   while (!is.eof()) {
     is.read(temp, sizeof(size_t));
-    size_t key_size_ = Util::StringToLong(std::string(temp));
+    size_t key_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, key_size_);
     key_ = std::string(temp);
     is.read(temp, sizeof(size_t));
-    size_t value_size_ = Util::StringToLong(std::string(temp));
+    size_t value_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, value_size_);
     value_ = std::string(temp);
     if (key.compare(key_) == 0)
@@ -177,8 +180,8 @@ bool LSMTree::RollBack(const size_t now_level, const Meta& meta) {
   std::string filename = GetFilename(meta.sequence_number_);
   size_t file_number_ = FileSystem::Open(filename, FileSystem::onfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - TableConfig::FOOTERSIZE);
-  size_t index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
-  size_t filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
   // MEGER FILTER
   FileSystem::Seek(file_number_, filter_offset_);
   std::string filter_data_ = FileSystem::Read(file_number_, TableConfig::FILTERSIZE);
@@ -199,8 +202,8 @@ bool LSMTree::RollBack(const size_t now_level, const Meta& meta) {
       std::string to_filename = GetFilename(to_meta.sequence_number_);
       int to_file_number_ = FileSystem::Open(to_filename, FileSystem::onfig::READ_OPTION);
       FileSystem::Seek(to_file_number_, to_meta.file_size_ - TableConfig::FOOTERSIZE);
-      size_t to_index_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(to_file_number_, sizeof(size_t))));
-      size_t to_filter_offset_ = static_cast<size_t>(Util::StringToLong(FileSystem::Read(to_file_number_, sizeof(size_t))));
+      size_t to_index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(size_t))));
+      size_t to_filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(size_t))));
       FileSystem::Seek(to_file_number_, to_filter_offset_);
       std::string to_filter_data_ = FileSystem::Read(to_file_number_, TableConfig::FILTERSIZE);
       Filter* to_filter = new CuckooFilter(to_filter_data_);
@@ -331,7 +334,7 @@ void LSMTree::MajorCompact(size_t level) {
     file_[level + 1].push_back(meta);
   }
   
-  sort(file_[level + 1].begin(), file_[level + 1].end(), [](const Meta& a, const Meta& b) -> bool { 
+  std::sort(file_[level + 1].begin(), file_[level + 1].end(), [](const Meta& a, const Meta& b) -> bool { 
     if (a.largest_.compare(b.largest_) != 0)
       return a.largest_.compare(b.largest_) <= 0;
     return a.smallest_.compare(b.smallest_) <= 0;
