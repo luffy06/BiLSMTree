@@ -31,7 +31,7 @@
 
 [x] - FileSystem
 
-[ ] - Flash
+[x] - Flash
 
 # CRITERIA
 
@@ -52,4 +52,6 @@
 
 # TODO
 
-1. Flash change algorithm.
+1. DEBUG
+2. 检查Immutable MemTable DUMP
+3. REDESIGN SKIPLIST GetAll()
