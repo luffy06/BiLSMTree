@@ -46,39 +46,34 @@ private:
   const size_t BLOCK_THRESOLD = BLOCK_NUMS * 0.8;
   
   struct PBA {
-    size_t block_num;
-    size_t page_num;
-    bool used;
+    size_t block_num_;
+    size_t page_num_;
 
     PBA() {
-      used = false;
     }
 
-    void SetData(size_t bn, size_t pn) {
-      block_num = bn;
-      page_num = pn;
-      used = true;
+    PBA(size_t a, size_t b) {
+      block_num_ = a;
+      page_num_ = c;
     }
   };
 
   struct PageInfo {
     size_t lba;
-    size_t status; // 0 free 1 valid 2 invalid
+    size_t status;     // 0 free 1 valid 2 invalid
 
     PageInfo() {
       status = 0;
-      lba = -1;
+      lba = 0;
     }
   };
 
 
-  size_t *next_block;
-  size_t *prev_block;
+  std::map<size_t, PBA> page_table_;
   PageInfo **page_info_;
-  PBA *page_table_;
+  size_t* block_status_;  // 0 free 1 primary 2 replacement
+  size_t* corresponding_; // the corresponding primary block of replacement
   std::queue<size_t> free_blocks;
-  bool *free_block_tag; // tag those blocks in `free_blocks` queue whether free or not
-  size_t free_blocks_num;
 
   std::string GetBlockPath(const size_t block_num) {
     char block_name[30];
@@ -107,6 +102,8 @@ private:
   int AssignFreeBlock(const size_t block_num);
 
   void UpdateLinkedList(const size_t block_num);
+
+  std::pair<size_t, size_t> FindReplacement(const size_t block_num, const size_t page_num);
 };
 
 }

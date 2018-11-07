@@ -54,34 +54,25 @@ Flash::~Flash() {
   delete[] free_block_tag;
 }
 
-char* Flash::Read(const int lba) {
+char* Flash::Read(const size_t lba) {
   // calculate block num and page num
-  int block_num = lba / PAGE_NUMS;
-  int page_num = lba % PAGE_NUMS;
-  if (page_table[lba].used) {
-    block_num = page_table[lba].block_num;
-    page_num = page_table[lba].page_num;
-  }
+  PBA pba = page_info_[lba];
+  size_t block_num_ = pba.block_num_;
+  size_t page_num_ = pba.page_num_;
   // read page
-  int _lba;
-  char *data = new char[PAGE_SIZE];
-  ReadByPageNum(block_num, page_num, _lba, data);
+  size_t lba_;
+  char *data = ReadByPageNum(block_num, page_num, lba_, data);
   return data;
 }
 
-void Flash::Write(const int lba, const char* data) {
-  // std::cout << "WRITE LBA:" << lba << std::endl;
+void Flash::Write(const size_t lba, const char* data) {
   // calculate block num and page num
-  int block_num = lba / PAGE_NUMS;
-  int page_num = lba % PAGE_NUMS;
-  while (page_info_[block_num][page_num].status != 0) {
-    if (page_info_[block_num][page_num].lba == lba)
-      page_info_[block_num][page_num].status = 2;
+  size_t block_num = lba / PAGE_NUMS;
+  size_t page_num = lba % PAGE_NUMS;
+  // examinate block whether used or not
+  // if it is replace block, find corresponding primary block
+  if () { 
 
-    if (next_block[block_num] == block_num) {
-      AssignFreeBlock(block_num);
-    }
-    block_num = next_block[block_num];
   }
   // write page
   WriteByPageNum(block_num, page_num, lba, data);
@@ -100,27 +91,28 @@ void Flash::Write(const int lba, const char* data) {
     CollectGarbage();
 }
 
-void Flash::ReadByPageNum(const int block_num, const int page_num, const int &lba, char *data) {
+char* Flash::ReadByPageNum(const size_t block_num, const size_t page_num, size_t& lba) {
+  char* data = new char[PAGE_SIZE];
   std::fstream f(GetBlockPath(block_num), std::ios::in);
-  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
+  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(size_t)));
   f.read(data, PAGE_SIZE * sizeof(char));
-  f.read((char *)&lba, sizeof(int));
+  f.read((char *)&lba, sizeof(size_t));
   f.close();
   data[PAGE_SIZE] = '\0';
   // write log
   char log[LOG_LENGTH];
   sprintf(log, "READ\t%d\t%d\t%d\t%s\n", lba, block_num, page_num, data);
   WriteLog(log);
+  return data;
 }
 
-void Flash::WriteByPageNum(const int block_num, const int page_num, const int lba, const char *data) {
-  // std::cout << "WRITE IN FLASH BLOCK NUM:" << block_num << " PAGE NUM:" << page_num << std::endl;
-  char *ndata = new char[PAGE_SIZE];
+void Flash::WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char* data) {
+  char* ndata = new char[PAGE_SIZE];
   strcpy(ndata, data);
   std::fstream f(GetBlockPath(block_num), std::ios::out | std::ios::in);
-  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(int)));
+  f.seekp(page_num * (PAGE_SIZE * sizeof(char) + sizeof(size_t)));
   f.write(ndata, PAGE_SIZE * sizeof(char));
-  f.write((char *)&lba, sizeof(int));
+  f.write((char *)&lba, sizeof(size_t));
   f.close();
   // write log
   char log[LOG_LENGTH];
@@ -227,6 +219,10 @@ int Flash::AssignFreeBlock(const int &block_num) {
     prev_block[new_block_num] = block_num;
   }
   return new_block_num;
+}
+
+std::pair<size_t, size_t> Flash::FindReplacement(const size_t block_num, const size_t page_num) {
+
 }
 
 }
