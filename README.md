@@ -1,27 +1,55 @@
 
 # Structure
 
-[ ] - DB
+[x] - DB
+
 [x] -- CacheServer
+
 [x] --- LRU2Q
+
 [x] ---- BiList
+
 [x] --- SkipList
-[ ] -- KVServer
-[ ] --- LSMTree
+
+[x] -- KVServer
+
+[x] --- LSMTree
+
 [x] ---- VisitFrequency
-[ ] ---- Table
+
+[x] ---- Table
+
 [x] ----- Block
+
 [x] ----- Filter(BloomFilter / CuckooFilter)
+
 [x] ------ Slice
+
 [x] ------ Hash
+
 [x] --- LogManager
-[ ] - FileSystem
-[x] - Flash
+
+[x] - FileSystem
+
+[ ] - Flash
+
+# CRITERIA
+
+1. 访问时间
+2. Flash擦除次数
+3. 写放大
+4. 读放大
+5. compaction 次数
+6. db查找一个key时多查找的次数
+7. immutable memtable dump到l0的次数
+
+## OVERHEAD
+
+* 时间
+* 空间
+
+**思考好的指标和差的指标**
 
 # TODO
 
-1. Table::Table(const std::string& filename);
-2. void LSMTree::CompactList(size_t level);
-3. std::vector<Table*> LSMTree::MergeTables(const std::vector<Table*> tables);
-4. void FileSystem::Seek(const int& file_number, const size_t& offset);
-5. Flash change algorithm.
+1. Flash change algorithm.
