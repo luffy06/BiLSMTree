@@ -19,8 +19,8 @@ def generate_workload(project_path):
                   (0.03, 0.48, 0.02, 0.47)]
 
   attributes = {
-    'recordcount': 1000000,
-    'operationcount': 3000000,
+    'recordcount': 100000,
+    'operationcount': 300000,
     'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
     'readallfields': 'true',
     'requestdistribution': 'zipfian' # latest, uniform
@@ -48,13 +48,15 @@ def get_data(project_path):
     print('CMD:' + cmd)
     os.system(cmd)
 
-def clean_data(dirname, prefix, suffix):
+def clean_data(project_path, dirname, prefix, suffix):
   cmdlist = []
   for i in range(workload_num):
     cmd1 = 'rm ' + dirname + prefix + str(i) + '_load' + suffix
     cmd2 = 'rm ' + dirname + prefix + str(i) + '_run' + suffix
+    cmd3 = 'rm ' + project_path + 'workloads/workload' + str(i)
     cmdlist.append(cmd1)
     cmdlist.append(cmd2)
+    cmdlist.append(cmd3)
 
   for cmd in cmdlist:
     print('CMD:' + cmd)
@@ -104,4 +106,4 @@ if __name__ == '__main__':
     read(in_filename_load, out_filename)
     read(in_filename_run, out_filename)
   print('CLEAN DATA')
-  clean_data(dirname, prefix, suffix)
+  clean_data(project_path, dirname, prefix, suffix)
