@@ -1,3 +1,7 @@
+# Require
+
+* C++ >= 11
+* CMAKE
 
 # Structure
 
