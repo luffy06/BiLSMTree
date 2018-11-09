@@ -25,7 +25,7 @@ private:
   };
   LRU2Q *lru_;
   SkipList *imm_temp_;
-  uint imm_size_;
+  size_t imm_size_;
   ListNode *head_;
   ListNode *tail_;
 };

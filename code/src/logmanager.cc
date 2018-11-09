@@ -18,7 +18,7 @@ Slice LogManager::Append(const KV kv) {
 }
 
 Slice LogManager::Get(const Slice location) {
-  uint loc = Util::StringToInt(location.ToString());
+  size_t loc = Util::StringToInt(location.ToString());
   KV kv = ReadKV(loc);
   return kv.value_;
 }
@@ -26,23 +26,23 @@ Slice LogManager::Get(const Slice location) {
 void LogManager::WriteKV(const KV kv) {
   std::string key_size_ = Util::IntToString(kv.key_.size());
   std::string value_size_ = Util::IntToString(kv.value_.size());
-  uint file_number_ = FileSystem::Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
+  size_t file_number_ = FileSystem::Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
   FileSystem::Write(file_number_, key_size_.data(), key_size_.size());
   FileSystem::Write(file_number_, kv.key_.data(), kv.key_.size());
   FileSystem::Write(file_number_, value_size_.data(), value_size_.size());
   FileSystem::Write(file_number_, kv.value_.data(), kv.value_.size());  
-  tail_ = tail_ + kv.size() + 2 * sizeof(uint);
+  tail_ = tail_ + kv.size() + 2 * sizeof(size_t);
   FileSystem::Close(file_number_);
 }
 
-KV LogManager::ReadKV(const uint location) {
-  uint file_number_ = FileSystem::Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
+KV LogManager::ReadKV(const size_t location) {
+  size_t file_number_ = FileSystem::Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
   FileSystem::Seek(file_number_, location);
-  std::string key_size_str_ = FileSystem::Read(file_number_, sizeof(uint));
-  uint key_size_ = Util::StringToInt(key_size_str_);
+  std::string key_size_str_ = FileSystem::Read(file_number_, sizeof(size_t));
+  size_t key_size_ = Util::StringToInt(key_size_str_);
   Slice key_ = FileSystem::Read(file_number_, key_size_);
-  std::string value_size_str_ = FileSystem::Read(file_number_, sizeof(uint));
-  uint value_size_ = Util::StringToInt(value_size_str_);
+  std::string value_size_str_ = FileSystem::Read(file_number_, sizeof(size_t));
+  size_t value_size_ = Util::StringToInt(value_size_str_);
   Slice value_ = FileSystem::Read(file_number_, value_size_);
   return KV(key_, value_);
 }

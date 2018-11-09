@@ -10,7 +10,7 @@ Util::~Util() {
 
 }
 
-std::string Util::IntToString(uint value) {
+std::string Util::IntToString(size_t value) {
   std::stringstream ss;
   std::string buf;
   ss << value;
@@ -18,9 +18,9 @@ std::string Util::IntToString(uint value) {
   return buf;
 }
 
-uint Util::StringToInt(const std::string value) {
+size_t Util::StringToInt(const std::string value) {
   std::stringstream ss;
-  uint buf;
+  size_t buf;
   ss << value;
   ss >> buf;
   return buf;

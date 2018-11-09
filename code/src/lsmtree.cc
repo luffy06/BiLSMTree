@@ -12,24 +12,24 @@ LSMTree::~LSMTree() {
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
-  for (uint i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
-    std::vector<uint> check_files_;
+  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+    std::vector<size_t> check_files_;
     if (i == 0) {
-      for (uint j = 0; j < file_[i].size(); ++ j) {
+      for (size_t j = 0; j < file_[i].size(); ++ j) {
         if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0)
           check_files_.push_back(j);
       }
     }
     else {
-      uint l = 0;
-      uint r = file_[i].size() - 1;
+      size_t l = 0;
+      size_t r = file_[i].size() - 1;
       if (key.compare(file_[i][r].largest_) > 0)
         continue;
       if (key.compare(file_[i][l].smallest_) < 0)
         continue;
       // (l, r] <= largest_
       while (r - l > 1) {
-        uint m = (l + r) / 2;
+        size_t m = (l + r) / 2;
         if (key.compare(file_[i][m].largest_) <= 0)
           r = m;
         else
@@ -38,12 +38,12 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (key.compare(file_[i][r].smallest_) >= 0)
         check_files_.push_back(r);
     }
-    for (uint j = 0; j < list_[i].size(); ++ j) {
+    for (size_t j = 0; j < list_[i].size(); ++ j) {
       if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0)
         check_files_.push_back(j + file_[i].size());
     }
-    for (uint j = 0; j < check_files_.size(); ++ j) {
-      uint p = check_files_[j];
+    for (size_t j = 0; j < check_files_.size(); ++ j) {
+      size_t p = check_files_[j];
       Meta meta = (p < file_[i].size() ? file_[i][p] : list_[i][p - file_[i].size()]);
       if (GetValueFromFile(meta, key, value)) {
         int deleted = recent_files_->Append(meta.sequence_number_);
@@ -65,7 +65,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
 
 void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   Table *table_ = new Table(kvs);
-  uint sequence_number_ = GetSequenceNumber();
+  size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
   table_->DumpToFile(filename);
   Meta meta = table_->GetMeta();
@@ -75,11 +75,11 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
     MajorCompact(0);
 }
 
-uint LSMTree::GetSequenceNumber() {
+size_t LSMTree::GetSequenceNumber() {
   return total_sequence_number_ ++;
 }
 
-std::string LSMTree::GetFilename(uint sequence_number_) {
+std::string LSMTree::GetFilename(size_t sequence_number_) {
   char filename[30];
   sprintf(filename, "%s/%s_%zu.bdb", Config::TableConfig::TABLEPATH, Config::TableConfig::TABLENAME, sequence_number_);
   return std::string(filename);
@@ -87,10 +87,10 @@ std::string LSMTree::GetFilename(uint sequence_number_) {
 
 bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string filename = GetFilename(meta.sequence_number_);
-  uint file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - Config::TableConfig::FOOTERSIZE);
-  uint index_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint))));
-  uint filter_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint))));
+  size_t index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
   // READ FILTER
   FileSystem::Seek(file_number_, filter_offset_);
   std::string filter_data_ = FileSystem::Read(file_number_, Config::TableConfig::FILTERSIZE);
@@ -110,14 +110,14 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string index_data_ = FileSystem::Read(file_number_, Config::TableConfig::BLOCKSIZE);
   std::istringstream is(index_data_);
   std::string key_;
-  uint offset_ = -1;
+  size_t offset_ = -1;
   char temp[1000];
   while (!is.eof()) {
-    is.read(temp, sizeof(uint));
-    uint key_size_ = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t key_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, key_size_);
     key_ = std::string(temp);
-    is.read(temp, sizeof(uint));
+    is.read(temp, sizeof(size_t));
     offset_ = Util::StringToInt(std::string(temp));
     if (key.compare(key_) <= 0)
       break;
@@ -133,12 +133,12 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   is.str(data_);
   std::string value_;
   while (!is.eof()) {
-    is.read(temp, sizeof(uint));
-    uint key_size_ = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t key_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, key_size_);
     key_ = std::string(temp);
-    is.read(temp, sizeof(uint));
-    uint value_size_ = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t value_size_ = Util::StringToInt(std::string(temp));
     is.read(temp, value_size_);
     value_ = std::string(temp);
     if (key.compare(key_) == 0) {
@@ -149,17 +149,17 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   return false;
 }
 
-uint LSMTree::GetTargetLevel(const uint now_level, const Meta meta) {
-  uint overlaps[7];
+size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
+  size_t overlaps[7];
   overlaps[now_level] = 0;
   for (int i = now_level - 1; i >= 0; -- i) {
     overlaps[i] = overlaps[i  + 1];
-    for (uint j = 0; j < file_[i].size(); ++ j) {
+    for (size_t j = 0; j < file_[i].size(); ++ j) {
       if (meta.Intersect(file_[i][j]))
         overlaps[i] = overlaps[i] + 1;
     }
   }
-  uint target_level = now_level;
+  size_t target_level = now_level;
   double diff = 0;
   for (int i = now_level - 1; i > 0; -- i) {
     double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i) - Config::FlashConfig::READ_WRITE_RATE - overlaps[i];
@@ -171,36 +171,36 @@ uint LSMTree::GetTargetLevel(const uint now_level, const Meta meta) {
   return target_level;
 }
 
-bool LSMTree::RollBack(const uint now_level, const Meta meta) {
+bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   if (now_level == 0)
     return false;
-  uint to_level = GetTargetLevel(now_level, meta);
+  size_t to_level = GetTargetLevel(now_level, meta);
   if (to_level == now_level)
     return false;
   std::string filename = GetFilename(meta.sequence_number_);
-  uint file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
+  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
   FileSystem::Seek(file_number_, meta.file_size_ - Config::TableConfig::FOOTERSIZE);
-  uint index_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint))));
-  uint filter_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint))));
+  size_t index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
+  size_t filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t))));
   // MEGER FILTER
   FileSystem::Seek(file_number_, filter_offset_);
   std::string filter_data_ = FileSystem::Read(file_number_, Config::TableConfig::FILTERSIZE);
   Util::Assert("Algorithm Error", Config::algorithm == Config::BiLSMTree);
   CuckooFilter *filter = new CuckooFilter(filter_data_);
   for (int i = now_level - 1; i >= to_level; -- i) {
-    uint l = 0;
+    size_t l = 0;
     int r = file_[i].size() - 1;
     while (l < file_[i].size() && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
     while (r >= 0 && meta.largest_.compare(file_[i][l].smallest_) < 0) -- l;
     if (l > r) 
       continue;
-    for (uint j = l; j <= r; ++ j) {
+    for (size_t j = l; j <= r; ++ j) {
       Meta to_meta = file_[i][j];
       std::string to_filename = GetFilename(to_meta.sequence_number_);
       int to_file_number_ = FileSystem::Open(to_filename, Config::FileSystemConfig::READ_OPTION);
       FileSystem::Seek(to_file_number_, to_meta.file_size_ - Config::TableConfig::FOOTERSIZE);
-      uint to_index_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(uint))));
-      uint to_filter_offset_ = static_cast<uint>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(uint))));
+      size_t to_index_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(size_t))));
+      size_t to_filter_offset_ = static_cast<size_t>(Util::StringToInt(FileSystem::Read(to_file_number_, sizeof(size_t))));
       FileSystem::Seek(to_file_number_, to_filter_offset_);
       std::string to_filter_data_ = FileSystem::Read(to_file_number_, Config::TableConfig::FILTERSIZE);
       CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
@@ -222,10 +222,10 @@ bool LSMTree::RollBack(const uint now_level, const Meta meta) {
 std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tables) {
   std::vector<KV> buffers_;
   std::vector<Table*> result_;
-  uint size_ = 0;
+  size_t size_ = 0;
   // TODO
   std::priority_queue<TableIterator*> q;
-  for (uint i = 0; i < tables.size(); ++ i) {
+  for (size_t i = 0; i < tables.size(); ++ i) {
     TableIterator* ti = tables[i];
     ti->SetId(i);
     q.push(ti);
@@ -254,15 +254,15 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
   return result_;
 }
 
-void LSMTree::CompactList(uint level) {
+void LSMTree::CompactList(size_t level) {
   std::vector<TableIterator*> tables_;
-  for (uint i = 0; i < list_[level].size(); ++ i) {
+  for (size_t i = 0; i < list_[level].size(); ++ i) {
     TableIterator* t = new TableIterator(GetFilename(list_[level][i].sequence_number_));
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  for (uint i = 0; i < merged_tables.size(); ++ i) {
-    uint sequence_number_ = GetSequenceNumber();
+  for (size_t i = 0; i < merged_tables.size(); ++ i) {
+    size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
     merged_tables[i]->DumpToFile(filename);
     Meta meta = merged_tables[i]->GetMeta();
@@ -275,23 +275,23 @@ void LSMTree::CompactList(uint level) {
   }
 }
 
-void LSMTree::MajorCompact(uint level) {
+void LSMTree::MajorCompact(size_t level) {
   if (level == Config::LSMTreeConfig::LEVEL)
     return ;
   std::vector<Meta> metas;
   // select a file from Li
   // select from file_
-  uint index = 0;
-  for (uint i = 1; i < file_[level].size(); ++ i) {
+  size_t index = 0;
+  for (size_t i = 1; i < file_[level].size(); ++ i) {
     Meta m = file_[level][i];
-    uint last_seq_ = file_[level][index].sequence_number_;
+    size_t last_seq_ = file_[level][index].sequence_number_;
     if (frequency_[m.sequence_number_] < frequency_[last_seq_]) 
       index = i;
   }
   // select from list_
-  for (uint i = 0; i < list_[level].size(); ++ i) {
+  for (size_t i = 0; i < list_[level].size(); ++ i) {
     Meta m = list_[level][i];
-    uint last_seq_ = (index >= file_[level].size() ? list_[level][index - file_[level].size()].sequence_number_ : file_[level][index].sequence_number_);
+    size_t last_seq_ = (index >= file_[level].size() ? list_[level][index - file_[level].size()].sequence_number_ : file_[level][index].sequence_number_);
     if (frequency_[m.sequence_number_] < frequency_[last_seq_])
       index = i + file_[level].size();
   }
@@ -308,7 +308,7 @@ void LSMTree::MajorCompact(uint level) {
   // select overlap files
   // select from file_
   Meta meta = metas[0];
-  for (uint i = 0; i < file_[level + 1].size(); ) {
+  for (size_t i = 0; i < file_[level + 1].size(); ) {
     if (file_[level + 1][i].Intersect(meta)) {
       metas.push_back(file_[level + 1][i]);
       file_[level + 1].erase(file_[level + 1].begin() + i);
@@ -318,7 +318,7 @@ void LSMTree::MajorCompact(uint level) {
     }
   }
   // select from list_
-  for (uint i = 0; i < list_[level + 1].size(); ) {
+  for (size_t i = 0; i < list_[level + 1].size(); ) {
     if (list_[level + 1][i].Intersect(meta)) {
       metas.push_back(list_[level + 1][i]);
       list_[level + 1].erase(list_[level + 1].begin() + i);
@@ -328,13 +328,13 @@ void LSMTree::MajorCompact(uint level) {
     }
   }
   std::vector<TableIterator*> tables_;
-  for (uint i = 0; i < metas.size(); ++ i) {
+  for (size_t i = 0; i < metas.size(); ++ i) {
     TableIterator* t = new TableIterator(GetFilename(metas[i].sequence_number_));
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  for (uint i = 0; i < merged_tables.size(); ++ i) {
-    uint sequence_number_ = GetSequenceNumber();
+  for (size_t i = 0; i < merged_tables.size(); ++ i) {
+    size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
     merged_tables[i]->DumpToFile(filename);
     Meta meta = merged_tables[i]->GetMeta();
@@ -348,7 +348,7 @@ void LSMTree::MajorCompact(uint level) {
     return a.smallest_.compare(b.smallest_) <= 0;
   });
 
-  if (file_[level + 1].size() > static_cast<uint>(pow(10, level)))
+  if (file_[level + 1].size() > static_cast<size_t>(pow(10, level)))
     MajorCompact(level + 1);
 }
 

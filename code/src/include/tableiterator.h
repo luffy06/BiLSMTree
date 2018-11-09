@@ -25,17 +25,17 @@ public:
 
   bool HasNext();
 
-  uint Id() { return id_;}
+  size_t Id() { return id_;}
 
   KV Next();
 
   KV Current();
 
-  void SetId(uint id);
+  void SetId(size_t id);
 private:
-  uint id_;
+  size_t id_;
   std::vector<KV> kvs_;
-  uint iter_;
+  size_t iter_;
 };
 }
 

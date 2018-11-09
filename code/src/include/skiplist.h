@@ -30,14 +30,14 @@ public:
 private:
   struct ListNode {
     KV kv_;
-    uint level_;
+    size_t level_;
     ListNode **forward_;
   };
 
-  uint data_size_;
+  size_t data_size_;
   ListNode *head_;
 
-  uint GenerateLevel();
+  size_t GenerateLevel();
 };
 
 }

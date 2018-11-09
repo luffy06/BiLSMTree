@@ -16,14 +16,14 @@ class Flash;
 
 struct FCB {
   std::string filename_;
-  uint block_start_;      // the start of block
-  uint filesize_;         // the number of blocks
+  size_t block_start_;      // the start of block
+  size_t filesize_;         // the number of blocks
 
   FCB() {
     std::cout << "EMPTY FCB" << std::endl;
   }
 
-  FCB(const std::string& a, uint b, uint c) {
+  FCB(const std::string& a, size_t b, size_t c) {
     filename_ = a;
     block_start_ = b;
     filesize_ = c;
@@ -31,10 +31,10 @@ struct FCB {
 };
 
 struct FileStatus {
-  uint file_number_;
-  uint lba_;              // current block number
-  uint offset_;           // current block offset
-  uint mode_;
+  size_t file_number_;
+  size_t lba_;              // current block number
+  size_t offset_;           // current block offset
+  size_t mode_;
   
   FileStatus() {
     file_number_ = 0;
@@ -49,33 +49,33 @@ public:
   FileSystem();
   ~FileSystem();
 
-  static uint Open(const std::string filename, const uint mode);
+  static size_t Open(const std::string filename, const size_t mode);
 
-  static void Seek(const uint file_number, const uint offset);
+  static void Seek(const size_t file_number, const size_t offset);
 
-  static uint GetFileSize(const uint file_number);
+  static size_t GetFileSize(const size_t file_number);
 
-  static std::string Read(const uint file_number, const uint read_size);
+  static std::string Read(const size_t file_number, const size_t read_size);
 
-  static void Write(const uint file_number, const std::string data, const uint write_size);
+  static void Write(const size_t file_number, const std::string data, const size_t write_size);
 
   static void Delete(const std::string filename);
 
-  static void Close(const uint file_number);  
+  static void Close(const size_t file_number);  
 private:
   static std::vector<FileStatus> file_buffer_;
-  static std::map<uint, FCB> fcbs_;
-  static uint *fat_;
-  static uint total_file_number_;
-  static uint open_number_;
+  static std::map<size_t, FCB> fcbs_;
+  static size_t *fat_;
+  static size_t total_file_number_;
+  static size_t open_number_;
   static Flash *flash_;
-  static std::queue<uint> free_blocks_;
+  static std::queue<size_t> free_blocks_;
 
-  static uint AssignFreeBlocks();
+  static size_t AssignFreeBlocks();
 
-  static void FreeBlock(const uint lba);
+  static void FreeBlock(const size_t lba);
 
-  static int BinarySearchInBuffer(const uint file_number);
+  static int BinarySearchInBuffer(const size_t file_number);
 };
 }
 

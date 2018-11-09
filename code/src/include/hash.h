@@ -5,7 +5,7 @@
 
 namespace bilsmtree {
 
-uint Hash(const char* key, uint len, size_t seed);
+size_t Hash(const char* key, size_t len, size_t seed);
 
 }
 

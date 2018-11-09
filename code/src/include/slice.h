@@ -9,7 +9,7 @@ class Slice {
 public:
   Slice() : data_(""), size_(0) { }
 
-  Slice(const char* d, uint n) : data_(d), size_(n) { }
+  Slice(const char* d, size_t n) : data_(d), size_(n) { }
 
   Slice(const std::string s) : data_(s.data()), size_(s.size()) { }
 
@@ -20,11 +20,11 @@ public:
 
   const char* data() const { return data_; }
 
-  uint size() const { return size_; }
+  size_t size() const { return size_; }
 
   bool empty() const { return size_ == 0; }
 
-  char operator[](uint n) const {
+  char operator[](size_t n) const {
     assert(n < size_);
     return data_[n];
   }
@@ -40,7 +40,7 @@ public:
 
 private:
   const char *data_;
-  uint size_;
+  size_t size_;
 };
 
 struct KV {
@@ -53,7 +53,7 @@ struct KV {
 
   KV(const Slice key, const Slice value) : key_(key), value_(value) {  }
 
-  uint size() const { return key_.size() + value_.size(); }
+  size_t size() const { return key_.size() + value_.size(); }
 };
 
 inline bool operator==(const Slice& x, const Slice& y) {

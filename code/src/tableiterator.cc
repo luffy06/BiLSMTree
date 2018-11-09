@@ -9,21 +9,21 @@ TableIterator::TableIterator() {
 }
 
 TableIterator::TableIterator(const std::string filename) {
-  uint file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
-  uint file_size_ = FileSystem::GetFileSize(file_number_);
+  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
+  size_t file_size_ = FileSystem::GetFileSize(file_number_);
   FileSystem::Seek(file_number_, file_size_ - Config::TableConfig::FOOTERSIZE);
-  uint index_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint)));
-  uint filter_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(uint)));
+  size_t index_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t)));
+  size_t filter_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t)));
   FileSystem::Seek(file_number_, index_offset_);
   std::string index_data_ = FileSystem::Read(file_number_, filter_offset_ - index_offset_);
   std::istringstream is(index_data_);
   char temp[1000];
   while (!is.eof()) {
-    is.read(temp, sizeof(uint));
-    uint key_size = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t key_size = Util::StringToInt(std::string(temp));
     is.read(temp, key_size);
-    is.read(temp, sizeof(uint));
-    uint offset = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t offset = Util::StringToInt(std::string(temp));
     FileSystem::Seek(file_number_, offset);
     std::string block_data = FileSystem::Read(file_number_, Config::TableConfig::BLOCKSIZE);
     ParseBlock(block_data);
@@ -41,11 +41,11 @@ void TableIterator::ParseBlock(const std::string block_data) {
   char temp[1000];
   while (!is.eof()) {
     KV kv;
-    is.read(temp, sizeof(uint));
-    uint size = Util::StringToInt(std::string(temp));
+    is.read(temp, sizeof(size_t));
+    size_t size = Util::StringToInt(std::string(temp));
     is.read(temp, size);
     kv.key_ = Slice(temp);
-    is.read(temp, sizeof(uint));
+    is.read(temp, sizeof(size_t));
     size = Util::StringToInt(std::string(temp));
     is.read(temp, size);
     kv.value_ = Slice(temp);
@@ -65,7 +65,7 @@ KV TableIterator::Current() {
   return kvs_[iter_];
 }
 
-void TableIterator::SetId(uint id) {
+void TableIterator::SetId(size_t id) {
   id_ = id;
 }
 }

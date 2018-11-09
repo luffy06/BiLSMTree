@@ -23,9 +23,9 @@ private:
   BiList *lru_;
   BiList *fifo_;
 
-  std::pair<uint, int> GetPos(const Slice key);
+  std::pair<size_t, int> GetPos(const Slice key);
 
-  void MoveToHead(uint index);
+  void MoveToHead(size_t index);
 };
 
 }

@@ -22,13 +22,13 @@ public:
   Slice Get(const Slice location);
 
 private:
-  uint head_;
-  uint tail_;
-  uint record_count_;
+  size_t head_;
+  size_t tail_;
+  size_t record_count_;
 
   void WriteKV(const KV kv);
 
-  KV ReadKV(const uint location);
+  KV ReadKV(const size_t location);
 };
 
 }

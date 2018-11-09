@@ -14,17 +14,17 @@ class Util;
 
 class BiList {
 public:
-  BiList(uint size);
+  BiList(size_t size);
   
   ~BiList();
   
-  void Set(uint pos, const KV kv);
+  void Set(size_t pos, const KV kv);
 
-  void MoveToHead(uint pos);
+  void MoveToHead(size_t pos);
 
-  KV Get(uint pos);
+  KV Get(size_t pos);
 
-  KV Delete(uint pos);
+  KV Delete(size_t pos);
 
   // insert after tail
   // true: has key pop
@@ -36,25 +36,25 @@ public:
   // false: no key pop  
   bool Insert(const KV kv, KV& pop_kv);
 
-  uint Head() { return data_[head_].next_; }
+  size_t Head() { return data_[head_].next_; }
 
-  uint Tail() { return tail_; }
+  size_t Tail() { return tail_; }
 
 private:
   struct ListNode {
     KV kv_;
-    uint next_, prev_;
+    size_t next_, prev_;
 
     ListNode() { }
 
     ListNode(const Slice key, const Slice value) : kv_(key, value) { }
   };
 
-  uint head_;        // refer to the head of list which doesn't store data
-  uint tail_;        // refer to last data's position
-  uint max_size_;
-  uint data_size_;
-  std::queue<uint> free_;
+  size_t head_;        // refer to the head of list which doesn't store data
+  size_t tail_;        // refer to last data's position
+  size_t max_size_;
+  size_t data_size_;
+  std::queue<size_t> free_;
   ListNode *data_;
 };
 

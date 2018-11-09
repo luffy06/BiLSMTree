@@ -14,28 +14,28 @@ class Filter;
 class BloomFilter : public Filter {
 public:
   BloomFilter(const std::vector<Slice>& keys) {
-    k_ = static_cast<uint>(Config::FilterConfig::BITS_PER_KEY * 0.69);
+    k_ = static_cast<size_t>(Config::FilterConfig::BITS_PER_KEY * 0.69);
     if (k_ < 1) k_ = 1;
     if (k_ > 30) k_ = 30;
 
     bits_ = keys.size() * Config::FilterConfig::BITS_PER_KEY;
     if (bits_ < 64) bits_ = 64;
-    uint bytes = bits_ / 8;
+    size_t bytes = bits_ / 8;
     array_ = new char[bytes];
-    for (uint i = 0; i < keys.size(); ++ i)
+    for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
   }
 
   BloomFilter(std::string data) {
-    k_ = static_cast<uint>(Config::FilterConfig::BITS_PER_KEY * 0.69);
+    k_ = static_cast<size_t>(Config::FilterConfig::BITS_PER_KEY * 0.69);
     if (k_ < 1) k_ = 1;
     if (k_ > 30) k_ = 30;
 
     std::istringstream is(data);
     char temp[100];
-    is.read(temp, sizeof(uint));
+    is.read(temp, sizeof(size_t));
     bits_ = Util::StringToInt(std::string(temp));
-    uint bytes = bits_ / 8;
+    size_t bytes = bits_ / 8;
     array_ = new char[bytes];
     is.read(array_, bytes);
   }
@@ -45,10 +45,10 @@ public:
   }
 
   virtual bool KeyMatch(const Slice key) {
-    uint h = Hash(key.data(), key.size(), Config::FilterConfig::SEED);
-    const uint delta_ = (h >> 17) | (h << 15);
-    for (uint j = 0; j < k_; ++ j) {
-      const uint bitpos = h % bits_;
+    size_t h = Hash(key.data(), key.size(), Config::FilterConfig::SEED);
+    const size_t delta_ = (h >> 17) | (h << 15);
+    for (size_t j = 0; j < k_; ++ j) {
+      const size_t bitpos = h % bits_;
       if ((array_[bitpos / 8] & (1 << (bitpos % 8))) == 0)
         return false;
       h += delta_;
@@ -64,15 +64,15 @@ public:
 
 
 private:
-  uint k_;
+  size_t k_;
   char *array_;
-  uint bits_;
+  size_t bits_;
 
   void Add(const Slice key) {
-    uint h = Hash(key.data(), key.size(), Config::FilterConfig::SEED);
-    const uint delta_ = (h >> 17) | (h << 15);
-    for (uint j = 0; j < k_; ++ j) {
-      const uint bitpos = h % bits_;
+    size_t h = Hash(key.data(), key.size(), Config::FilterConfig::SEED);
+    const size_t delta_ = (h >> 17) | (h << 15);
+    for (size_t j = 0; j < k_; ++ j) {
+      const size_t bitpos = h % bits_;
       array_[bitpos / 8] |= (1 << (bitpos % 8));
       h += delta_;
     }  

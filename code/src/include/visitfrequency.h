@@ -13,18 +13,18 @@ class VisitFrequency {
 public:
   VisitFrequency() { }
 
-  VisitFrequency(uint max_size);
+  VisitFrequency(size_t max_size);
 
   ~VisitFrequency();
 
-  int Append(uint file_number);
+  int Append(size_t file_number);
 private:
-  std::queue<uint> visit_[2];
+  std::queue<size_t> visit_[2];
 
-  uint max_size_;
-  uint size_;
+  size_t max_size_;
+  size_t size_;
 
-  uint mode_; // 0 for small queue 1 for big queue 
+  size_t mode_; // 0 for small queue 1 for big queue 
 
   void Dump();
 

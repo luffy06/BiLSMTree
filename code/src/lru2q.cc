@@ -15,12 +15,12 @@ LRU2Q::~LRU2Q() {
 }
 
 bool LRU2Q::Put(const KV kv, KV& pop_kv) {
-  // std::map<Slice, uint>::iterator it = map_.find(kv.key_);
-  std::pair<uint, int> pos = GetPos(kv.key_);
+  // std::map<Slice, size_t>::iterator it = map_.find(kv.key_);
+  std::pair<size_t, int> pos = GetPos(kv.key_);
   bool res = false;
   if (pos.second != -1) {
     // lru has the key
-    uint index = pos.second;
+    size_t index = pos.second;
     if (index < Config::LRU2QConfig::M1)
       lru_->Set(index, kv);
     else
@@ -40,10 +40,10 @@ bool LRU2Q::Put(const KV kv, KV& pop_kv) {
       res = fifo_->Append(p_kv, pop_kv);
       // fifo is full
       if (res) {
-        std::pair<uint, int> pp_pos = GetPos(pop_kv.key_);
+        std::pair<size_t, int> pp_pos = GetPos(pop_kv.key_);
         map_.erase(map_.begin() + pp_pos.first);
       }
-      std::pair<uint, int> p_pos = GetPos(p_kv.key_);
+      std::pair<size_t, int> p_pos = GetPos(p_kv.key_);
       map_[p_pos.first] = std::make_pair(p_kv.key_, fifo_->Tail());
     }
     // update map of data
@@ -53,10 +53,10 @@ bool LRU2Q::Put(const KV kv, KV& pop_kv) {
 }
 
 bool LRU2Q::Get(const Slice key, Slice& value) {
-  // std::map<Slice, uint>::iterator it = map_.find(key);
-  std::pair<uint, int> pos = GetPos(key);
+  // std::map<Slice, size_t>::iterator it = map_.find(key);
+  std::pair<size_t, int> pos = GetPos(key);
   if (pos.second != -1) {
-    uint index = pos.second;
+    size_t index = pos.second;
     if (index < Config::LRU2QConfig::M1)
       value = lru_->Get(index).value_; 
     else 
@@ -67,15 +67,15 @@ bool LRU2Q::Get(const Slice key, Slice& value) {
   return false;
 }
 
-std::pair<uint, int> LRU2Q::GetPos(const Slice key) {
-  for (uint i = 0; i < map_.size(); ++ i) {
+std::pair<size_t, int> LRU2Q::GetPos(const Slice key) {
+  for (size_t i = 0; i < map_.size(); ++ i) {
     if (map_[i].first.compare(key) == 0)
       return std::make_pair(i, map_[i].second);
   }
   return std::make_pair(-1, -1);
 }
 
-void LRU2Q::MoveToHead(uint index) {
+void LRU2Q::MoveToHead(size_t index) {
   if (index < Config::LRU2QConfig::M1) {
     // in lru queue
     // move to the head of lru
@@ -87,7 +87,7 @@ void LRU2Q::MoveToHead(uint index) {
     // delete data of fifo
     KV ln = fifo_->Delete(index);
     // copy data of the tail of lru 
-    uint lru_tail_ = lru_->Tail();
+    size_t lru_tail_ = lru_->Tail();
     KV ln_tail = lru_->Get(lru_tail_);
     // set data to the tail of lru and move to the head of lru
     lru_->Set(lru_tail_, ln);

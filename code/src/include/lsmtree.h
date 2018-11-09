@@ -26,28 +26,28 @@ public:
 
   void AddTableToL0(const std::vector<KV>& kvs);
 
-  uint GetSequenceNumber();
+  size_t GetSequenceNumber();
 private:
   std::vector<Meta> file_[Config::LSMTreeConfig::LEVEL];
   std::vector<Meta> list_[Config::LSMTreeConfig::LEVEL];
   VisitFrequency *recent_files_;
-  uint min_frequency_number_[Config::LSMTreeConfig::LEVEL];
-  std::vector<uint> frequency_;
-  uint total_sequence_number_;
+  size_t min_frequency_number_[Config::LSMTreeConfig::LEVEL];
+  std::vector<size_t> frequency_;
+  size_t total_sequence_number_;
 
-  std::string GetFilename(uint sequence_number_);
+  std::string GetFilename(size_t sequence_number_);
 
   bool GetValueFromFile(const Meta meta, const Slice key, Slice& value);
 
-  uint GetTargetLevel(const uint now_level, const Meta meta);
+  size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
-  bool RollBack(const uint now_level, const Meta meta);
+  bool RollBack(const size_t now_level, const Meta meta);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
-  void CompactList(uint level);
+  void CompactList(size_t level);
 
-  void MajorCompact(uint level);
+  void MajorCompact(size_t level);
 };
 }
 

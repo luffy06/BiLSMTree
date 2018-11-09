@@ -18,9 +18,9 @@ class FileSystem;
 struct Meta {
   Slice largest_;
   Slice smallest_;
-  uint sequence_number_;
-  uint level_;
-  uint file_size_;
+  size_t sequence_number_;
+  size_t level_;
+  size_t file_size_;
 
   Meta() {
     
@@ -35,16 +35,16 @@ struct Meta {
 
 class Block {
 public:
-  Block(const char* data, const uint size) : data_(data), size_(size) { }
+  Block(const char* data, const size_t size) : data_(data), size_(size) { }
   
   ~Block();
 
   const char* data() { return data_; }
 
-  uint size() { return size_; }
+  size_t size() { return size_; }
 private:
   const char *data_;
-  uint size_;
+  size_t size_;
 };
 
 class Table {
@@ -62,7 +62,7 @@ private:
   Block **data_blocks_;
   Block *index_block_;
   Filter *filter_;
-  uint data_block_number_;
+  size_t data_block_number_;
   Meta meta_;
 };
 

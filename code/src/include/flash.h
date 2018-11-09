@@ -23,9 +23,9 @@ public:
   
   ~Flash();
 
-  char* Read(const uint lba);
+  char* Read(const size_t lba);
 
-  void Write(const uint lba, const char* data);
+  void Write(const size_t lba, const char* data);
 private:  
   enum PageStatus {
     PageFree,
@@ -40,22 +40,22 @@ private:
   };
 
   struct PBA {
-    uint block_num_;
-    uint page_num_;
+    size_t block_num_;
+    size_t page_num_;
 
     PBA() {
       block_num_ = 0;
       page_num_ = 0;      
     }
 
-    PBA(uint a, uint b) {
+    PBA(size_t a, size_t b) {
       block_num_ = a;
       page_num_ = b;
     }
   };
 
   struct PageInfo {
-    uint lba_;
+    size_t lba_;
     PageStatus status_;          // 0 free 1 valid 2 invalid
 
     PageInfo() {
@@ -66,8 +66,8 @@ private:
 
   struct BlockInfo {
     BlockStatus status_;        // 0 free 1 primary 2 replacement
-    uint corresponding_;      // the corresponding primary block of replacement
-    uint offset_;             // the offset of replace block    
+    size_t corresponding_;      // the corresponding primary block of replacement
+    size_t offset_;             // the offset of replace block    
 
     BlockInfo() {
       status_ = FreeBlock;
@@ -75,19 +75,19 @@ private:
       offset_ = 0;
     }
 
-    BlockInfo(uint block_num) {
+    BlockInfo(size_t block_num) {
       status_ = FreeBlock;
       corresponding_ = block_num;
       offset_ = 0;
     }
   };
 
-  std::map<uint, PBA> page_table_;
+  std::map<size_t, PBA> page_table_;
   PageInfo **page_info_;
   BlockInfo *block_info_;
-  std::queue<uint> free_blocks_;
+  std::queue<size_t> free_blocks_;
 
-  inline std::string GetBlockPath(const uint block_num) {
+  inline std::string GetBlockPath(const size_t block_num) {
     char block_name[30];
     sprintf(block_name, "blocks/block_%zu.txt", block_num);
     return std::string(Config::FlashConfig::BASE_PATH) + block_name;
@@ -103,17 +103,17 @@ private:
     f.close();
   }
 
-  std::pair<uint, char*> ReadByPageNum(const uint block_num, const uint page_num);
+  std::pair<size_t, char*> ReadByPageNum(const size_t block_num, const size_t page_num);
 
-  void WriteByPageNum(const uint block_num, const uint page_num, const uint lba, const char* data);
+  void WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char* data);
 
-  void Erase(const uint block_num);
+  void Erase(const size_t block_num);
 
-  std::pair<uint, uint> MinorCollectGarbage(const uint block_num);
+  std::pair<size_t, size_t> MinorCollectGarbage(const size_t block_num);
 
   void MajorCollectGarbage();
 
-  uint AssignFreeBlock();
+  size_t AssignFreeBlock();
 };
 
 }

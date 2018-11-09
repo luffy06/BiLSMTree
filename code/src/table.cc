@@ -16,15 +16,15 @@ Table::Table(const std::vector<KV>& kvs) {
   std::vector<Slice> last_keys_;
   std::vector<Slice> keys_;
 
-  uint size_ = 0;
-  uint total_size_ = 0;
+  size_t size_ = 0;
+  size_t total_size_ = 0;
   std::string buffer_;
   Slice last_key_ = NULL;
 
   for (int i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_.push_back(kv_.key_);
-    uint add_ = kv_.size() + 2 * sizeof(uint);
+    size_t add_ = kv_.size() + 2 * sizeof(size_t);
     if (size_ + add_ > Config::TableConfig::BLOCKSIZE) {
       buffers_.push_back(buffer_);
       offsets_.push_back(size_);
@@ -93,8 +93,8 @@ Meta Table::GetMeta() {
 }
 
 void Table::DumpToFile(const std::string filename) {
-  uint file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::WRITE_OPTION);
-  for (uint i = 0; i < data_block_number_; ++ i) {
+  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  for (size_t i = 0; i < data_block_number_; ++ i) {
     FileSystem::Seek(file_number_, i * Config::TableConfig::BLOCKSIZE);
     FileSystem::Write(file_number_, data_blocks_[i] -> data(), data_blocks_[i] -> size());
   }
