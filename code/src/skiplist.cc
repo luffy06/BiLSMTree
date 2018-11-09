@@ -5,8 +5,8 @@ namespace bilsmtree {
 SkipList::SkipList() {
   head_ = new ListNode();
   head_->level_ = 0;
-  head_->forward_ = new (ListNode*)[MAXLEVEL];
-  for (size_t i = 0; i < MAXLEVEL; ++ i)
+  head_->forward_ = new ListNode*[Config::SkipListConfig::MAXLEVEL];
+  for (uint i = 0; i < Config::SkipListConfig::MAXLEVEL; ++ i)
     head_->forward_[i] = NULL;
   data_size_ = 0;
 }
@@ -16,26 +16,28 @@ SkipList::~SkipList() {
 }
 
 bool SkipList::IsFull() {
-  return data_size_ >= ImmutableMemTableConfig::MAXSIZE;
+  return data_size_ >= Config::ImmutableMemTableConfig::MAXSIZE;
 }
 
-Slice SkipList::Find(const Slice& key) {
+bool SkipList::Find(const Slice key, Slice& value) {
   ListNode* p = head_;
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i].kv_.key_.compare(key) < 0)
+  for (uint i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i]->kv_.key_.compare(key) < 0)
       p = p->forward_[i];
   }
   p = p->forward_[0];
-  if (p->kv_.key_.compare(key) == 0)
-    return p->kv_.value_;
-  return NULL;
+  if (p->kv_.key_.compare(key) == 0) {
+    value = p->kv_.value_;
+    return true;
+  }
+  return false;
 }
 
-void SkipList::Insert(const KV& kv) {
+void SkipList::Insert(const KV kv) {
   ListNode* p = head_;
-  ListNode* update_[MAXLEVEL];
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i].kv_.key_.compare(kv.key_) < 0)
+  ListNode* update_[Config::SkipListConfig::MAXLEVEL];
+  for (uint i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i]->kv_.key_.compare(kv.key_) < 0)
       p = p->forward_[i];
     update_[i] = p;
   }
@@ -47,30 +49,30 @@ void SkipList::Insert(const KV& kv) {
     ListNode* q = new ListNode();
     q->kv_ = kv;
     q->level_ = GenerateLevel();
-    q->forward_ = new (ListNode*)[q->level_];
+    q->forward_ = new ListNode*[q->level_];
     if (q->level_ > head_->level_) {
-      for (size_t i = head_->level_; i < q->level_; ++ i)
+      for (uint i = head_->level_; i < q->level_; ++ i)
         update_[i] = head_;
       head_->level_ = q->level_;
     }
-    for (size_t i = 0; i < q->level_; ++ i) {
-      q->forward_ = update_[i]->forward_[i];
+    for (uint i = 0; i < q->level_; ++ i) {
+      q->forward_[i] = update_[i]->forward_[i];
       update_[i]->forward_[i] = q;
     }
   }
 }
 
-void SkipList::Delete(const Slice& key) {
+void SkipList::Delete(const Slice key) {
   ListNode* p = head_;
-  ListNode* update_[MAXLEVEL];
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i].kv_.key_.compare(key) < 0)
+  ListNode* update_[Config::SkipListConfig::MAXLEVEL];
+  for (uint i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i]->kv_.key_.compare(key) < 0)
       p = p -> forward_[i];
     update_[i] = p;
   }
   p = p->forward_[0];
   if (p->kv_.key_.compare(key) == 0) {
-    for (size_t i = 0; i < head_->level_; ++ i) {
+    for (uint i = 0; i < head_->level_; ++ i) {
       if (update_[i]->forward_[i] != p)
         break;
       update_[i]->forward_[i] = p->forward_[i];
@@ -81,16 +83,16 @@ void SkipList::Delete(const Slice& key) {
   }
 }
 
-std::vector<KV> SkipList::GetAll() {
+std::vector<KV> SkipList::GetAll() const {
   std::vector<KV> res_;
-  for (size_t i = 0; i < data_size_; ++ i)
+  for (uint i = 0; i < data_size_; ++ i)
     res_.push_back(head_[i].kv_);
   return res_;
 }
 
-size_t SkipList::GenerateLevel() {
-  size_t level_ = 1;
-  while ((rand() * 1.0 / INT_MAX) < PROB && level_ < MAXLEVEL) 
+uint SkipList::GenerateLevel() {
+  uint level_ = 1;
+  while ((rand() * 1.0 / INT_MAX) < Config::SkipListConfig::PROB && level_ < Config::SkipListConfig::MAXLEVEL) 
     level_ = level_ + 1;
   return level_; 
 }

@@ -5,29 +5,25 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <queue>
 #include <algorithm>
+
+#include "flash.h"
 
 namespace bilsmtree {
 
 class Flash;
 
-class FileSystemConfig {
-public:
-  FileSystemConfig();
-
-  ~FileSystemConfig();
-
-  const static size_t READ_OPTION = 1;
-  const static size_t WRITE_OPTION = 1 << 1;
-  const static size_t APPEND_OPTION = 1 << 2;
-};
-
 struct FCB {
   std::string filename_;
-  size_t block_start_;      // the start of block
-  size_t filesize_;         // the number of blocks
+  uint block_start_;      // the start of block
+  uint filesize_;         // the number of blocks
 
-  FCB(std::string a, size_t b, size_t c) {
+  FCB() {
+    std::cout << "EMPTY FCB" << std::endl;
+  }
+
+  FCB(const std::string& a, uint b, uint c) {
     filename_ = a;
     block_start_ = b;
     filesize_ = c;
@@ -35,10 +31,10 @@ struct FCB {
 };
 
 struct FileStatus {
-  size_t file_number_;
-  size_t lba_;              // current block number
-  size_t offset_;           // current block offset
-  size_t mode_;
+  uint file_number_;
+  uint lba_;              // current block number
+  uint offset_;           // current block offset
+  uint mode_;
   
   FileStatus() {
     file_number_ = 0;
@@ -53,37 +49,33 @@ public:
   FileSystem();
   ~FileSystem();
 
-  static size_t Open(const std::string& filename, const size_t mode);
+  static uint Open(const std::string filename, const uint mode);
 
-  static void Seek(const size_t file_number, const size_t offset);
+  static void Seek(const uint file_number, const uint offset);
 
-  static std::string Read(const size_t file_number, const size_t read_size);
+  static uint GetFileSize(const uint file_number);
 
-  static void Write(const size_t file_number, const char* data, const size_t write_size);
+  static std::string Read(const uint file_number, const uint read_size);
 
-  static void Delete(const std::string& filename);
+  static void Write(const uint file_number, const std::string data, const uint write_size);
 
-  static void Close(const size_t file_number);  
+  static void Delete(const std::string filename);
+
+  static void Close(const uint file_number);  
 private:
-  const size_t BLOCK_SIZE = 16;
-  const size_t MAX_BLOCK_NUMS = (1 << 16) * 4;
-  const size_t CLUSTER_NUMS = 64;
-  const std::string FILE_META_PATH = "../logs/filesystem.txt";
-  const size_t MAX_FILE_OPEN = 1000;  
+  static std::vector<FileStatus> file_buffer_;
+  static std::map<uint, FCB> fcbs_;
+  static uint *fat_;
+  static uint total_file_number_;
+  static uint open_number_;
+  static Flash *flash_;
+  static std::queue<uint> free_blocks_;
 
-  std::vector<FileStatus> file_buffer_;
-  std::map<size_t, FCB> fcbs_;
-  size_t *fat_;
-  size_t total_file_number_;
-  size_t open_number_;
-  Flash *flash_;
-  std::queue<size_t> free_blocks_;
+  static uint AssignFreeBlocks();
 
-  size_t AssignFreeBlocks();
+  static void FreeBlock(const uint lba);
 
-  void FreeBlock(const size_t lba);
-
-  int BinarySearchInBuffer(const size_t file_number);
+  static int BinarySearchInBuffer(const uint file_number);
 };
 }
 

@@ -10,28 +10,32 @@ Util::~Util() {
 
 }
 
-std::string Util::IntToString(long value) {
-  char buf[100];
-  sprintf(buf, "%ld", value);
-  return std::string(buf);
-}
-
-long Util::StringToInt(const std::string &value) {
-  long buf;
-  sscanf(value.c_str(), "%ld", &buf);
+std::string Util::IntToString(uint value) {
+  std::stringstream ss;
+  std::string buf;
+  ss << value;
+  ss >> buf;
   return buf;
 }
 
-bool Util::ExistFile(const std::string &filename) {
+uint Util::StringToInt(const std::string value) {
+  std::stringstream ss;
+  uint buf;
+  ss << value;
+  ss >> buf;
+  return buf;
+}
+
+bool Util::ExistFile(const std::string filename) {
   std::fstream f(filename, std::ios::in);
   bool res = f.is_open();
   f.close();
   return res;
 }
 
-void Uitl::Assert(const char* message, bool condition) {
+void Util::Assert(const char* message, bool condition) {
   if (!condition)
-    printf("%s\n", message);
+    std::cout << message << std::endl;
   assert(condition);
 }
 

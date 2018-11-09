@@ -1,31 +1,42 @@
+#ifndef BILSMTREE_TABLEITERATOR_H
+#define BILSMTREE_TABLEITERATOR_H
+
+#include <vector>
+#include <string>
+#include <sstream>
+
+#include "slice.h"
+#include "filesystem.h"
+
 namespace bilsmtree {
+
+struct KV;
+class FileSystem;
 
 class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(std::string filename);
+  TableIterator(const std::string filename);
 
   ~TableIterator();
   
+  void ParseBlock(const std::string block_data);
+
   bool HasNext();
+
+  uint Id() { return id_;}
 
   KV Next();
 
   KV Current();
 
-  void SetId(size_t id);
-
-  friend bool operator<(TableIterator* t1, TableIterator* t2) {
-    int cp = t1->Current().key_.compare(t2->Current().key_);
-    if (cp != 0)
-      return (cp > 0 ? true : false)
-    else
-      return t1->Id() < t2->Id();
-  }
+  void SetId(uint id);
 private:
-  size_t id_;
+  uint id_;
   std::vector<KV> kvs_;
-  size_t iter_;
+  uint iter_;
 };
 }
+
+#endif

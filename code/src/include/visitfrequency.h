@@ -3,35 +3,28 @@
 
 #include <queue>
 
+#include "filesystem.h"
+
 namespace bilsmtree {
 
 class FileSystem;
-
-class VisitFrequencyConfig {
-public:
-  VisitFrequencyConfig();
-  ~VisitFrequencyConfig();
-
-  const static size_t MAXQUEUESIZE = 100000;
-  const static std::string FREQUENCYPATH = "../logs/frequency.log"
-};
 
 class VisitFrequency {
 public:
   VisitFrequency() { }
 
-  VisitFrequency(size_t max_size);
+  VisitFrequency(uint max_size);
 
   ~VisitFrequency();
 
-  int Append(size_t file_number);
+  int Append(uint file_number);
 private:
-  std::queue<size_t> visit_[2];
+  std::queue<uint> visit_[2];
 
-  size_t max_size_;
-  size_t size_;
+  uint max_size_;
+  uint size_;
 
-  size_t mode_; // 0 for small queue 1 for big queue 
+  uint mode_; // 0 for small queue 1 for big queue 
 
   void Dump();
 

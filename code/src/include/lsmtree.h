@@ -1,76 +1,53 @@
 #ifndef BILSMTREE_LSMTREE_H
 #define BILSMTREE_LSMTREE_H
 
+#include <cmath>
+
 #include <vector>
 #include <queue>
 #include <algorithm>
 
+#include "visitfrequency.h"
+#include "tableiterator.h"
+#include "table.h"
+
 namespace bilsmtree {
 
-class Slice;
-struct KV;
-class Table;
-class TableIterator;
 class VisitFrequency;
-class FileSystem;
-class Util;
-
-class LSMTreeConfig {
-public:
-  LSMTreeConfig();
-  ~LSMTreeConfig();
-  
-  const static size_t LEVEL = 7;
-  const static size_t L0SIZE = 4;
-  const static double ALPHA = 0.2;
-  const static size_t LISTSIZE = 4;
-};
-
-struct Meta {
-  Slice largest_;
-  Slice smallest_;
-  size_t sequence_number_;
-  size_t level_;
-  size_t file_size_;
-
-  bool Intersect(Meta other) {
-    if (largest_.compare(other.smallest_) >= 0 && smallest_.compare(other.largest_) <= 0)
-      return true;
-    return false;
-  }
-};
+class TableIterator;
+class Table;
 
 class LSMTree {
 public:
   LSMTree();
   ~LSMTree();
 
-  Slice Get(const Slice& key);
+  bool Get(const Slice key, Slice& value);
 
-  void AddTableToL0(const Table* table);
+  void AddTableToL0(const std::vector<KV>& kvs);
 
-  size_t GetSequenceNumber();
+  uint GetSequenceNumber();
 private:
-  std::vector<Meta> file_[LSMTreeConfig::LEVEL];
-  std::vector<Meta> list_[LSMTreeConfig::LEVEL];
+  std::vector<Meta> file_[Config::LSMTreeConfig::LEVEL];
+  std::vector<Meta> list_[Config::LSMTreeConfig::LEVEL];
   VisitFrequency *recent_files_;
-  size_t min_frequency_number_[LSMTreeConfig::LEVEL];
-  std::vector<size_t> frequency_;
-  size_t total_sequence_number_;
+  uint min_frequency_number_[Config::LSMTreeConfig::LEVEL];
+  std::vector<uint> frequency_;
+  uint total_sequence_number_;
 
-  std::string GetFilename(size_t sequence_number_);
+  std::string GetFilename(uint sequence_number_);
 
-  Slice GetValueFromFile(const Meta& meta, const Slice& key);
+  bool GetValueFromFile(const Meta meta, const Slice key, Slice& value);
 
-  size_t GetTargetLevel(const size_t now_level, const Meta& meta);
+  uint GetTargetLevel(const uint now_level, const Meta meta);
 
-  void RollBack(const size_t now_level, const Meta& meta);
+  bool RollBack(const uint now_level, const Meta meta);
 
-  std::vector<Table*> MergeTables(const std::vector<Table*>& tables);
+  std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
-  void CompactList(size_t level);
+  void CompactList(uint level);
 
-  void MajorCompact(size_t level);
+  void MajorCompact(uint level);
 };
 }
 

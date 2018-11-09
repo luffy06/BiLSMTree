@@ -3,33 +3,32 @@
 
 #include <string>
 
+#include "slice.h"
+#include "filesystem.h"
+
 namespace bilsmtree {
 
 class Slice;
 struct KV;
 class FileSystem;
-class Util;
 
 class LogManager {
 public:
   LogManager();
   ~LogManager();
 
-  Slice Append(const KV& kv);
+  Slice Append(const KV kv);
 
-  Slice Get(const Slice& location);
+  Slice Get(const Slice location);
 
 private:
-  const std::string LOG_PATH = "../logs/VLOG";
-  const size_t GARBARGE_THRESOLD = 20;
+  uint head_;
+  uint tail_;
+  uint record_count_;
 
-  size_t head_;
-  size_t tail_;
-  size_t record_count_;
+  void WriteKV(const KV kv);
 
-  void WriteKV(const KV& kv);
-
-  KV ReadKV(const size_t location);
+  KV ReadKV(const uint location);
 };
 
 }

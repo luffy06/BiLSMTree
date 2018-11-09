@@ -4,40 +4,47 @@
 #include <vector>
 #include <string>
 
+#include "bloomfilter.h"
+#include "cuckoofilter.h"
+#include "filesystem.h"
+
 namespace bilsmtree {
 
-class Slice;
-struct KV;
-struct Meta
 class Filter;
+class BloomFilter;
+class CuckooFilter;
 class FileSystem;
-class Util;
 
-class TableConfig {
-public:
-  TableConfig();
-  ~TableConfig();
+struct Meta {
+  Slice largest_;
+  Slice smallest_;
+  uint sequence_number_;
+  uint level_;
+  uint file_size_;
 
-  const static size_t BLOCKSIZE = 4 * 1024; // 4KB
-  const static size_t FILTERSIZE = 4 * 1024;
-  const static size_t FOOTERSIZE = 2 * sizeof(size_t);
-  const static size_t TABLESIZE = 2 * 1024 * 1024; // 2MB
-  const static std::string TABLEPATH = "../logs/leveldb/";
-  const static std::string TABLENAME = "sstable";
+  Meta() {
+    
+  }
+
+  bool Intersect(Meta other) const {
+    if (largest_.compare(other.smallest_) >= 0 && smallest_.compare(other.largest_) <= 0)
+      return true;
+    return false;
+  }
 };
 
 class Block {
 public:
-  Block(const char* data, const size_t size) : data_(data), size_(size) { }
+  Block(const char* data, const uint size) : data_(data), size_(size) { }
   
   ~Block();
 
-  char* data() { return data_; }
+  const char* data() { return data_; }
 
-  size_t size() { return size_; }
+  uint size() { return size_; }
 private:
   const char *data_;
-  size_t size_;
+  uint size_;
 };
 
 class Table {
@@ -50,13 +57,13 @@ public:
 
   Meta GetMeta();
 
-  void DumpToFile(const std::string& filename);
+  void DumpToFile(const std::string filename);
 private:
   Block **data_blocks_;
   Block *index_block_;
   Filter *filter_;
-  size_t data_block_number_;
-  Meta meta;
+  uint data_block_number_;
+  Meta meta_;
 };
 
 

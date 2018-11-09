@@ -3,50 +3,58 @@
 
 #include <queue>
 
+#include "slice.h"
+#include "util.h"
+
 namespace bilsmtree {
 
 class Slice;
 struct KV;
+class Util;
 
 class BiList {
 public:
-  BiList(size_t size);
+  BiList(uint size);
   
   ~BiList();
   
-  void Set(size_t pos, KV kv);
+  void Set(uint pos, const KV kv);
 
-  void MoveToHead(size_t pos);
+  void MoveToHead(uint pos);
 
-  KV Get(size_t pos);
+  KV Get(uint pos);
 
-  KV Delete(size_t pos);
+  KV Delete(uint pos);
 
   // insert after tail
-  void Append(KV kv);
+  // true: has key pop
+  // false: no key pop
+  bool Append(const KV kv, KV& pop_kv);
 
   // insert before head
-  KV Insert(KV kv);
+  // true: has key pop
+  // false: no key pop  
+  bool Insert(const KV kv, KV& pop_kv);
 
-  size_t Head() { return data[head_].next_; }
+  uint Head() { return data_[head_].next_; }
 
-  size_t Tail() { return tail_; }
+  uint Tail() { return tail_; }
 
 private:
   struct ListNode {
     KV kv_;
-    size_t next_, prev_;
+    uint next_, prev_;
 
-    Node() { }
+    ListNode() { }
 
-    Node(Slice& key, Slice& value) : kv_(key, value) { }
+    ListNode(const Slice key, const Slice value) : kv_(key, value) { }
   };
 
-  size_t head_;        // refer to the head of list which doesn't store data
-  size_t tail_;        // refer to last data's position
-  size_t max_size_;
-  size_t data_size_;
-  queue<size_t> free_;
+  uint head_;        // refer to the head of list which doesn't store data
+  uint tail_;        // refer to last data's position
+  uint max_size_;
+  uint data_size_;
+  std::queue<uint> free_;
   ListNode *data_;
 };
 

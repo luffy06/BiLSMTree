@@ -1,7 +1,7 @@
 #include "cacheserver.h"
 
 namespace bilsmtree {
-CacherServer::CacherServer() {
+CacheServer::CacheServer() {
   lru_ = new LRU2Q();
   imm_temp_ = new SkipList();
   head_ = new ListNode();
@@ -12,7 +12,7 @@ CacherServer::CacherServer() {
   imm_size_ = 0;
 }
 
-CacherServer::~CacherServer() {
+CacheServer::~CacheServer() {
   delete lru_;
   delete imm_temp_;
   for (ListNode* p = head_; head_ != NULL; p = head_) {
@@ -23,14 +23,14 @@ CacherServer::~CacherServer() {
 }
 
 // TODO
-SkipList* Put(const KV& kv) {
-  KV kv_ = lru_->Put(kv);
+SkipList* CacheServer::Put(const KV kv) {
+  KV kv_;
   SkipList* res = NULL;
-  if (kv_ != NULL) {
+  if (lru_->Put(kv, kv_)) {
     // lru2q is full
     if (imm_temp_->IsFull()) {
       // immutable memtable is full
-      if (imm_size_ == CacherServerConfig::MAXSIZE) {
+      if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
         // the size of immmutable memtables is full
         // record tail position
         ListNode* p = tail_;
@@ -60,14 +60,15 @@ SkipList* Put(const KV& kv) {
   return res;
 }
 
-Slice Get(const Slice& key) {
-  Slice value = lru_->Get(key);
-  if (value == NULL)
-    value = imm_temp_->Find(key);
-  ListNode* p = head_->next_;
-  while (value == NULL && p != NULL)
-    value = p->imm_->Find(key);
-  return value;
+bool CacheServer::Get(const Slice key, Slice& value) {
+  if (!lru_->Get(key, value)) {
+    bool imm_res = imm_temp_->Find(key, value);
+    ListNode* p = head_->next_;
+    while (p != NULL && !imm_res)
+      imm_res = p->imm_->Find(key, value);
+    return imm_res;
+  }
+  return true;
 }
 
 }

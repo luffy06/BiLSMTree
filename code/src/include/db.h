@@ -1,10 +1,11 @@
 #ifndef BILSMTREE_DB_H
 #define BILSMTREE_DB_H
 
+#include "kvserver.h"
+#include "cacheserver.h"
+
 namespace bilsmtree {
 
-class Slice;
-struct KV;
 class CacheServer;
 class KVServer;
 
@@ -13,11 +14,11 @@ public:
   DB();
   ~DB();
 
-  void Put(const Slice& key, const Slice& value);
+  void Put(const std::string key, const std::string value);
 
-  Slice Get(const Slice& key);
+  bool Get(const std::string key, std::string& value);
 private:
-  CacherServer *cacheserver_;
+  CacheServer *cacheserver_;
   KVServer *kvserver_;
 };
 

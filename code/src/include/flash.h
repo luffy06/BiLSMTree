@@ -7,19 +7,15 @@
 #include <string>
 #include <fstream>
 
+#include "util.h"
+
 namespace bilsmtree {
 /*
 * Page formation: DATA LBA STATUS
 * Log formation: OPERATION\tLBA\tBLOCK_NUM\tPAGE_NUM\tDATA
 */
-class FlashConfig {
-public:
-  FlashConfig();
-  ~FlashConfig();
 
-  const static double READ_WRITE_RATE = 4;
-  
-};
+class Util;
 
 class Flash {
 public:
@@ -27,24 +23,10 @@ public:
   
   ~Flash();
 
-  char* Read(const size_t lba);
+  char* Read(const uint lba);
 
-  void Write(const size_t lba, const char* data);
-private:
-  const std::string BASE_PATH = "../logs/flashblocks/";
-  const std::string BASE_LOG_PATH = "../logs/";
-  const std::string LOG_PATH = BASE_LOG_PATH + "flashlog.txt";
-  const std::string TABLE_PATH = BASE_PATH + "table.txt";
-  const std::string NEXT_BLOCK_INFO_PATH = BASE_PATH + "nextblockinfo.txt";
-  const std::string PREV_BLOCK_INFO_PATH = BASE_PATH + "prevblockinfo.txt";
-  const std::string BLOCK_META_PATH = BASE_PATH + "blockmeta.txt";
-  const size_t BLOCK_NUMS = 256;
-  const size_t PAGE_NUMS = 8;
-  const size_t PAGE_SIZE = 16 * 1024; // 16KB
-  const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
-  const size_t LOG_LENGTH = 1000;
-  const size_t BLOCK_THRESOLD = BLOCK_NUMS * 0.8;
-  
+  void Write(const uint lba, const char* data);
+private:  
   enum PageStatus {
     PageFree,
     PageValid,
@@ -58,46 +40,57 @@ private:
   };
 
   struct PBA {
-    size_t block_num_;
-    size_t page_num_;
+    uint block_num_;
+    uint page_num_;
 
-    PBA(size_t a, size_t b) {
+    PBA() {
+      block_num_ = 0;
+      page_num_ = 0;      
+    }
+
+    PBA(uint a, uint b) {
       block_num_ = a;
-      page_num_ = c;
+      page_num_ = b;
     }
   };
 
   struct PageInfo {
-    size_t lba_;
+    uint lba_;
     PageStatus status_;          // 0 free 1 valid 2 invalid
 
     PageInfo() {
-      status_ = 0;
-      lba_ = PageFree;
+      status_ = PageFree;
+      lba_ = 0;
     }
   };
 
   struct BlockInfo {
     BlockStatus status_;        // 0 free 1 primary 2 replacement
-    size_t corresponding_;      // the corresponding primary block of replacement
-    size_t offset_;             // the offset of replace block    
+    uint corresponding_;      // the corresponding primary block of replacement
+    uint offset_;             // the offset of replace block    
 
-    BlockInfo(size_t block_num) {
+    BlockInfo() {
+      status_ = FreeBlock;
+      corresponding_ = 0;
+      offset_ = 0;
+    }
+
+    BlockInfo(uint block_num) {
       status_ = FreeBlock;
       corresponding_ = block_num;
       offset_ = 0;
     }
   };
 
-  std::map<size_t, PBA> page_table_;
+  std::map<uint, PBA> page_table_;
   PageInfo **page_info_;
   BlockInfo *block_info_;
-  std::queue<size_t> free_blocks_;
+  std::queue<uint> free_blocks_;
 
-  inline std::string GetBlockPath(const size_t block_num) {
+  inline std::string GetBlockPath(const uint block_num) {
     char block_name[30];
-    sprintf(block_name, "blocks/block_%d.txt", block_num);
-    return BASE_PATH + block_name;
+    sprintf(block_name, "blocks/block_%zu.txt", block_num);
+    return std::string(Config::FlashConfig::BASE_PATH) + block_name;
   }
 
   inline void WriteLog(const char *l) {
@@ -105,22 +98,22 @@ private:
   }
 
   inline void WriteLog(const std::string l) {
-    std::fstream f(LOG_PATH, std::ios::app | std::ios::out);
+    std::fstream f(Config::FlashConfig::LOG_PATH, std::ios::app | std::ios::out);
     f << time(0) << "\t" << l;
     f.close();
   }
 
-  std::pair<size_t, char*> Flash::ReadByPageNum(const size_t block_num, const size_t page_num);
+  std::pair<uint, char*> ReadByPageNum(const uint block_num, const uint page_num);
 
-  void WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char* data);
+  void WriteByPageNum(const uint block_num, const uint page_num, const uint lba, const char* data);
 
-  void Erase(const size_t block_num);
+  void Erase(const uint block_num);
 
-  void MinorCollectGarbage(const size_t block_num);
+  std::pair<uint, uint> MinorCollectGarbage(const uint block_num);
 
   void MajorCollectGarbage();
 
-  size_t AssignFreeBlock(const size_t block_num);
+  uint AssignFreeBlock();
 };
 
 }

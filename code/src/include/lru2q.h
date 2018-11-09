@@ -1,24 +1,13 @@
 #ifndef BILSMTREE_LRU2Q_H
 #define BILSMTREE_LRU2Q_H
 
-#include <map>
+#include <vector>
+
+#include "bilist.h"
 
 namespace bilsmtree {
 
-class Slice;
-struct KV;
 class BiList;
-
-class LRU2QConfig {
-public:
-  LRU2QConfig();
-  ~LRU2QConfig();
-
-  // size for lru
-  const static size_t M1 = 1000;
-  // size for fifo
-  const static size_t M2 = 1000;
-};
 
 class LRU2Q {
 public:
@@ -26,14 +15,17 @@ public:
 
   ~LRU2Q();
 
-  KV Put(const KV& kv);
+  bool Put(const KV kv, KV& pop_kv);
 
-  Slice Get(const Slice& key);
+  bool Get(const Slice key, Slice& value);
 private:
-
-  std::map<Slice, size_t> map_;
+  std::vector<std::pair<Slice, int>> map_;
   BiList *lru_;
   BiList *fifo_;
+
+  std::pair<uint, int> GetPos(const Slice key);
+
+  void MoveToHead(uint index);
 };
 
 }

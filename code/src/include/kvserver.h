@@ -3,10 +3,12 @@
 
 #include <vector>
 
+#include "lsmtree.h"
+#include "logmanager.h"
+#include "skiplist.h"
+
 namespace bilsmtree {
 
-class Slice;
-struct KV;
 class SkipList;
 class LSMTree;
 class LogManager;
@@ -17,7 +19,7 @@ public:
   
   ~KVServer();
 
-  Slice Get(const Slice& value);
+  bool Get(const Slice key, Slice& value);
 
   void MinorCompact(const SkipList* sl);
 private:

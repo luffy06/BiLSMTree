@@ -2,43 +2,37 @@
 
 namespace bilsmtree {
 
-uint32_t Hash(const char* key, size_t len, uint32_t seed) {
-  // murmur3_32
-  uint32_t h = seed;
-  if (len > 3) {
-    const uint32_t* key_x4 = (const uint32_t*) key;
-    size_t i = len >> 2;
-    do {
-      uint32_t k = *key_x4++;
-      k *= 0xcc9e2d51;
-      k = (k << 15) | (k >> 17);
-      k *= 0x1b873593;
-      h ^= k;
-      h = (h << 13) | (h >> 19);
-      h = (h * 5) + 0xe6546b64;
-    } while (--i);
-    key = (const uint8_t*) key_x4;
+uint Hash(const char* data, uint n, size_t seed) {
+  // Similar to murmur hash
+  const size_t m = 0xc6a4a793;
+  const uint r = 24;
+  const char* limit = data + n;
+  size_t h = seed ^ (n * m);
+
+  // Pick up four bytes at a time
+  while (data + 4 <= limit) {
+    uint w;
+    memcpy(&w, data, sizeof(w));  // gcc optimizes this to a plain load
+    data += 4;
+    h += w;
+    h *= m;
+    h ^= (h >> 16);
   }
-  if (len & 3) {
-    size_t i = len & 3;
-    uint32_t k = 0;
-    key = &key[i - 1];
-    do {
-      k <<= 8;
-      k |= *key--;
-    } while (--i);
-    k *= 0xcc9e2d51;
-    k = (k << 15) | (k >> 17);
-    k *= 0x1b873593;
-    h ^= k;
+
+  // Pick up remaining bytes
+  switch (limit - data) {
+    case 3:
+      h += static_cast<unsigned char>(data[2]) << 16;
+    case 2:
+      h += static_cast<unsigned char>(data[1]) << 8;
+    case 1:
+      h += static_cast<unsigned char>(data[0]);
+      h *= m;
+      h ^= (h >> r);
+      break;
   }
-  h ^= len;
-  h ^= h >> 16;
-  h *= 0x85ebca6b;
-  h ^= h >> 13;
-  h *= 0xc2b2ae35;
-  h ^= h >> 16;
   return h;
+
 }
 
 }

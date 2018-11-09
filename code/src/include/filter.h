@@ -1,20 +1,15 @@
 #ifndef BILSMTREE_FILTER_H
 #define BILSMTREE_FILTER_H
 
-#include <string>;
+#include <string>
+
+#include "slice.h"
+#include "hash.h"
+#include "util.h"
 
 namespace bilsmtree {
 
 class Slice;
-
-class FilterConfig {
-public:
-  FilterConfig();
-  ~FilterConfig();
-  
-  const static size_t BITS_PER_KEY = 10;
-  const static size_t CUCKOOFILTER_SIZE = 10000;
-};
 
 class Filter {
 public:
@@ -22,11 +17,9 @@ public:
 
   ~Filter();
   
-  bool KeyMatch(const Slice& key);
+  virtual bool KeyMatch(const Slice key);
 
-  std::string ToString();
-private:
-  const uint32_t SEED = 0xbc91f1d34;
+  virtual std::string ToString();
 };
 }
 
