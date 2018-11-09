@@ -18,19 +18,19 @@ std::string GenerateCharacter() {
   if (type) offset = rand() % 26;
   else offset = rand() % 10;
   if (type == 0)
-    sprintf(buf, "%c", ('0' + offset));
+    sprintf(buf, "%c", static_cast<char>('0' + offset));
   else if (type == 1)
-    sprintf(buf, "%c", ('a' + offset));
+    sprintf(buf, "%c", static_cast<char>('a' + offset));
   else
-    sprintf(buf, "%c", ('A' + offset));
+    sprintf(buf, "%c", static_cast<char>('A' + offset));
   return buf;
 }
 
 std::vector<std::pair<std::string, std::string>> GenerateRandomKVPairs() {
   std::vector<std::pair<std::string, std::string>> kvs;
   for (size_t i = 0; i < TotalKV; ++ i) {
-    string key = "";
-    string value = "";
+    std::string key = "";
+    std::string value = "";
     for (size_t j = 0; j < KeySize; ++ j)
       key = key + GenerateCharacter();
     for (size_t j = 0; j < ValueSize; ++ j)
@@ -43,7 +43,7 @@ std::vector<std::pair<std::string, std::string>> GenerateRandomKVPairs() {
 int main() {
   size_t seed = 1000000007;
   srand(seed);
-  DB *db = new DB();
+  bilsmtree::DB *db = new bilsmtree::DB();
   delete db;
   return 0;
 }
