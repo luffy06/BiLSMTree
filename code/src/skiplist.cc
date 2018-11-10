@@ -92,7 +92,7 @@ std::vector<KV> SkipList::GetAll() const {
 
 size_t SkipList::GenerateLevel() {
   size_t level_ = 1;
-  while ((rand() * 1.0 / INT_MAX) < Config::SkipListConfig::PROB && level_ < Config::SkipListConfig::MAXLEVEL) 
+  while ((rand() * 1.0 / 10000000) < Config::SkipListConfig::PROB && level_ < Config::SkipListConfig::MAXLEVEL) 
     level_ = level_ + 1;
   return level_; 
 }
