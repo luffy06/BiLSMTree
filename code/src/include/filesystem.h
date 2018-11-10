@@ -12,8 +12,6 @@
 
 namespace bilsmtree {
 
-class Flash;
-
 struct FCB {
   std::string filename_;
   size_t block_start_;      // the start of block

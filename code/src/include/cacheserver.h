@@ -6,9 +6,6 @@
 
 namespace bilsmtree {
 
-class SkipList;
-class LRU2Q;
-
 class CacheServer {
 public:
   CacheServer();

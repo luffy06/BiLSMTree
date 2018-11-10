@@ -8,10 +8,6 @@
 
 namespace bilsmtree {
 
-class Slice;
-struct KV;
-class Util;
-
 class BiList {
 public:
   BiList(size_t size);

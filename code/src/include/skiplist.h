@@ -8,10 +8,6 @@
 
 namespace bilsmtree {
 
-class Slice;
-struct KV;
-class Config;
-
 class SkipList {
 public:
   SkipList();

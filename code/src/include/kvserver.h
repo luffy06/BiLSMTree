@@ -9,11 +9,6 @@
 
 namespace bilsmtree {
 
-class SkipList;
-class LSMTree;
-class LogManager;
-class FileSystem;
-
 class KVServer {
 public:
   KVServer(FileSystem* filesystem);

@@ -9,8 +9,6 @@
 
 namespace bilsmtree {
 
-class Filter;
-
 class BloomFilter : public Filter {
 public:
   BloomFilter(const std::vector<Slice>& keys) {

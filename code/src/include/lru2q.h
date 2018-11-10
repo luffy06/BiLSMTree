@@ -7,8 +7,6 @@
 
 namespace bilsmtree {
 
-class BiList;
-
 class LRU2Q {
 public:
   LRU2Q();

@@ -39,4 +39,12 @@ void Util::Assert(const char* message, bool condition) {
   assert(condition);
 }
 
+std::string Util::GetAlgorithm() {
+  std::fstream f("../config.in", std::ios::in);
+  std::string algorithm;
+  f >> algorithm;
+  f.close();
+  return algorithm;
+}
+
 }

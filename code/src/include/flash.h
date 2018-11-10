@@ -15,8 +15,6 @@ namespace bilsmtree {
 * Log formation: OPERATION\tLBA\tBLOCK_NUM\tPAGE_NUM\tDATA
 */
 
-class Util;
-
 class Flash {
 public:
   Flash();

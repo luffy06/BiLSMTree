@@ -7,8 +7,6 @@
 
 namespace bilsmtree {
 
-class FileSystem;
-
 class VisitFrequency {
 public:
   VisitFrequency(size_t max_size, FileSystem* filesystem);

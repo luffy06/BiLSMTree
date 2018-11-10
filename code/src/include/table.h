@@ -10,11 +10,6 @@
 
 namespace bilsmtree {
 
-class Filter;
-class BloomFilter;
-class CuckooFilter;
-class FileSystem;
-
 struct Meta {
   Slice largest_;
   Slice smallest_;

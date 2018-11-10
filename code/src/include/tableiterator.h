@@ -10,9 +10,6 @@
 
 namespace bilsmtree {
 
-struct KV;
-class FileSystem;
-
 class TableIterator {
 public:
   TableIterator();

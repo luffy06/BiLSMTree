@@ -8,10 +8,6 @@
 
 namespace bilsmtree {
 
-class Slice;
-struct KV;
-class FileSystem;
-
 class LogManager {
 public:
   LogManager(FileSystem* filesystem);

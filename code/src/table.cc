@@ -70,9 +70,10 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     buffer_.append(offset_.data(), offset_.size());
   }
   index_block_ = new Block(buffer_.data(), buffer_.size());
-  if (Config::algorithm == Config::LevelDB)
+  std::string algorithm = Util::GetAlgorithm();
+  if (algorithm == std::string("LevelDB"))
     filter_ = new BloomFilter(keys_); // 10 bits per key 
-  else if (Config::algorithm == Config::BiLSMTree)
+  else if (algorithm == std::string("BiLSMTree"))
     filter_ = new CuckooFilter(Config::FilterConfig::CUCKOOFILTER_SIZE, keys_);
   else
     Util::Assert("Algorithm Error", false);

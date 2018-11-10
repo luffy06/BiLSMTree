@@ -13,10 +13,6 @@
 
 namespace bilsmtree {
 
-class VisitFrequency;
-class TableIterator;
-class Table;
-
 class LSMTree {
 public:
   LSMTree(FileSystem* filesystem);

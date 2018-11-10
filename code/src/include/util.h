@@ -23,20 +23,15 @@ public:
   static bool ExistFile(const std::string filename);
 
   static void Assert(const char* message, bool condition);
+
+  static std::string GetAlgorithm();
 };
 
 class Config {
 public:
-  Config();
+  Config() { }
 
-  ~Config();
-  
-  enum Algorithms {
-    LevelDB,
-    BiLSMTree
-  };
-
-  static Algorithms algorithm;
+  ~Config() { }
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;

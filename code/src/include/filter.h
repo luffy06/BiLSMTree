@@ -9,17 +9,15 @@
 
 namespace bilsmtree {
 
-class Slice;
-
 class Filter {
 public:
   Filter() { }
 
-virtual ~Filter() { }
+  virtual ~Filter() { }
 
-  virtual bool KeyMatch(const Slice key);
+  virtual bool KeyMatch(const Slice key) = 0;
 
-  virtual std::string ToString();
+  virtual std::string ToString() = 0;
 };
 }
 

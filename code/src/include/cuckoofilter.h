@@ -10,8 +10,6 @@
 
 namespace bilsmtree {
 
-class Filter;
-
 class Bucket{
 public:
   Bucket() {

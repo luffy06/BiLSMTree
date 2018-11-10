@@ -96,9 +96,10 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   filesystem_->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem_->Read(file_number_, Config::TableConfig::FILTERSIZE);
   Filter* filter;
-  if (Config::algorithm == Config::LevelDB)
+  std::string algorithm = Util::GetAlgorithm();
+  if (algorithm == std::string("LevelDB"))
     filter = new BloomFilter(filter_data_);
-  else if (Config::algorithm == Config::BiLSMTree)
+  else if (algorithm == std::string("BiLSMTree"))
     filter = new CuckooFilter(filter_data_);
   else
     Util::Assert("Algorithm Error", false);
@@ -186,7 +187,8 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   // MEGER FILTER
   filesystem_->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem_->Read(file_number_, Config::TableConfig::FILTERSIZE);
-  Util::Assert("Algorithm Error", Config::algorithm == Config::BiLSMTree);
+  std::string algorithm = Util::GetAlgorithm();
+  Util::Assert("Algorithm Error", algorithm == std::string("BiLSMTree"));
   CuckooFilter *filter = new CuckooFilter(filter_data_);
   for (int i = now_level - 1; i >= to_level; -- i) {
     size_t l = 0;
