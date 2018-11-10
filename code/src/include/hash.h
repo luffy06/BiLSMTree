@@ -2,6 +2,7 @@
 #define BILSMTREE_HASH_H
 
 #include <iostream>
+#include <cstring>
 
 namespace bilsmtree {
 
