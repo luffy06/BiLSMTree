@@ -1,6 +1,9 @@
 #ifndef BILSMTREE_UTIL_H
 #define BILSMTREE_UTIL_H
 
+#include <cstring>
+#include <cassert>
+
 #include <iostream>
 #include <string>
 #include <fstream>

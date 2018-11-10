@@ -15,7 +15,7 @@ class Filter {
 public:
   Filter() { }
 
-  virtual ~Filter() { }
+virtual ~Filter() { }
 
   virtual bool KeyMatch(const Slice key);
 

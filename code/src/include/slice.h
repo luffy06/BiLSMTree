@@ -1,6 +1,9 @@
 #ifndef BILSMTREE_SLICE_H
 #define BILSMTREE_SLICE_H
 
+#include <cstring>
+#include <cassert>
+
 #include <string>
 
 namespace bilsmtree {
