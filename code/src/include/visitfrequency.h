@@ -11,15 +11,14 @@ class FileSystem;
 
 class VisitFrequency {
 public:
-  VisitFrequency() { }
-
-  VisitFrequency(size_t max_size);
+  VisitFrequency(size_t max_size, FileSystem* filesystem);
 
   ~VisitFrequency();
 
   int Append(size_t file_number);
 private:
   std::queue<size_t> visit_[2];
+  FileSystem* filesystem_;
 
   size_t max_size_;
   size_t size_;

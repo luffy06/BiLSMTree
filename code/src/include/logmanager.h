@@ -14,7 +14,8 @@ class FileSystem;
 
 class LogManager {
 public:
-  LogManager();
+  LogManager(FileSystem* filesystem);
+  
   ~LogManager();
 
   Slice Append(const KV kv);
@@ -25,6 +26,7 @@ private:
   size_t head_;
   size_t tail_;
   size_t record_count_;
+  FileSystem* filesystem_;
 
   void WriteKV(const KV kv);
 

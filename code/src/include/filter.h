@@ -13,10 +13,10 @@ class Slice;
 
 class Filter {
 public:
-  Filter();
+  Filter() { }
 
-  ~Filter();
-  
+  virtual ~Filter() = default;
+
   virtual bool KeyMatch(const Slice key);
 
   virtual std::string ToString();

@@ -7,10 +7,12 @@ Table::Table() {
   index_block_ = NULL;
   filter_ = NULL;
   data_block_number_ = 0;
+  filesystem_ = NULL;
 }
 
-Table::Table(const std::vector<KV>& kvs) {
+Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   assert(kvs.size() > 0);
+  filesystem_ = filesystem;
   std::vector<int> offsets_;
   std::vector<std::string> buffers_;
   std::vector<Slice> last_keys_;
@@ -93,17 +95,17 @@ Meta Table::GetMeta() {
 }
 
 void Table::DumpToFile(const std::string filename) {
-  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   for (size_t i = 0; i < data_block_number_; ++ i) {
-    FileSystem::Seek(file_number_, i * Config::TableConfig::BLOCKSIZE);
-    FileSystem::Write(file_number_, data_blocks_[i] -> data(), data_blocks_[i] -> size());
+    filesystem_->Seek(file_number_, i * Config::TableConfig::BLOCKSIZE);
+    filesystem_->Write(file_number_, data_blocks_[i] -> data(), data_blocks_[i] -> size());
   }
-  FileSystem::Seek(file_number_, data_block_number_ * Config::TableConfig::BLOCKSIZE);
-  FileSystem::Write(file_number_, index_block_ -> data(), index_block_ -> size());
-  FileSystem::Seek(file_number_, (data_block_number_ + 1) * Config::TableConfig::BLOCKSIZE);
+  filesystem_->Seek(file_number_, data_block_number_ * Config::TableConfig::BLOCKSIZE);
+  filesystem_->Write(file_number_, index_block_ -> data(), index_block_ -> size());
+  filesystem_->Seek(file_number_, (data_block_number_ + 1) * Config::TableConfig::BLOCKSIZE);
   std::string filter_data = filter_ -> ToString();
-  FileSystem::Write(file_number_, filter_data.data(), filter_data.size());
-  FileSystem::Close(file_number_);
+  filesystem_->Write(file_number_, filter_data.data(), filter_data.size());
+  filesystem_->Close(file_number_);
 }
 
 }

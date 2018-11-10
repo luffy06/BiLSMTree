@@ -37,7 +37,7 @@ class Block {
 public:
   Block(const char* data, const size_t size) : data_(data), size_(size) { }
   
-  ~Block();
+  ~Block() { }
 
   const char* data() { return data_; }
 
@@ -51,7 +51,7 @@ class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs);
+  Table(const std::vector<KV>& kvs, FileSystem* filesystem);
   
   ~Table();
 
@@ -64,6 +64,7 @@ private:
   Filter *filter_;
   size_t data_block_number_;
   Meta meta_;
+  FileSystem* filesystem_;
 };
 
 

@@ -19,7 +19,8 @@ class Table;
 
 class LSMTree {
 public:
-  LSMTree();
+  LSMTree(FileSystem* filesystem);
+  
   ~LSMTree();
 
   bool Get(const Slice key, Slice& value);
@@ -34,6 +35,7 @@ private:
   size_t min_frequency_number_[Config::LSMTreeConfig::LEVEL];
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
+  FileSystem* filesystem_;
 
   std::string GetFilename(size_t sequence_number_);
 

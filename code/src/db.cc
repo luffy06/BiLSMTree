@@ -3,13 +3,15 @@
 namespace bilsmtree {
 
 DB::DB() {
+  filesystem_ = new FileSystem();
   cacheserver_ = new CacheServer();
-  kvserver_ = new KVServer();
+  kvserver_ = new KVServer(filesystem_);
 }
 
 DB::~DB() {
   delete cacheserver_;
   delete kvserver_;
+  delete filesystem_;
 }
 
 void DB::Put(const std::string key, const std::string value) {

@@ -6,9 +6,6 @@
 
 namespace bilsmtree {
 
-class CacheServer;
-class KVServer;
-
 class DB {
 public:
   DB();
@@ -20,6 +17,7 @@ public:
 private:
   CacheServer *cacheserver_;
   KVServer *kvserver_;
+  FileSystem *filesystem_;
 };
 
 }

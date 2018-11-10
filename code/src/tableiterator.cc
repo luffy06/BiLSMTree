@@ -8,14 +8,14 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename) {
-  size_t file_number_ = FileSystem::Open(filename, Config::FileSystemConfig::READ_OPTION);
-  size_t file_size_ = FileSystem::GetFileSize(file_number_);
-  FileSystem::Seek(file_number_, file_size_ - Config::TableConfig::FOOTERSIZE);
-  size_t index_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t)));
-  size_t filter_offset_ = Util::StringToInt(FileSystem::Read(file_number_, sizeof(size_t)));
-  FileSystem::Seek(file_number_, index_offset_);
-  std::string index_data_ = FileSystem::Read(file_number_, filter_offset_ - index_offset_);
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem) {
+  size_t file_number_ = filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
+  size_t file_size_ = filesystem->GetFileSize(file_number_);
+  filesystem->Seek(file_number_, file_size_ - Config::TableConfig::FOOTERSIZE);
+  size_t index_offset_ = Util::StringToInt(filesystem->Read(file_number_, sizeof(size_t)));
+  size_t filter_offset_ = Util::StringToInt(filesystem->Read(file_number_, sizeof(size_t)));
+  filesystem->Seek(file_number_, index_offset_);
+  std::string index_data_ = filesystem->Read(file_number_, filter_offset_ - index_offset_);
   std::istringstream is(index_data_);
   char temp[1000];
   while (!is.eof()) {
@@ -24,11 +24,11 @@ TableIterator::TableIterator(const std::string filename) {
     is.read(temp, key_size);
     is.read(temp, sizeof(size_t));
     size_t offset = Util::StringToInt(std::string(temp));
-    FileSystem::Seek(file_number_, offset);
-    std::string block_data = FileSystem::Read(file_number_, Config::TableConfig::BLOCKSIZE);
+    filesystem->Seek(file_number_, offset);
+    std::string block_data = filesystem->Read(file_number_, Config::TableConfig::BLOCKSIZE);
     ParseBlock(block_data);
   }
-  FileSystem::Close(file_number_);
+  filesystem->Close(file_number_);
   id_ = 0;
   iter_ = 0;
 }

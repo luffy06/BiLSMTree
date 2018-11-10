@@ -49,33 +49,33 @@ public:
   FileSystem();
   ~FileSystem();
 
-  static size_t Open(const std::string filename, const size_t mode);
+  size_t Open(const std::string filename, const size_t mode);
 
-  static void Seek(const size_t file_number, const size_t offset);
+  void Seek(const size_t file_number, const size_t offset);
 
-  static size_t GetFileSize(const size_t file_number);
+  size_t GetFileSize(const size_t file_number);
 
-  static std::string Read(const size_t file_number, const size_t read_size);
+  std::string Read(const size_t file_number, const size_t read_size);
 
-  static void Write(const size_t file_number, const std::string data, const size_t write_size);
+  void Write(const size_t file_number, const std::string data, const size_t write_size);
 
-  static void Delete(const std::string filename);
+  void Delete(const std::string filename);
 
-  static void Close(const size_t file_number);  
+  void Close(const size_t file_number);  
 private:
-  static std::vector<FileStatus> file_buffer_;
-  static std::map<size_t, FCB> fcbs_;
-  static size_t *fat_;
-  static size_t total_file_number_;
-  static size_t open_number_;
-  static Flash *flash_;
-  static std::queue<size_t> free_blocks_;
+  std::vector<FileStatus> file_buffer_;
+  std::map<size_t, FCB> fcbs_;
+  size_t *fat_;
+  size_t total_file_number_;
+  size_t open_number_;
+  Flash *flash_;
+  std::queue<size_t> free_blocks_;
 
-  static size_t AssignFreeBlocks();
+  size_t AssignFreeBlocks();
 
-  static void FreeBlock(const size_t lba);
+  void FreeBlock(const size_t lba);
 
-  static int BinarySearchInBuffer(const size_t file_number);
+  int BinarySearchInBuffer(const size_t file_number);
 };
 }
 
