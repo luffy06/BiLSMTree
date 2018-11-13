@@ -43,6 +43,7 @@ SkipList* CacheServer::Put(const KV kv) {
         delete p;
         imm_size_ = imm_size_ - 1;
       }
+      imm_temp_->DisableWrite();
       // create a new listnode
       ListNode* p = new ListNode();
       p->imm_ = imm_temp_;
@@ -64,8 +65,19 @@ bool CacheServer::Get(const Slice key, Slice& value) {
   if (!lru_->Get(key, value)) {
     bool imm_res = imm_temp_->Find(key, value);
     ListNode* p = head_->next_;
-    while (p != NULL && !imm_res)
+    while (p != NULL && !imm_res) {
       imm_res = p->imm_->Find(key, value);
+      if (imm_res) {
+        p->prev_->next_ = p->next_;
+        if (p->next_ != NULL)
+          p->next_->prev_ = p->prev_;
+        p->next_ = head_->next_;
+        p->prev_ = head_;
+        if (head_->next_ != NULL)
+          head_->next_->prev_ = p;
+        head_->next_ = p;
+      }
+    }
     return imm_res;
   }
   return true;

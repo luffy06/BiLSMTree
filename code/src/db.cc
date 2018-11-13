@@ -3,9 +3,10 @@
 namespace bilsmtree {
 
 DB::DB() {
-  filesystem_ = new FileSystem();
+  result_ = new Result();
+  filesystem_ = new FileSystem(result_->flashresult_);
   cacheserver_ = new CacheServer();
-  kvserver_ = new KVServer(filesystem_);
+  kvserver_ = new KVServer(filesystem_, result_->lsmtreeresult_);
 }
 
 DB::~DB() {
@@ -25,8 +26,8 @@ void DB::Put(const std::string key, const std::string value) {
 
 bool DB::Get(const std::string key, std::string& value) {
   Slice value_;
-  bool res = false;
-  if (!cacheserver_->Get(key, value_))
+  bool res = cacheserver_->Get(key, value_);
+  if (!res)
     res = kvserver_->Get(key, value_);
   if (res)
     value = value_.ToString();

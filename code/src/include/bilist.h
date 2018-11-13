@@ -8,6 +8,9 @@
 
 namespace bilsmtree {
 
+/*
+* STAUTS: SUCCESS
+*/
 class BiList {
 public:
   BiList(size_t size);
@@ -22,19 +25,33 @@ public:
 
   KV Delete(size_t pos);
 
-  // insert after tail
+  // insert after tail, pop head
   // true: has key pop
   // false: no key pop
   bool Append(const KV kv, KV& pop_kv);
 
-  // insert before head
+  // insert before head, pop tail
   // true: has key pop
   // false: no key pop  
   bool Insert(const KV kv, KV& pop_kv);
 
   size_t Head() { return data_[head_].next_; }
 
-  size_t Tail() { return tail_; }
+  size_t Tail() {
+    assert(tail_ > 0);
+    return tail_;
+  }
+
+  void Show() {
+    size_t p = data_[head_].next_;
+    size_t i = 1;
+    while (p) {
+      std::cout << "Num: " << i++ << " Index: " << p << std::endl;
+      std::cout << "Key:" << data_[p].kv_.key_.ToString() << std::endl;
+      std::cout << "value:" << data_[p].kv_.value_.ToString() << std::endl;
+      p = data_[p].next_;
+    }
+  }
 
 private:
   struct ListNode {

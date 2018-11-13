@@ -14,11 +14,14 @@ LRU2Q::~LRU2Q() {
   delete fifo_;
 }
 
+/*
+* STATUS: checking
+*/
 bool LRU2Q::Put(const KV kv, KV& pop_kv) {
   // std::map<Slice, size_t>::iterator it = map_.find(kv.key_);
   std::pair<size_t, int> pos = GetPos(kv.key_);
   bool res = false;
-  if (pos.second != -1) {
+  if (pos.second != -1) { // uncheck
     // lru has the key
     size_t index = pos.second;
     if (index < Config::LRU2QConfig::M1)
@@ -35,7 +38,8 @@ bool LRU2Q::Put(const KV kv, KV& pop_kv) {
     KV p_kv;
     bool lru_res = lru_->Insert(kv, p_kv);
     // lru is full
-    if (lru_res) {
+    if (lru_res) { // uncheck
+      std::cout << "LRU is full" << std::endl;
       // append data to fifo
       res = fifo_->Append(p_kv, pop_kv);
       // fifo is full
@@ -58,8 +62,8 @@ bool LRU2Q::Get(const Slice key, Slice& value) {
   if (pos.second != -1) {
     size_t index = pos.second;
     if (index < Config::LRU2QConfig::M1)
-      value = lru_->Get(index).value_; 
-    else 
+      value = lru_->Get(index).value_;
+    else // uncheck
       value = fifo_->Get(index - Config::LRU2QConfig::M1).value_;
     MoveToHead(index);
     return true;    
@@ -94,7 +98,7 @@ void LRU2Q::MoveToHead(size_t index) {
     lru_->MoveToHead(lru_tail_);
     // append the original tail of lru to fifo
     KV p_kv; 
-    Util::Assert("FIFO queue is full!\nMethod: LRU2Q::Put", !fifo_->Append(ln_tail, p_kv));
+    assert(!fifo_->Append(ln_tail, p_kv));
   }
 }
 

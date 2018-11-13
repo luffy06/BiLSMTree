@@ -52,7 +52,7 @@ public:
 
   Meta GetMeta();
 
-  void DumpToFile(const std::string filename);
+  void DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult);
 private:
   Block **data_blocks_;
   Block *index_block_;

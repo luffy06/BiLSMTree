@@ -19,7 +19,6 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   std::vector<Slice> keys_;
 
   size_t size_ = 0;
-  size_t total_size_ = 0;
   std::string buffer_;
   Slice last_key_ = NULL;
 
@@ -71,12 +70,16 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   index_block_ = new Block(buffer_.data(), buffer_.size());
   std::string algorithm = Util::GetAlgorithm();
-  if (algorithm == std::string("LevelDB"))
+  if (algorithm == std::string("LevelDB")) {
     filter_ = new BloomFilter(keys_); // 10 bits per key 
-  else if (algorithm == std::string("BiLSMTree"))
+  }
+  else if (algorithm == std::string("BiLSMTree")) {
     filter_ = new CuckooFilter(Config::FilterConfig::CUCKOOFILTER_SIZE, keys_);
-  else
-    Util::Assert("Algorithm Error", false);
+  }
+  else {
+    filter_ = NULL;
+    assert(false);
+  }
   
   meta_ = Meta();
   meta_.largest_ = kvs[0].key_;
@@ -95,17 +98,20 @@ Meta Table::GetMeta() {
   return meta_;
 }
 
-void Table::DumpToFile(const std::string filename) {
+void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult) {
   size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   for (size_t i = 0; i < data_block_number_; ++ i) {
     filesystem_->Seek(file_number_, i * Config::TableConfig::BLOCKSIZE);
     filesystem_->Write(file_number_, data_blocks_[i] -> data(), data_blocks_[i] -> size());
+    lsmtreeresult->Write();
   }
   filesystem_->Seek(file_number_, data_block_number_ * Config::TableConfig::BLOCKSIZE);
   filesystem_->Write(file_number_, index_block_ -> data(), index_block_ -> size());
+  lsmtreeresult->Write();
   filesystem_->Seek(file_number_, (data_block_number_ + 1) * Config::TableConfig::BLOCKSIZE);
   std::string filter_data = filter_ -> ToString();
   filesystem_->Write(file_number_, filter_data.data(), filter_data.size());
+  lsmtreeresult->Write();
   filesystem_->Close(file_number_);
 }
 

@@ -9,6 +9,7 @@ namespace bilsmtree {
 class DB {
 public:
   DB();
+
   ~DB();
 
   void Put(const std::string key, const std::string value);
@@ -18,6 +19,7 @@ private:
   CacheServer *cacheserver_;
   KVServer *kvserver_;
   FileSystem *filesystem_;
+  Result *result_;
 };
 
 }

@@ -15,16 +15,16 @@ BiList::BiList(size_t size) {
 BiList::~BiList() {
   head_ = 0;
   tail_ = 0;
-  delete data_;
+  delete[] data_;
 }
 
 void BiList::Set(size_t pos, const KV kv) {
-  Util::Assert("Position is exceeded!\nMethod: BiList::Set", (pos > 0 && pos <= max_size_));
+  assert(pos > 0 && pos <= max_size_);
   data_[pos].kv_ = kv;
 }
 
 void BiList::MoveToHead(size_t pos) {
-  Util::Assert("Position is exceeded!\nMethod: BiList::MoveToHead", (pos > 0 && pos <= max_size_));
+  assert(pos > 0 && pos <= max_size_);
   if (pos == tail_) {
     tail_ = data_[tail_].prev_;
     data_[tail_].next_ = 0;
@@ -36,12 +36,12 @@ void BiList::MoveToHead(size_t pos) {
 }
 
 KV BiList::Get(size_t pos) {
-  Util::Assert("Position is exceeded!\nMethod: BiList::Get", (pos > 0 && pos <= max_size_));
+  assert(pos > 0 && pos <= max_size_);
   return data_[pos].kv_;
 }
 
 KV BiList::Delete(size_t pos) {
-  Util::Assert("Position is exceeded!\nMethod: BiList::Delete", (pos > 0 && pos <= max_size_));
+  assert(pos > 0 && pos <= max_size_);
   KV kv = data_[pos].kv_;
   data_[data_[pos].prev_].next_ = data_[pos].next_;
   if (pos != tail_)
@@ -56,7 +56,7 @@ KV BiList::Delete(size_t pos) {
 bool BiList::Append(const KV kv, KV& pop_kv) {
   bool res = false;
   if (free_.empty()) {
-    pop_kv = Delete(tail_);
+    pop_kv = Delete(data_[head_].next_);
     res = true;
   }
   size_t pos = free_.front();
@@ -73,7 +73,7 @@ bool BiList::Append(const KV kv, KV& pop_kv) {
 bool BiList::Insert(const KV kv, KV& pop_kv) {
   bool res = false;
   if (free_.empty()) {
-    pop_kv = Delete(data_[head_].next_);
+    pop_kv = Delete(tail_);
     res = true;
   }
   size_t pos = free_.front();

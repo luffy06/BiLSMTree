@@ -17,13 +17,15 @@ namespace bilsmtree {
 
 class Flash {
 public:
-  Flash();
+  Flash(FlashResult *flashresult);
   
   ~Flash();
 
   char* Read(const size_t lba);
 
   void Write(const size_t lba, const char* data);
+
+  void ShowInfo();
 private:  
   enum PageStatus {
     PageFree,
@@ -63,27 +65,47 @@ private:
   };
 
   struct BlockInfo {
+    size_t block_num_;
     BlockStatus status_;        // 0 free 1 primary 2 replacement
-    size_t corresponding_;      // the corresponding primary block of replacement
-    size_t offset_;             // the offset of replace block    
+    size_t corresponding_;      // the corresponding block: 1. the replacement block 2. the primary block
+    size_t offset_;             // the offset of replacement block    
+    size_t invalid_nums_;
+    size_t valid_nums_;
 
     BlockInfo() {
+      block_num_ = 0;
       status_ = FreeBlock;
       corresponding_ = 0;
       offset_ = 0;
+      invalid_nums_ = 0;
+      valid_nums_ = 0;
     }
 
     BlockInfo(size_t block_num) {
+      block_num_ = block_num;
       status_ = FreeBlock;
-      corresponding_ = block_num;
+      corresponding_ = block_num_;
       offset_ = 0;
+      invalid_nums_ = 0;
+      valid_nums_ = 0;
+    }
+
+    void Show() {
+      std::cout << "BLOCK:" << block_num_ << "\tSTATUS:" << status_ << std::endl;
+      std::cout << corresponding_ << "\t" << offset_ << std::endl;
+      std::cout << invalid_nums_ << "\t" << valid_nums_ << std::endl;
     }
   };
 
-  std::map<size_t, PBA> page_table_;
-  PageInfo **page_info_;
-  BlockInfo *block_info_;
-  std::queue<size_t> free_blocks_;
+  std::map<size_t, PBA> page_table_;  // mapping relation of LBA(logical block address) and PBA(physical block address)
+  PageInfo **page_info_;              // page infomation: LBA and page status
+  BlockInfo *block_info_;             // block infomation: block status, corresponding block, block offset(invalid for replacement block)
+  
+  std::queue<size_t> free_blocks_;    // free blocks queue
+  bool *free_block_tag_;              // free tag of block
+  size_t free_blocks_num_;            // free blocks number
+
+  FlashResult *flashresult_;
 
   inline std::string GetBlockPath(const size_t block_num) {
     char block_name[30];

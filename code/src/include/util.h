@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 namespace bilsmtree {
 
@@ -22,8 +23,6 @@ public:
 
   static bool ExistFile(const std::string filename);
 
-  static void Assert(const char* message, bool condition);
-
   static std::string GetAlgorithm();
 };
 
@@ -33,39 +32,29 @@ public:
 
   ~Config() { }
 
-  struct FilterConfig {
-    static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 10000;  
-    static const size_t SEED = 0xbc91f1d34;
-  };
-
   struct FlashConfig {
-    static constexpr const double READ_WRITE_RATE = 4.;
+    static const size_t READ_LATENCY = 50;            // 50us
+    static const size_t WRITE_LATENCY = 200;          // 200us
+    static const size_t ERASE_LATENCY = 2000;         // 2ms
+    static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "../logs/";
     static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
-    static const size_t BLOCK_NUMS = 256;
+    static const size_t BLOCK_NUMS = 128;
     static const size_t PAGE_NUMS = 8;
-    static const size_t PAGE_SIZE = 16 * 1024; // 16KB
+    static const size_t PAGE_SIZE = 1024; // 16KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
-    static const size_t LOG_LENGTH = 1000;
-    static const size_t BLOCK_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.8);
+    static const size_t LOG_LENGTH = 5000;
+    static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(BLOCK_NUMS * 0.2);
+    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.4);
   };
 
-  struct LogManagerConfig {
-    static constexpr const char* LOG_PATH = "../logs/VLOG";
-    static const size_t GARBARGE_THRESOLD = 20;
-  };
-
-  struct LRU2QConfig {
-    static const size_t M1 = 1000;    // size of lru
-    static const size_t M2 = 1000;    // size of fifo
-  };
-
-  struct LSMTreeConfig {
-    static const size_t LEVEL = 7;
-    static const size_t L0SIZE = 4;
-    static constexpr const double ALPHA = 0.2;
-    static const size_t LISTSIZE = 4;
+  struct FileSystemConfig {
+    static const size_t READ_OPTION = 1;
+    static const size_t WRITE_OPTION = 1 << 1;
+    static const size_t APPEND_OPTION = 1 << 2;
+    static const size_t MAX_FILE_OPEN = 1000;
+    static const size_t BLOCK_SIZE = 1024;
+    static const size_t MAX_BLOCK_NUMS = (1 << 16) * 4;
   };
 
   struct SkipListConfig {
@@ -74,7 +63,30 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 4096;
+    static const size_t MAXSIZE = 20;
+  };
+
+  struct LRU2QConfig {
+    static const size_t M1 = 100;    // size of lru
+    static const size_t M2 = 100;    // size of fifo
+  };
+
+  struct FilterConfig {
+    static const size_t BITS_PER_KEY = 10;
+    static const size_t CUCKOOFILTER_SIZE = 10000;  
+    static const size_t SEED = 0xbc91f1d34;
+  };
+
+  struct LogManagerConfig {
+    static constexpr const char* LOG_PATH = "../logs/VLOG";
+    static const size_t GARBARGE_THRESOLD = 20;
+  };
+
+  struct LSMTreeConfig {
+    static const size_t LEVEL = 7;
+    static const size_t L0SIZE = 4;
+    static constexpr const double ALPHA = 0.2;
+    static const size_t LISTSIZE = 4;
   };
 
   struct TableConfig {
@@ -99,16 +111,117 @@ public:
     static const size_t MAXBUCKETSIZE = 4;
   };
 
-  struct FileSystemConfig {
-    static const size_t READ_OPTION = 1;
-    static const size_t WRITE_OPTION = 1 << 1;
-    static const size_t APPEND_OPTION = 1 << 2;
-    static const size_t MAX_FILE_OPEN = 1000;
-    static const size_t BLOCK_SIZE = 16;
-    static const size_t MAX_BLOCK_NUMS = (1 << 16) * 4;
-    static const size_t CLUSTER_NUMS = 64;
-    static constexpr const char* FILE_META_PATH = "../logs/filesystem.txt";
-  };
+};
+
+class FlashResult {
+public:
+  FlashResult() {
+    latency_ = 0;
+    erase_times_ = 0;
+  }
+
+  ~FlashResult() {
+
+  }
+
+  void Read() {
+    latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
+  }
+
+  void Write() {
+    latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
+  }
+
+  void Erase() {
+    latency_ = latency_ + Config::FlashConfig::ERASE_LATENCY;
+    erase_times_ = erase_times_ + 1;
+  }
+
+  size_t GetLatency() {
+    return latency_;
+  }
+
+  size_t GetEraseTimes() {
+    return erase_times_;
+  }
+private:
+  size_t latency_;
+  size_t erase_times_;
+};
+
+class LSMTreeResult {
+public:
+  LSMTreeResult() {
+    write_files_ = 0;
+    read_files_ = 0;
+    minor_compaction_times_ = 0;
+    major_compaction_times_ = 0;
+    check_times_.clear();
+  }
+
+  ~LSMTreeResult() {
+
+  }
+
+  void Read() {
+    read_files_ = read_files_ + 1;
+  }
+
+  void Write() {
+    write_files_ = write_files_ + 1;
+  }
+
+  void MinorCompaction() {
+    minor_compaction_times_ = minor_compaction_times_ + 1;
+  }
+
+  void MajorCompaction() {
+    major_compaction_times_ = major_compaction_times_ + 1;
+  }
+
+  void Check(size_t times) {
+    check_times_.push_back(times);
+  }
+
+  size_t GetReadFiles() {
+    return read_files_;
+  }
+
+  size_t GetWriteFiles() {
+    return write_files_;
+  }
+
+  size_t GetMinorCompactionTimes() {
+    return minor_compaction_times_;
+  }
+
+  size_t GetMajorCompactionTimes() {
+    return major_compaction_times_;
+  }
+
+  double GetCheckTimesAvg() {
+    double sum = 0;
+    for (size_t i = 0; i < check_times_.size(); ++ i)
+      sum = sum + check_times_[i];
+    return (sum / check_times_.size());
+  }
+private:
+  double write_files_;
+  double read_files_;
+  size_t minor_compaction_times_;
+  size_t major_compaction_times_;
+  std::vector<size_t> check_times_;
+};
+
+class Result {
+public:
+  Result() {
+    flashresult_ = new FlashResult();
+    lsmtreeresult_ = new LSMTreeResult();
+  }
+
+  LSMTreeResult *lsmtreeresult_;
+  FlashResult *flashresult_;
 };
 
 }

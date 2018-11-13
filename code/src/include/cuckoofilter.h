@@ -103,7 +103,7 @@ public:
   CuckooFilter() { }
 
   CuckooFilter(const size_t capacity, const std::vector<Slice>& keys) {
-    Util::Assert("CAPACITY IS ZERO", capacity > 0);
+    assert(capacity > 0);
     capacity_ = capacity;
     array_ = new Bucket[capacity_];
     size_ = 0;
@@ -217,7 +217,7 @@ private:
       if (array_[pos_].Insert(fp_))
         return ;
     }
-    Util::Assert("SPACE IS NOT ENOUGH", false);
+    assert(false);
   }
 
   void Add(const Slice key) {

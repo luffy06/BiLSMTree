@@ -11,7 +11,7 @@ namespace bilsmtree {
 
 class KVServer {
 public:
-  KVServer(FileSystem* filesystem);
+  KVServer(FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
   
   ~KVServer();
 

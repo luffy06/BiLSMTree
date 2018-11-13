@@ -15,7 +15,7 @@ namespace bilsmtree {
 
 class LSMTree {
 public:
-  LSMTree(FileSystem* filesystem);
+  LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
   
   ~LSMTree();
 
@@ -28,10 +28,10 @@ private:
   std::vector<Meta> file_[Config::LSMTreeConfig::LEVEL];
   std::vector<Meta> list_[Config::LSMTreeConfig::LEVEL];
   VisitFrequency *recent_files_;
-  size_t min_frequency_number_[Config::LSMTreeConfig::LEVEL];
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
-  FileSystem* filesystem_;
+  FileSystem *filesystem_;
+  LSMTreeResult *lsmtreeresult_;
 
   std::string GetFilename(size_t sequence_number_);
 
@@ -45,7 +45,7 @@ private:
 
   void CompactList(size_t level);
 
-  void MajorCompact(size_t level);
+  void MajorCompaction(size_t level);
 };
 }
 

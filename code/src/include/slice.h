@@ -4,19 +4,32 @@
 #include <cstring>
 #include <cassert>
 
+#include <iostream>
 #include <string>
 
 namespace bilsmtree {
 
 class Slice {
 public:
-  Slice() : data_(""), size_(0) { }
+  Slice() : size_(0) {
+    data_ = new char[1];
+    data_[0] = '\0';
+  }
 
-  Slice(const char* d, size_t n) : data_(d), size_(n) { }
+  Slice(const char* d, size_t n) : size_(n) {
+    data_ = new char[size_];
+    Copy(d);
+  }
 
-  Slice(const std::string s) : data_(s.data()), size_(s.size()) { }
+  Slice(const std::string s) : size_(s.size()) {
+    data_ = new char[size_];
+    Copy(s.data());
+  }
 
-  Slice(const char* s) : data_(s), size_(strlen(s)) { }
+  Slice(const char* s) : size_(strlen(s)) {
+    data_ = new char[size_];
+    Copy(s);
+  }
 
   Slice(const Slice&) = default;
   Slice& operator=(const Slice&) = default;
@@ -32,9 +45,9 @@ public:
     return data_[n];
   }
 
-  void clear() { data_ = ""; size_ = 0; }
-
-  std::string ToString() const { return std::string(data_, size_); }
+  std::string ToString() const { 
+    return std::string(data_, size_); 
+  }
 
   // <  0 iff this <  b
   // == 0 iff this == b
@@ -42,8 +55,14 @@ public:
   int compare(const Slice b) const;
 
 private:
-  const char *data_;
+  char *data_;
   size_t size_;
+
+  void Copy(const char* d) {
+    for (size_t i = 0; i < size_; ++ i)
+      data_[i] = d[i];
+    data_[size_] = '\0';
+  }
 };
 
 struct KV {
@@ -52,11 +71,17 @@ struct KV {
 
   KV() { }
 
-  KV(const std::string key, const std::string value) : key_(key), value_(value) {  }
+  KV(const std::string key, const std::string value) : key_(key), value_(value) { }
 
   KV(const Slice key, const Slice value) : key_(key), value_(value) {  }
 
   size_t size() const { return key_.size() + value_.size(); }
+
+  void show() const {
+    std::cout << "Key\t" << key_.size() << std::endl << key_.ToString() << std::endl;
+    std::cout << "Value\t" << value_.size() << std::endl << value_.ToString() << std::endl;
+    std::cout << std::endl;
+  }
 };
 
 inline bool operator==(const Slice& x, const Slice& y) {

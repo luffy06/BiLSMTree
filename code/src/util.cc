@@ -33,12 +33,6 @@ bool Util::ExistFile(const std::string filename) {
   return res;
 }
 
-void Util::Assert(const char* message, bool condition) {
-  if (!condition)
-    std::cout << message << std::endl;
-  assert(condition);
-}
-
 std::string Util::GetAlgorithm() {
   std::fstream f("../config.in", std::ios::in);
   std::string algorithm;

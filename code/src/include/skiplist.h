@@ -23,6 +23,8 @@ public:
   void Delete(const Slice key);
 
   std::vector<KV> GetAll() const;
+
+  void DisableWrite();
 private:
   struct ListNode {
     KV kv_;
@@ -32,6 +34,7 @@ private:
 
   size_t data_size_;
   ListNode *head_;
+  bool writable_;
 
   size_t GenerateLevel();
 };

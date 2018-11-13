@@ -12,22 +12,23 @@
 
 namespace bilsmtree {
 
+// file meta
 struct FCB {
   std::string filename_;
   size_t block_start_;      // the start of block
   size_t filesize_;         // the number of blocks
 
   FCB() {
-    std::cout << "EMPTY FCB" << std::endl;
   }
 
-  FCB(const std::string& a, size_t b, size_t c) {
+  FCB(const std::string a, size_t b, size_t c) {
     filename_ = a;
     block_start_ = b;
     filesize_ = c;
   }
 };
 
+// opened file meta
 struct FileStatus {
   size_t file_number_;
   size_t lba_;              // current block number
@@ -44,7 +45,8 @@ struct FileStatus {
 
 class FileSystem {
 public:
-  FileSystem();
+  FileSystem(FlashResult *flashresult);
+  
   ~FileSystem();
 
   size_t Open(const std::string filename, const size_t mode);
@@ -61,8 +63,8 @@ public:
 
   void Close(const size_t file_number);  
 private:
-  std::vector<FileStatus> file_buffer_;
-  std::map<size_t, FCB> fcbs_;
+  std::vector<FileStatus> file_buffer_;     // opened files
+  std::map<size_t, FCB> fcbs_;              // all files
   size_t *fat_;
   size_t total_file_number_;
   size_t open_number_;

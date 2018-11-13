@@ -9,6 +9,7 @@ SkipList::SkipList() {
   for (size_t i = 0; i < Config::SkipListConfig::MAXLEVEL; ++ i)
     head_->forward_[i] = NULL;
   data_size_ = 0;
+  writable_ = true;
 }
 
 SkipList::~SkipList() {
@@ -34,6 +35,7 @@ bool SkipList::Find(const Slice key, Slice& value) {
 }
 
 void SkipList::Insert(const KV kv) {
+  assert(writable_);
   ListNode* p = head_;
   ListNode* update_[Config::SkipListConfig::MAXLEVEL];
   for (size_t i = head_->level_ - 1; i >= 0; -- i) {
@@ -46,6 +48,7 @@ void SkipList::Insert(const KV kv) {
     p->kv_.value_ = kv.value_;
   }
   else {
+    assert(!IsFull());
     ListNode* q = new ListNode();
     q->kv_ = kv;
     q->level_ = GenerateLevel();
@@ -63,6 +66,7 @@ void SkipList::Insert(const KV kv) {
 }
 
 void SkipList::Delete(const Slice key) {
+  assert(writable_);
   ListNode* p = head_;
   ListNode* update_[Config::SkipListConfig::MAXLEVEL];
   for (size_t i = head_->level_ - 1; i >= 0; -- i) {
@@ -88,6 +92,10 @@ std::vector<KV> SkipList::GetAll() const {
   for (size_t i = 0; i < data_size_; ++ i)
     res_.push_back(head_[i].kv_);
   return res_;
+}
+
+void SkipList::DisableWrite() {
+  writable_ = false;
 }
 
 size_t SkipList::GenerateLevel() {

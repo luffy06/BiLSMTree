@@ -9,10 +9,14 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
 set(BILSMTREE_SOURCE_DIR "src")
 
 add_subdirectory(${BILSMTREE_SOURCE_DIR})
 
-add_executable(main "main.cc")
+add_executable(main "test.cc")
 
 target_link_libraries(main bilsmtree)

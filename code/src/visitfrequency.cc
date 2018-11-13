@@ -43,7 +43,7 @@ int VisitFrequency::Append(size_t file_number) {
       }
     }
     else {
-      Util::Assert("Head size is not equal Tail", (visit_[0].size() == visit_[1].size()));
+      assert(visit_[0].size() == visit_[1].size());
       if (visit_[0].empty()) {
         Dump();
         Load();
