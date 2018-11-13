@@ -39,13 +39,13 @@
 
 # CRITERIA
 
-1. 访问时间
-2. Flash擦除次数
-3. 写放大
-4. 读放大
-5. compaction 次数
-6. db查找一个key时多查找的次数
-7. immutable memtable dump到l0的次数
+1. 访问时间(R)
+2. Flash擦除次数(R)
+3. 写放大(R)
+4. 读放大(R)
+5. compaction次数(R)
+6. db查找一个key时多查找的次数(R)
+7. immutable memtable dump到l0的次数(R)
 
 ## OVERHEAD
 
@@ -56,6 +56,5 @@
 
 # TODO
 
-1. DEBUG
-2. 检查Immutable MemTable DUMP
-3. REDESIGN SKIPLIST GetAll()
+1. REDESIGN SKIPLIST GetAll()
+2. priority_queue tableiterator
