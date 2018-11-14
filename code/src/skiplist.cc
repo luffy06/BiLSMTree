@@ -3,6 +3,7 @@
 namespace bilsmtree {
 
 SkipList::SkipList() {
+  std::cout << "NEW SKIPLIST" << std::endl;
   head_ = new ListNode();
   head_->level_ = GenerateLevel();
   head_->forward_ = new ListNode*[Config::SkipListConfig::MAXLEVEL];
@@ -13,7 +14,8 @@ SkipList::SkipList() {
 }
 
 SkipList::~SkipList() {
-  delete[] head_;
+  delete[] head_->forward_;
+  delete head_;
 }
 
 bool SkipList::IsFull() {
@@ -22,7 +24,9 @@ bool SkipList::IsFull() {
 
 bool SkipList::Find(const Slice key, Slice& value) {
   ListNode* p = head_;
-  for (int i = head_->level_ - 1; i >= 0; -- i) {
+  std::cout << "Find In SkipList" << std::endl;
+  assert(head_ != NULL);
+  for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
     while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
       p = p->forward_[i];
   }
@@ -36,9 +40,9 @@ bool SkipList::Find(const Slice key, Slice& value) {
 
 void SkipList::Insert(const KV kv) {
   assert(writable_);
-  ListNode* p = head_;
-  ListNode* update_[Config::SkipListConfig::MAXLEVEL];
-  for (int i = head_->level_ - 1; i >= 0; -- i) {
+  ListNode *p = head_;
+  ListNode *update_[Config::SkipListConfig::MAXLEVEL];
+  for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
     while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(kv.key_) < 0)
       p = p->forward_[i];
     update_[i] = p;
@@ -68,9 +72,9 @@ void SkipList::Insert(const KV kv) {
 
 void SkipList::Delete(const Slice key) {
   assert(writable_);
-  ListNode* p = head_;
-  ListNode* update_[Config::SkipListConfig::MAXLEVEL];
-  for (int i = head_->level_ - 1; i >= 0; -- i) {
+  ListNode *p = head_;
+  ListNode *update_[Config::SkipListConfig::MAXLEVEL];
+  for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
     while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
       p = p->forward_[i];
     update_[i] = p;
@@ -87,17 +91,6 @@ void SkipList::Delete(const Slice key) {
       head_->level_ = head_->level_ - 1;
     data_size_ = data_size_ - 1;
   }
-}
-
-std::vector<KV> SkipList::GetAll() const {
-  std::vector<KV> res_;
-  ListNode *p = head_;
-  for (size_t i = 0; i < data_size_; ++ i) {
-    KV kv = p->forward_[0]->kv_;
-    res_.push_back(kv);
-    p = p->forward_[0];
-  }
-  return res_;
 }
 
 void SkipList::DisableWrite() {

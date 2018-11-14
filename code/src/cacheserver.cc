@@ -15,22 +15,23 @@ CacheServer::CacheServer() {
 CacheServer::~CacheServer() {
   delete lru_;
   delete mem_;
-  for (ListNode* p = head_; head_ != NULL; p = head_) {
+  ListNode *p = head_;
+  while (head_ != NULL) {
     head_ = head_->next_;
     delete p->imm_;
     delete p;
+    p = head_;
   }
 }
 
 SkipList* CacheServer::Put(const KV kv) {
-  KV kv_;
+  KV pop_kv;
   SkipList* res = NULL;
-  if (lru_->Put(kv, kv_)) {
-    // std::cout << "POP KV" << std::endl;
-    // kv_.show();
+  if (lru_->Put(kv, pop_kv)) {
+    // std::cout << "POP KV:" << pop_kv.key_.ToString() << std::endl;
     // lru2q is full
     if (mem_->IsFull()) {
-      // std::cout << "Memtable is full" << std::endl;
+      std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
       // immutable memtable is full
       if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
         // the size of immutable memtables is full
@@ -59,23 +60,24 @@ SkipList* CacheServer::Put(const KV kv) {
       mem_ = new SkipList();
     }
     // insert memtable
-    mem_->Insert(kv);
+    mem_->Insert(pop_kv);
   }
   return res;
 }
 
 bool CacheServer::Get(const Slice key, Slice& value) {
-  std::cout << "Get In CacheServer" << std::endl;
+  std::cout << "Ready Find in LRU2Q" << std::endl;
   if (!lru_->Get(key, value)) {
-    std::cout << "Get In Memetable" << std::endl;
+    std::cout << "Ready Find in Memtable" << std::endl;
     bool imm_res = mem_->Find(key, value);
     ListNode *p = head_->next_;
+    std::cout << "Ready Find in Immutable Memtable" << std::endl;
     size_t j = 0;
-    std::cout << "Get In Immutable Memetable" << std::endl;
     while (p != NULL && !imm_res) {
-      std::cout << "Get In Immutable Memetable:" << j << std::endl;
+      std::cout << "Ready Find in Immutable Memtable:" << j++ << std::endl;
       imm_res = p->imm_->Find(key, value);
       if (imm_res) {
+        std::cout << "FIND IN IMMUTABLE MEMTABLE" << std::endl;
         p->prev_->next_ = p->next_;
         if (p->next_ != NULL)
           p->next_->prev_ = p->prev_;
@@ -87,13 +89,8 @@ bool CacheServer::Get(const Slice key, Slice& value) {
         break;
       }
       else {
-        std::cout << "MEMTABLE " << j << " DOESN't FIND" << std::endl;
-        std::vector<KV> res = p->imm_->GetAll();
-        std::cout << res.size() << std::endl;
-        for (size_t i = 0; i < res.size(); ++ i)
-          std::cout << res[i].key_.ToString() << std::endl;
+        std::cout << "Doesn't Find In Immutable Memtable" << std::endl;
       }
-      ++ j;
       p = p->next_;
     }
     return imm_res;
