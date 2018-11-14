@@ -303,16 +303,11 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    // std::cout << "Put:" << data[i].key_.ToString() << std::endl;
-    // std::cout << "Put Key " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    // std::cout << "Validate " << i << "\t" << data[i].key_ << std::endl;
     std::string db_value;
-    std::cout << "Get Key " << i << std::endl;
-    std::cout << data[i].key_.ToString() << std::endl;
     if (!db->Get(data[i].key_.ToString(), db_value)) {
       msg = "Key doesn't exist";
       break;

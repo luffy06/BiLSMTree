@@ -31,7 +31,7 @@ SkipList* CacheServer::Put(const KV kv) {
     // std::cout << "POP KV:" << pop_kv.key_.ToString() << std::endl;
     // lru2q is full
     if (mem_->IsFull()) {
-      std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
+      // std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
       // immutable memtable is full
       if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
         // the size of immutable memtables is full
@@ -66,18 +66,17 @@ SkipList* CacheServer::Put(const KV kv) {
 }
 
 bool CacheServer::Get(const Slice key, Slice& value) {
-  std::cout << "Ready Find in LRU2Q" << std::endl;
+  // std::cout << "Ready Find in LRU2Q" << std::endl;
   if (!lru_->Get(key, value)) {
-    std::cout << "Ready Find in Memtable" << std::endl;
+    // std::cout << "Ready Find in Memtable" << std::endl;
     bool imm_res = mem_->Find(key, value);
     ListNode *p = head_->next_;
-    std::cout << "Ready Find in Immutable Memtable" << std::endl;
-    size_t j = 0;
+    // std::cout << "Ready Find in Immutable Memtable" << std::endl;
     while (p != NULL && !imm_res) {
-      std::cout << "Ready Find in Immutable Memtable:" << j++ << std::endl;
+      // std::cout << "Ready Find in Immutable Memtable:" << j++ << std::endl;
       imm_res = p->imm_->Find(key, value);
       if (imm_res) {
-        std::cout << "FIND IN IMMUTABLE MEMTABLE" << std::endl;
+        // std::cout << "FIND IN IMMUTABLE MEMTABLE" << std::endl;
         p->prev_->next_ = p->next_;
         if (p->next_ != NULL)
           p->next_->prev_ = p->prev_;
@@ -87,9 +86,6 @@ bool CacheServer::Get(const Slice key, Slice& value) {
           head_->next_->prev_ = p;
         head_->next_ = p;
         break;
-      }
-      else {
-        std::cout << "Doesn't Find In Immutable Memtable" << std::endl;
       }
       p = p->next_;
     }

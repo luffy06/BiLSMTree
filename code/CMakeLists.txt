@@ -17,6 +17,6 @@ set(BILSMTREE_SOURCE_DIR "src")
 
 add_subdirectory(${BILSMTREE_SOURCE_DIR})
 
-add_executable(main "test.cc")
+add_executable(run "test.cc")
 
-target_link_libraries(main bilsmtree)
+target_link_libraries(run bilsmtree)

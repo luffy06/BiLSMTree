@@ -3,7 +3,6 @@
 namespace bilsmtree {
 
 SkipList::SkipList() {
-  std::cout << "NEW SKIPLIST" << std::endl;
   head_ = new ListNode();
   head_->level_ = GenerateLevel();
   head_->forward_ = new ListNode*[Config::SkipListConfig::MAXLEVEL];
@@ -24,7 +23,6 @@ bool SkipList::IsFull() {
 
 bool SkipList::Find(const Slice key, Slice& value) {
   ListNode* p = head_;
-  std::cout << "Find In SkipList" << std::endl;
   assert(head_ != NULL);
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
     while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
