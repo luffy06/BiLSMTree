@@ -17,17 +17,14 @@ public:
   }
 
   Slice(const char* d, size_t n) : size_(n) {
-    data_ = new char[size_];
     Copy(d);
   }
 
   Slice(const std::string s) : size_(s.size()) {
-    data_ = new char[size_];
     Copy(s.data());
   }
 
   Slice(const char* s) : size_(strlen(s)) {
-    data_ = new char[size_];
     Copy(s);
   }
 
@@ -59,6 +56,9 @@ private:
   size_t size_;
 
   void Copy(const char* d) {
+    if (data_ != NULL)
+      delete data_;
+    data_ = new char[size_ + 1];
     for (size_t i = 0; i < size_; ++ i)
       data_[i] = d[i];
     data_[size_] = '\0';
