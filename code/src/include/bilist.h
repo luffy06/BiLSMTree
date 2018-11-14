@@ -42,6 +42,16 @@ public:
     return tail_;
   }
 
+  std::vector<KV> GetAll() {
+    std::vector<KV> res;
+    size_t p = data_[head_].next_;
+    while (p) {
+      res.push_back(data_[p].kv_);
+      p = data_[p].next_;
+    }
+    return res;
+  }
+
   void Show() {
     size_t p = data_[head_].next_;
     size_t i = 1;
@@ -56,7 +66,7 @@ public:
 private:
   struct ListNode {
     KV kv_;
-    size_t next_, prev_;
+    int next_, prev_;
 
     ListNode() { }
 

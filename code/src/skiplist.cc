@@ -4,9 +4,9 @@ namespace bilsmtree {
 
 SkipList::SkipList() {
   head_ = new ListNode();
-  head_->level_ = 0;
+  head_->level_ = GenerateLevel();
   head_->forward_ = new ListNode*[Config::SkipListConfig::MAXLEVEL];
-  for (size_t i = 0; i < Config::SkipListConfig::MAXLEVEL; ++ i)
+  for (size_t i = 0; i < head_->level_; ++ i)
     head_->forward_[i] = NULL;
   data_size_ = 0;
   writable_ = true;
@@ -22,8 +22,8 @@ bool SkipList::IsFull() {
 
 bool SkipList::Find(const Slice key, Slice& value) {
   ListNode* p = head_;
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i]->kv_.key_.compare(key) < 0)
+  for (int i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
       p = p->forward_[i];
   }
   p = p->forward_[0];
@@ -38,13 +38,13 @@ void SkipList::Insert(const KV kv) {
   assert(writable_);
   ListNode* p = head_;
   ListNode* update_[Config::SkipListConfig::MAXLEVEL];
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i]->kv_.key_.compare(kv.key_) < 0)
+  for (int i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(kv.key_) < 0)
       p = p->forward_[i];
     update_[i] = p;
   }
   p = p->forward_[0];
-  if (p->kv_.key_.compare(kv.key_) == 0) {
+  if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
     p->kv_.value_ = kv.value_;
   }
   else {
@@ -62,6 +62,7 @@ void SkipList::Insert(const KV kv) {
       q->forward_[i] = update_[i]->forward_[i];
       update_[i]->forward_[i] = q;
     }
+    data_size_ = data_size_ + 1;
   }
 }
 
@@ -69,9 +70,9 @@ void SkipList::Delete(const Slice key) {
   assert(writable_);
   ListNode* p = head_;
   ListNode* update_[Config::SkipListConfig::MAXLEVEL];
-  for (size_t i = head_->level_ - 1; i >= 0; -- i) {
-    while (p->forward_[i]->kv_.key_.compare(key) < 0)
-      p = p -> forward_[i];
+  for (int i = head_->level_ - 1; i >= 0; -- i) {
+    while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
+      p = p->forward_[i];
     update_[i] = p;
   }
   p = p->forward_[0];
@@ -84,13 +85,18 @@ void SkipList::Delete(const Slice key) {
     delete p;
     while (head_->level_ > 0 && head_->forward_[head_->level_] == NULL)
       head_->level_ = head_->level_ - 1;
+    data_size_ = data_size_ - 1;
   }
 }
 
 std::vector<KV> SkipList::GetAll() const {
   std::vector<KV> res_;
-  for (size_t i = 0; i < data_size_; ++ i)
-    res_.push_back(head_[i].kv_);
+  ListNode *p = head_;
+  for (size_t i = 0; i < data_size_; ++ i) {
+    KV kv = p->forward_[0]->kv_;
+    res_.push_back(kv);
+    p = p->forward_[0];
+  }
   return res_;
 }
 

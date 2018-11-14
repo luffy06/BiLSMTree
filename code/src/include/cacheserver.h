@@ -21,7 +21,7 @@ private:
     ListNode* prev_;
   };
   LRU2Q *lru_;
-  SkipList *imm_temp_;
+  SkipList *mem_;
   size_t imm_size_;
   ListNode *head_;
   ListNode *tail_;

@@ -64,12 +64,12 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 20;
+    static const size_t MAXSIZE = 10;
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 100;    // size of lru
-    static const size_t M2 = 100;    // size of fifo
+    static const size_t M1 = 10;    // size of lru
+    static const size_t M2 = 10;    // size of fifo
   };
 
   struct FilterConfig {
@@ -105,7 +105,7 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 10; // max size of immutable memtables
+    static const size_t MAXSIZE = 1; // max size of immutable memtables
   };
 
   struct CuckooFilterConfig {

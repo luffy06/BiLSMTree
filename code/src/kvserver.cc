@@ -22,6 +22,7 @@ bool KVServer::Get(const Slice key, Slice& value) {
 }
 
 void KVServer::MinorCompact(const SkipList* sl) {
+  std::cout << "MinorCompact" << std::endl;
   std::vector<KV> data_ = sl->GetAll();
   // TODO: RESIZE BEFORE PUSH_BACK
   std::vector<KV> kvs_;
