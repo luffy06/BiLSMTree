@@ -30,7 +30,18 @@ struct Meta {
 
 class Block {
 public:
-  Block(const char* data, const size_t size) : data_(data), size_(size) { }
+  Block(const char* data, const size_t size) : size_(size) {
+    assert(size_ <= Config::TableConfig::BLOCKSIZE);
+    data_ = new char[Config::TableConfig::BLOCKSIZE + 1];
+    for (size_t i = 0; i < size_; ++ i)
+      data_[i] = data[i];
+    data_[size_] = '\0';
+    std::cout << "Block Data" << std::endl;
+    std::cout << data_ << std::endl;
+    std::cout << std::string(20, '$') << std::endl;
+    std::cout << data << std::endl;
+    std::cout << std::string(30, '$') << std::endl;
+  }
   
   ~Block() { }
 
@@ -38,7 +49,7 @@ public:
 
   size_t size() { return size_; }
 private:
-  const char *data_;
+  char *data_;
   size_t size_;
 };
 

@@ -20,7 +20,7 @@ void DB::Put(const std::string key, const std::string value) {
   SkipList* sl = cacheserver_->Put(kv_);
   if (sl != NULL) {
     // need compaction
-    std::cout << "Read to Compaction" << std::endl;
+    // std::cout << "Read to Compaction" << std::endl;
     kvserver_->MinorCompact(sl);
   }
 }

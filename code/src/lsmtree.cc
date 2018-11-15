@@ -93,17 +93,15 @@ std::string LSMTree::GetFilename(size_t sequence_number_) {
 
 bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string filename = GetFilename(meta.sequence_number_);
+  std::stringstream ss;
   size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(file_number_, meta.file_size_ - Config::TableConfig::FOOTERSIZE);
-  std::stringstream ss(filesystem_->Read(file_number_, 2 * sizeof(size_t)));
+  ss.str(filesystem_->Read(file_number_, 2 * sizeof(size_t)));
   lsmtreeresult_->Read();
-  char *buf = new char[sizeof(size_t)];
-  ss.read(buf, sizeof(size_t));
-  buf[sizeof(size_t)] = '\0';
-  size_t index_offset_ = Util::StringToInt(std::string(buf));
-  ss.read(buf, sizeof(size_t));
-  buf[sizeof(size_t)] = '\0';
-  size_t filter_offset_ = Util::StringToInt(std::string(buf));
+  size_t index_offset_ = 0;
+  size_t filter_offset_ = 0;
+  ss.read((char *)&index_offset_, sizeof(size_t));
+  ss.read((char *)&filter_offset_, sizeof(size_t));
   // READ FILTER
   filesystem_->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem_->Read(file_number_, Config::TableConfig::FILTERSIZE);
@@ -128,19 +126,20 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   filesystem_->Seek(file_number_, index_offset_);
   std::string index_data_ = filesystem_->Read(file_number_, Config::TableConfig::BLOCKSIZE);
   lsmtreeresult_->Read();
-  std::istringstream is(index_data_);
-  std::string key_;
+  ss.str(index_data_);
   int offset_ = -1;
-  char temp[1000];
-  while (!is.eof()) {
-    is.read(temp, sizeof(size_t));
-    size_t key_size_ = Util::StringToInt(std::string(temp));
-    is.read(temp, key_size_);
-    key_ = std::string(temp);
-    is.read(temp, sizeof(size_t));
-    offset_ = Util::StringToInt(std::string(temp));
-    if (key.compare(key_) <= 0)
+  while (!ss.eof()) {
+    size_t key_size_ = 0;
+    ss.read((char *)&key_size_, sizeof(size_t));
+    char *key_ = new char[key_size_ + 1];
+    ss.read(key_, sizeof(char) * key_size_);
+    key_[key_size_] = '\0';
+    size_t off = 0;
+    ss.read((char *)&off, sizeof(size_t));
+    if (key.compare(key_) <= 0) {
+      offset_ = off;
       break;
+    }
   }
   if (offset_ == -1) {
     filesystem_->Close(file_number_);
@@ -151,19 +150,24 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string data_ = filesystem_->Read(file_number_, Config::TableConfig::BLOCKSIZE);
   lsmtreeresult_->Read();
   filesystem_->Close(file_number_);
-  is.str(data_);
-  std::string value_;
-  while (!is.eof()) {
-    is.read(temp, sizeof(size_t));
-    size_t key_size_ = Util::StringToInt(std::string(temp));
-    is.read(temp, key_size_);
-    key_ = std::string(temp);
-    is.read(temp, sizeof(size_t));
-    size_t value_size_ = Util::StringToInt(std::string(temp));
-    is.read(temp, value_size_);
-    value_ = std::string(temp);
-    if (key.compare(key_) == 0) {
-      value = Slice(value_);
+  ss.str(data_);
+  while (!ss.eof()) {
+    size_t key_size_ = 0;
+    size_t value_size_ = 0;
+    char *key_ = NULL;
+    char *value_ = NULL;
+    ss.read((char *)&key_size_, sizeof(size_t));
+    key_ = new char[key_size_ + 1];
+    ss.read(key_, sizeof(char) * key_size_);
+    key_[key_size_] = '\0';
+
+    ss.read((char *)&value_size_, sizeof(size_t));
+    value_ = new char[value_size_ + 1];
+    ss.read(value_, sizeof(char) * value_size_);
+    value_[value_size_] = '\0';
+
+    if (key.compare(Slice(key_, key_size_)) == 0) {
+      value = Slice(value_, value_size_);
       return true;
     }
   }

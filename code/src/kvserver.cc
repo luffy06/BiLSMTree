@@ -22,7 +22,6 @@ bool KVServer::Get(const Slice key, Slice& value) {
 }
 
 void KVServer::MinorCompact(const SkipList* sl) {
-  std::cout << "MinorCompact" << std::endl;
   std::vector<KV> data_ = sl->GetAll();
   // TODO: RESIZE BEFORE PUSH_BACK
   std::vector<KV> kvs_;
@@ -31,7 +30,6 @@ void KVServer::MinorCompact(const SkipList* sl) {
     Slice location_ = logmanager_->Append(kv_);
     kvs_.push_back(KV(kv_.key_, location_));
   }
-  std::cout << "AddTableToL0" << std::endl;
   lsmtree_->AddTableToL0(kvs_);
 }
 

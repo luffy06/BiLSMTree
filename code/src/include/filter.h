@@ -2,6 +2,7 @@
 #define BILSMTREE_FILTER_H
 
 #include <string>
+#include <sstream>
 
 #include "slice.h"
 #include "hash.h"

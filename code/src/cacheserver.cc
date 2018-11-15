@@ -34,7 +34,7 @@ SkipList* CacheServer::Put(const KV kv) {
       // std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
       // immutable memtable is full
       if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
-        std::cout << "DUMP" << std::endl;
+        // std::cout << "DUMP" << std::endl;
         // the size of immutable memtables is full
         // record tail position
         ListNode* p = tail_;

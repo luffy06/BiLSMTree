@@ -29,13 +29,12 @@ public:
     if (k_ < 1) k_ = 1;
     if (k_ > 30) k_ = 30;
 
-    std::istringstream is(data);
-    char temp[100];
-    is.read(temp, sizeof(size_t));
-    bits_ = Util::StringToInt(std::string(temp));
+    std::stringstream ss;
+    ss.str(data);
+    ss.read((char *)&bits_, sizeof(size_t));
     size_t bytes = bits_ / 8;
     array_ = new char[bytes];
-    is.read(array_, bytes);
+    ss.read(array_, sizeof(char) * bytes);
   }
   
   ~BloomFilter() {
@@ -55,9 +54,11 @@ public:
   }
 
   virtual std::string ToString() {
-    std::string data = Util::IntToString(bits_);
-    data = data + std::string(array_);
-    return data;
+    std::stringstream ss;
+    size_t bytes = bits_ / 8;
+    ss.write((char *)&bits_, sizeof(size_t));
+    ss.write(array_, sizeof(char) * bytes);
+    return ss.str();
   }
 
 
