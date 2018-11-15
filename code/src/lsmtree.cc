@@ -86,7 +86,7 @@ size_t LSMTree::GetSequenceNumber() {
 }
 
 std::string LSMTree::GetFilename(size_t sequence_number_) {
-  char filename[30];
+  char filename[100];
   sprintf(filename, "%s/%s_%zu.bdb", Config::TableConfig::TABLEPATH, Config::TableConfig::TABLENAME, sequence_number_);
   return std::string(filename);
 }
@@ -130,7 +130,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   lsmtreeresult_->Read();
   std::istringstream is(index_data_);
   std::string key_;
-  size_t offset_ = -1;
+  int offset_ = -1;
   char temp[1000];
   while (!is.eof()) {
     is.read(temp, sizeof(size_t));
@@ -215,14 +215,14 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   std::string algorithm = Util::GetAlgorithm();
   assert(algorithm == std::string("BiLSMTree"));
   CuckooFilter *filter = new CuckooFilter(filter_data_);
-  for (int i = now_level - 1; i >= to_level; -- i) {
-    size_t l = 0;
+  for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
+    int l = 0;
     int r = static_cast<int>(file_[i].size()) - 1;
     while (l < file_[i].size() && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
     while (r >= 0 && meta.largest_.compare(file_[i][l].smallest_) < 0) -- l;
     if (l > r) 
       continue;
-    for (size_t j = l; j <= r; ++ j) {
+    for (int j = l; j <= r; ++ j) {
       Meta to_meta = file_[i][j];
       std::string to_filename = GetFilename(to_meta.sequence_number_);
       size_t to_file_number_ = filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
