@@ -4,10 +4,10 @@ namespace bilsmtree {
 
 FileSystem::FileSystem(FlashResult *flashresult) {
   fat_ = new size_t[Config::FileSystemConfig::MAX_BLOCK_NUMS];
-  for (int i = 0; i < Config::FileSystemConfig::MAX_BLOCK_NUMS; ++ i)
+  for (size_t i = 0; i < Config::FileSystemConfig::MAX_BLOCK_NUMS; ++ i)
     fat_[i] = i;
 
-  for (int i = 0; i < Config::FileSystemConfig::MAX_BLOCK_NUMS; ++ i) 
+  for (size_t i = 0; i < Config::FileSystemConfig::MAX_BLOCK_NUMS; ++ i) 
     free_blocks_.push(i);
   
   flash_ = new Flash(flashresult);

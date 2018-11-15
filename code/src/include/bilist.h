@@ -66,7 +66,7 @@ public:
 private:
   struct ListNode {
     KV kv_;
-    int next_, prev_;
+    size_t next_, prev_;
 
     ListNode() { }
 

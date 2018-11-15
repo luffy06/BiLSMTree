@@ -217,7 +217,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   CuckooFilter *filter = new CuckooFilter(filter_data_);
   for (int i = now_level - 1; i >= to_level; -- i) {
     size_t l = 0;
-    int r = file_[i].size() - 1;
+    int r = static_cast<int>(file_[i].size()) - 1;
     while (l < file_[i].size() && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
     while (r >= 0 && meta.largest_.compare(file_[i][l].smallest_) < 0) -- l;
     if (l > r) 
@@ -225,7 +225,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
     for (size_t j = l; j <= r; ++ j) {
       Meta to_meta = file_[i][j];
       std::string to_filename = GetFilename(to_meta.sequence_number_);
-      int to_file_number_ = filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
+      size_t to_file_number_ = filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
       filesystem_->Seek(to_file_number_, to_meta.file_size_ - Config::TableConfig::FOOTERSIZE);
       ss.str(filesystem_->Read(file_number_, 2 * sizeof(size_t)));
       lsmtreeresult_->Read();

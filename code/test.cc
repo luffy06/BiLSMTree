@@ -303,6 +303,7 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
+    std::cout << "Put " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
@@ -326,7 +327,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 40; ++ i) {
+  for (size_t i = 1; i <= 45; ++ i) {
     bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
     small_data.push_back(kv);
   }
