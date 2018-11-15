@@ -32,15 +32,10 @@ class Block {
 public:
   Block(const char* data, const size_t size) : size_(size) {
     assert(size_ <= Config::TableConfig::BLOCKSIZE);
-    data_ = new char[Config::TableConfig::BLOCKSIZE + 1];
+    data_ = new char[size_ + 1];
     for (size_t i = 0; i < size_; ++ i)
       data_[i] = data[i];
     data_[size_] = '\0';
-    std::cout << "Block Data" << std::endl;
-    std::cout << data_ << std::endl;
-    std::cout << std::string(20, '$') << std::endl;
-    std::cout << data << std::endl;
-    std::cout << std::string(30, '$') << std::endl;
   }
   
   ~Block() { }
@@ -69,6 +64,7 @@ private:
   Block *index_block_;
   Filter *filter_;
   size_t data_block_number_;
+  std::string footer_data_;
   Meta meta_;
   FileSystem* filesystem_;
 };

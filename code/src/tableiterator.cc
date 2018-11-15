@@ -29,9 +29,11 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem)
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
     size_t offset = 0;
+    size_t data_block_size_ = 0;
     ss.read((char *)&offset, sizeof(size_t));
+    ss.read((char *)&data_block_size_, sizeof(size_t));
     filesystem->Seek(file_number_, offset);
-    std::string block_data = filesystem->Read(file_number_, Config::TableConfig::BLOCKSIZE);
+    std::string block_data = filesystem->Read(file_number_, data_block_size_);
     ParseBlock(block_data);
   }
   filesystem->Close(file_number_);

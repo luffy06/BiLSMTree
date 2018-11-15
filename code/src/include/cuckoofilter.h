@@ -202,9 +202,7 @@ private:
 
   Slice GetFingerPrint(const Slice key) {
     size_t f = Hash(key.data(), key.size(), FPSEED) % 255 + 1;
-    char *str = new char[128];
-    sprintf(str, "%zu", f);
-    return Slice(std::string(str));
+    return Slice(Util::IntToString(f));
   }
 
   Info GetInfo(const Slice key) {

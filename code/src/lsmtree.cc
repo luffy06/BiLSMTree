@@ -15,9 +15,13 @@ LSMTree::~LSMTree() {
 
 bool LSMTree::Get(const Slice key, Slice& value) {
   for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+    std::cout << "Level " << i << std::endl;
+    std::cout << "file_: " << file_[i].size() << std::endl;
+    std::cout << "list_: " << list_[i].size() << std::endl;
     std::vector<size_t> check_files_;
     if (i == 0) {
       for (size_t j = 0; j < file_[i].size(); ++ j) {
+        std::cout << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << std::endl;
         if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0)
           check_files_.push_back(j);
       }
@@ -46,6 +50,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0)
         check_files_.push_back(j + file_[i].size());
     }
+    std::cout << "check_files_: " << check_files_.size() << std::endl;
     for (size_t j = 0; j < check_files_.size(); ++ j) {
       size_t p = check_files_[j];
       Meta meta = (p < file_[i].size() ? file_[i][p] : list_[i][p - file_[i].size()]);
@@ -92,19 +97,23 @@ std::string LSMTree::GetFilename(size_t sequence_number_) {
 }
 
 bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
+  std::cout << "GetValueFromFile Key:" << key.ToString() << std::endl;
   std::string filename = GetFilename(meta.sequence_number_);
   std::stringstream ss;
+  std::cout << "file size:" << meta.file_size_ << std::endl;
   size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(file_number_, meta.file_size_ - Config::TableConfig::FOOTERSIZE);
-  ss.str(filesystem_->Read(file_number_, 2 * sizeof(size_t)));
+  std::string offset_data_ = filesystem_->Read(file_number_, 2 * sizeof(size_t));
+  ss.str(offset_data_);
   lsmtreeresult_->Read();
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss.read((char *)&index_offset_, sizeof(size_t));
   ss.read((char *)&filter_offset_, sizeof(size_t));
+  std::cout << index_offset_ << "\t" << filter_offset_ << std::endl;
   // READ FILTER
   filesystem_->Seek(file_number_, filter_offset_);
-  std::string filter_data_ = filesystem_->Read(file_number_, Config::TableConfig::FILTERSIZE);
+  std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - Config::TableConfig::FOOTERSIZE);
   lsmtreeresult_->Read();
   Filter* filter;
   std::string algorithm = Util::GetAlgorithm();
@@ -118,36 +127,39 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     filter = NULL;
     assert(false);
   }
+  std::cout << "Filter KeyMatch" << std::endl;
   if (!filter->KeyMatch(key)) {
     filesystem_->Close(file_number_);
     return false;
   }
   // READ INDEX BLOCK
   filesystem_->Seek(file_number_, index_offset_);
-  std::string index_data_ = filesystem_->Read(file_number_, Config::TableConfig::BLOCKSIZE);
+  std::string index_data_ = filesystem_->Read(file_number_, filter_offset_ - index_offset_);
   lsmtreeresult_->Read();
   ss.str(index_data_);
-  int offset_ = -1;
+  bool found = false;
+  size_t offset_ = 0;
+  size_t data_block_size_ = 0;
   while (!ss.eof()) {
     size_t key_size_ = 0;
     ss.read((char *)&key_size_, sizeof(size_t));
     char *key_ = new char[key_size_ + 1];
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
-    size_t off = 0;
-    ss.read((char *)&off, sizeof(size_t));
+    ss.read((char *)&offset_, sizeof(size_t));
+    ss.read((char *)&data_block_size_, sizeof(size_t));
     if (key.compare(key_) <= 0) {
-      offset_ = off;
+      found = true;
       break;
     }
   }
-  if (offset_ == -1) {
+  if (!found) {
     filesystem_->Close(file_number_);
     return false;
   }
   // READ DATA BLOCK
   filesystem_->Seek(file_number_, offset_);
-  std::string data_ = filesystem_->Read(file_number_, Config::TableConfig::BLOCKSIZE);
+  std::string data_ = filesystem_->Read(file_number_, data_block_size_);
   lsmtreeresult_->Read();
   filesystem_->Close(file_number_);
   ss.str(data_);
@@ -214,7 +226,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   size_t filter_offset_ = Util::StringToInt(std::string(buf));
   // MEGER FILTER
   filesystem_->Seek(file_number_, filter_offset_);
-  std::string filter_data_ = filesystem_->Read(file_number_, Config::TableConfig::FILTERSIZE);
+  std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - Config::TableConfig::FOOTERSIZE);
   lsmtreeresult_->Read();
   std::string algorithm = Util::GetAlgorithm();
   assert(algorithm == std::string("BiLSMTree"));
@@ -239,7 +251,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
       buf[sizeof(size_t)] = '\0';
       size_t to_filter_offset_ = Util::StringToInt(std::string(buf));
       filesystem_->Seek(to_file_number_, to_filter_offset_);
-      std::string to_filter_data_ = filesystem_->Read(to_file_number_, Config::TableConfig::FILTERSIZE);
+      std::string to_filter_data_ = filesystem_->Read(to_file_number_, to_meta.file_size_ - to_filter_offset_ - Config::TableConfig::FOOTERSIZE);
       lsmtreeresult_->Read();
       CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
       filter->Diff(to_filter);

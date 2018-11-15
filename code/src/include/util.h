@@ -92,7 +92,6 @@ public:
 
   struct TableConfig {
     static const size_t BLOCKSIZE = 4 * 1024; // 4KB
-    static const size_t FILTERSIZE = 4 * 1024;
     static const size_t FOOTERSIZE = 2 * sizeof(size_t);
     static const size_t TABLESIZE = 2 * 1024 * 1024; // 2MB
     static constexpr const char* TABLEPATH = "../logs/leveldb/";

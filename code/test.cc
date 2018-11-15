@@ -93,11 +93,11 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
     size_t file_number = filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::APPEND_OPTION);
     file_numbers.push_back(file_number);
     for (size_t j = 0; j < 3; ++ j) {
-      filesystem->Write(file_number, data[i].value_.ToString(), data[i].value_.size());
+      filesystem->Write(file_number, data[i].value_.ToString().data(), data[i].value_.size());
     }
     filesystem->Seek(file_number, 0);
     for (size_t j = 0; j < 3; ++ j) {
-      filesystem->Write(file_number, data[i].key_.ToString(), data[i].key_.size());
+      filesystem->Write(file_number, data[i].key_.ToString().data(), data[i].key_.size());
     }
     filesystem->Close(file_number);
   }
@@ -303,12 +303,13 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    std::cout << "Put " << i << std::endl;
+    // std::cout << "Put " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
+    std::cout << "Get " << data[i].key_.ToString() << std::endl;
     if (!db->Get(data[i].key_.ToString(), db_value)) {
       msg = "Key doesn't exist";
       break;

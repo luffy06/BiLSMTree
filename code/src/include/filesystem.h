@@ -57,7 +57,7 @@ public:
 
   std::string Read(const size_t file_number, const size_t read_size);
 
-  void Write(const size_t file_number, const std::string data, const size_t write_size);
+  void Write(const size_t file_number, const char* data, const size_t write_size);
 
   void Delete(const std::string filename);
 

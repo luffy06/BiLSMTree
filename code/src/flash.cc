@@ -7,11 +7,11 @@ Flash::Flash(FlashResult *flashresult) {
   // create block files
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     std::string block_path = GetBlockPath(i);
-    std::fstream f(block_path, std::ios::binary | std::ios::app | std::ios::out);
+    std::fstream f(block_path, std::ios::app | std::ios::out);
     f.close();
   }
   // create flash logs
-  std::fstream f(Config::FlashConfig::LOG_PATH, std::ios::binary | std::ios::app | std::ios::out);
+  std::fstream f(Config::FlashConfig::LOG_PATH, std::ios::app | std::ios::out);
   f.close();
   
   block_info_ = new BlockInfo[Config::FlashConfig::BLOCK_NUMS];
@@ -114,10 +114,11 @@ void Flash::Write(const size_t lba, const char* data) {
 }
 
 std::pair<size_t, char*> Flash::ReadByPageNum(const size_t block_num, const size_t page_num) {
+  std::cout << "Read " << block_num << "\t" << page_num << std::endl;
   size_t page_size_ = Config::FlashConfig::PAGE_SIZE;
   char *data_ = new char[page_size_ + 1];
   size_t lba_;
-  std::fstream f(GetBlockPath(block_num), std::ios::binary | std::ios::in);
+  std::fstream f(GetBlockPath(block_num), std::ios::in);
   f.seekp(page_num * (page_size_ * sizeof(char) + sizeof(size_t)));
   f.read(data_, page_size_ * sizeof(char));
   f.read((char *)&lba_, sizeof(size_t));
@@ -136,7 +137,7 @@ void Flash::WriteByPageNum(const size_t block_num, const size_t page_num, const 
   size_t page_size_ = Config::FlashConfig::PAGE_SIZE;
   char *temp = new char[page_size_ + 1];
   strncpy(temp, data, page_size_);
-  std::fstream f(GetBlockPath(block_num), std::ios::binary | std::ios::out | std::ios::in);
+  std::fstream f(GetBlockPath(block_num), std::ios::out | std::ios::in);
   f.seekp(page_num * (page_size_ * sizeof(char) + sizeof(size_t)));
   f.write(temp, page_size_ * sizeof(char));
   f.write((char *)&lba, sizeof(size_t));
