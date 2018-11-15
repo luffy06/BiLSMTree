@@ -218,7 +218,7 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
     int l = 0;
     int r = static_cast<int>(file_[i].size()) - 1;
-    while (l < file_[i].size() && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
+    while (l < static_cast<int>(file_[i].size()) && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
     while (r >= 0 && meta.largest_.compare(file_[i][l].smallest_) < 0) -- l;
     if (l > r) 
       continue;
