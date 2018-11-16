@@ -167,12 +167,12 @@ public:
   virtual std::string ToString() {
     std::stringstream ss;
     ss << data_size_;
-    // ss << Config::DATA_SEG;
-    ss << "\n";
+    ss << Config::DATA_SEG;
+    // ss << "\n";
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       ss << array_[i].ToString();
-      // ss << Config::DATA_SEG;
-      ss << "\n";
+      ss << Config::DATA_SEG;
+      // ss << "\n";
     }
     return ss.str();
   }
