@@ -18,6 +18,7 @@ std::string Util::IntToString(size_t value) {
 
 size_t Util::StringToInt(const std::string value) {
   std::stringstream ss;
+  size_t buf = 0;
   ss.str(value);
   ss >> buf;
   return buf;
