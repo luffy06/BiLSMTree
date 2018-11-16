@@ -33,6 +33,8 @@ public:
 
   ~Config() { }
 
+  static const char DATA_SEG = '\t';
+
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
     static const size_t WRITE_LATENCY = 200;          // 200us

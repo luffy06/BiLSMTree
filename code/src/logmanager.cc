@@ -12,39 +12,58 @@ LogManager::~LogManager() {
 }
 
 Slice LogManager::Append(const KV kv) {
-  Slice location_ = Util::IntToString(tail_);
-  WriteKV(kv);
+  std::string location_ = Util::IntToString(tail_);
+  size_t size_ = WriteKV(kv);
   record_count_ = record_count_ + 1;
-  return location_;
+  std::stringstream ss;
+  ss << location_;
+  ss << Config::DATA_SEG;
+  ss << size_;
+  ss << Config::DATA_SEG;
+  return Slice(ss.str());
 }
 
 Slice LogManager::Get(const Slice location) {
-  size_t loc = Util::StringToInt(location.ToString());
-  KV kv = ReadKV(loc);
+  std::cout << location.ToString() << std::endl;
+  std::stringstream ss;
+  ss.str(location.ToString());
+  std::string location_;
+  size_t size_ = 0;
+  ss >> location_;
+  ss >> size_;
+  size_t loc_ = Util::StringToInt(location_);
+  std::cout << loc_ << "\t" << size_ << std::endl;
+  KV kv = ReadKV(loc_, size_);
   return kv.value_;
 }
 
-void LogManager::WriteKV(const KV kv) {
-  std::string key_size_ = Util::IntToString(kv.key_.size());
-  std::string value_size_ = Util::IntToString(kv.value_.size());
+size_t LogManager::WriteKV(const KV kv) {
+  std::stringstream ss;
+  ss << kv.key_.ToString();
+  ss << Config::DATA_SEG;
+  ss << kv.value_.ToString();
+  ss << Config::DATA_SEG;
+  std::string log_data_ = ss.str();
+  std::cout << "Write Log Data:" << log_data_ << std::endl;
   size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
-  filesystem_->Write(file_number_, key_size_.data(), key_size_.size());
-  filesystem_->Write(file_number_, kv.key_.data(), kv.key_.size());
-  filesystem_->Write(file_number_, value_size_.data(), value_size_.size());
-  filesystem_->Write(file_number_, kv.value_.data(), kv.value_.size());  
-  tail_ = tail_ + kv.size() + 2 * sizeof(size_t);
+  filesystem_->Write(file_number_, log_data_.data(), log_data_.size());
+  tail_ = tail_ + log_data_.size();
   filesystem_->Close(file_number_);
+  return log_data_.size();
 }
 
-KV LogManager::ReadKV(const size_t location) {
+KV LogManager::ReadKV(const size_t location, const size_t size_) {
   size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(file_number_, location);
-  std::string key_size_str_ = filesystem_->Read(file_number_, sizeof(size_t));
-  size_t key_size_ = Util::StringToInt(key_size_str_);
-  Slice key_ = filesystem_->Read(file_number_, key_size_);
-  std::string value_size_str_ = filesystem_->Read(file_number_, sizeof(size_t));
-  size_t value_size_ = Util::StringToInt(value_size_str_);
-  Slice value_ = filesystem_->Read(file_number_, value_size_);
+  std::string log_data_ = filesystem_->Read(file_number_, size_);
+  std::cout << "Log Data:" << log_data_ << std::endl;
+  filesystem_->Close(file_number_);
+  std::stringstream ss;
+  ss.str(log_data_);
+  std::string key_;
+  std::string value_;
+  ss >> key_;
+  ss >> value_;
   return KV(key_, value_);
 }
 

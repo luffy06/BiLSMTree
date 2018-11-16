@@ -14,7 +14,7 @@ class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem);
+  TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size);
 
   ~TableIterator();
   

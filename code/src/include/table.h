@@ -16,6 +16,7 @@ struct Meta {
   size_t sequence_number_;
   size_t level_;
   size_t file_size_;
+  size_t footer_size_;
 
   Meta() {
     

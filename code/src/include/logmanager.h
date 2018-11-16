@@ -24,9 +24,9 @@ private:
   size_t record_count_;
   FileSystem* filesystem_;
 
-  void WriteKV(const KV kv);
+  size_t WriteKV(const KV kv);
 
-  KV ReadKV(const size_t location);
+  KV ReadKV(const size_t location, const size_t size_);
 };
 
 }

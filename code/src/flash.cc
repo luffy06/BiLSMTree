@@ -114,7 +114,7 @@ void Flash::Write(const size_t lba, const char* data) {
 }
 
 std::pair<size_t, char*> Flash::ReadByPageNum(const size_t block_num, const size_t page_num) {
-  std::cout << "Read " << block_num << "\t" << page_num << std::endl;
+  // std::cout << "Read " << block_num << "\t" << page_num << std::endl;
   size_t page_size_ = Config::FlashConfig::PAGE_SIZE;
   char *data_ = new char[page_size_ + 1];
   size_t lba_;

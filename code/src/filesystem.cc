@@ -21,7 +21,7 @@ FileSystem::~FileSystem() {
 }
 
 size_t FileSystem::Open(const std::string filename, const size_t mode) {
-  std::cout << "OPEN " << filename << std::endl;
+  // std::cout << "OPEN " << filename << std::endl;
   if (open_number_ >= Config::FileSystemConfig::MAX_FILE_OPEN) {
     std::cout << "FILE OPEN MAX" << std::endl;
     exit(-1);
@@ -39,7 +39,7 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
   if (!found) {
     file_number_ = total_file_number_ ++;
     fcbs_[file_number_] = FCB(filename, AssignFreeBlocks(), static_cast<size_t>(0));
-    std::cout << "START LBA:" << fcbs_[file_number_].block_start_ << std::endl;
+    // std::cout << "START LBA:" << fcbs_[file_number_].block_start_ << std::endl;
   }
 
   int index = BinarySearchInBuffer(file_number_);
@@ -63,7 +63,6 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
 }
 
 void FileSystem::Seek(const size_t file_number, const size_t offset) {
-  std::cout << "Seek" << std::endl;
   size_t lba_ = fcbs_[file_number].block_start_;
   size_t offset_ = offset;
   while (offset_ >= Config::FileSystemConfig::BLOCK_SIZE) {
@@ -84,7 +83,7 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
   FileStatus& fs = file_buffer_[index];
   fs.lba_ = lba_;
   fs.offset_ = offset_;
-  std::cout << "FILE offset_:" << offset_ << std::endl;
+  // std::cout << "FILE offset_:" << offset_ << std::endl;
 }
 
 size_t FileSystem::GetFileSize(const size_t file_number) {
@@ -177,7 +176,7 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
   }  
   while (size_ + Config::FileSystemConfig::BLOCK_SIZE < write_size) {
     // write [size_, size_ + BLOCK_SIZE)
-    std::cout << data_.substr(size_, size_ + Config::FileSystemConfig::BLOCK_SIZE) << std::endl;
+    // std::cout << data_.substr(size_, size_ + Config::FileSystemConfig::BLOCK_SIZE) << std::endl;
     flash_->Write(fs.lba_, data_.substr(size_, size_ + Config::FileSystemConfig::BLOCK_SIZE).c_str());
     size_ = size_ + Config::FileSystemConfig::BLOCK_SIZE;
     size_t new_lba_ = AssignFreeBlocks();

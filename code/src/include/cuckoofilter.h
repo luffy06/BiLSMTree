@@ -22,7 +22,8 @@ public:
 
   bool Insert(const Slice fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
-      data_[size_] = fp;
+      data_[size_] = Slice(fp.ToString());
+      size_ = size_ + 1;
       return true;
     }
     return false;
@@ -31,7 +32,7 @@ public:
   Slice Kick(const Slice fp) {
     size_t i = rand() % size_;
     Slice res = data_[i];
-    data_[i] = fp;
+    data_[i] = Slice(fp.ToString());
     return res;
   }
 
@@ -44,7 +45,7 @@ public:
         found = true;
     }
     if (found)
-      size_ -= 1;
+      size_ = size_ - 1;
     return found;
   }
 
@@ -63,20 +64,15 @@ public:
     return size_;
   }
 
-  void SetData(const std::string data) {
+  void SetData(const std::string data, const size_t size) {
     data_ = new Slice[Config::CuckooFilterConfig::MAXBUCKETSIZE];
-    for (size_t i = 0; i < Config::CuckooFilterConfig::MAXBUCKETSIZE; ++ i)
-      data_[i] = NULL;
     std::stringstream ss;
     ss.str(data);
-    ss.read((char *)&size_, sizeof(size_t));
+    size_ = size;
     for (size_t i = 0; i < size_; ++ i) {
-      size_t data_size_;
-      ss.read((char *)&data_size_, sizeof(size_t));
-      char *d = new char[data_size_ + 1];
-      ss.read(d, sizeof(char) * data_size_);
-      d[data_size_] = '\0';
-      data_[i] = Slice(d, data_size_);
+      std::string d;
+      ss >> d;
+      data_[i] = Slice(d);
     }
   }
 
@@ -99,11 +95,11 @@ public:
 
   std::string ToString() {
     std::stringstream ss;
-    ss.write((char *)&size_, sizeof(size_t));
+    ss << size_;
+    ss << Config::DATA_SEG;
     for (size_t i = 0; i < size_; ++ i) {
-      size_t data_size_ = data_[i].size();
-      ss.write((char *)&data_size_, sizeof(size_t));
-      ss.write(data_[i].data(), sizeof(char) * data_size_);
+      ss << data_[i].ToString();
+      ss << Config::DATA_SEG;
     }
     return ss.str();
   }
@@ -126,15 +122,18 @@ public:
   CuckooFilter(const std::string data) {
     std::stringstream ss;
     ss.str(data);
-    ss.read((char *)&size_, sizeof(size_t));
+    ss >> size_;
     array_ = new Bucket[Config::FilterConfig::CUCKOOFILTER_SIZE];
-    for (size_t i = 0; i < size_; ++ i) {
-      size_t array_data_size_;
-      ss.read((char *)&array_data_size_, sizeof(size_t));
-      char *array_data_ = new char[array_data_size_ + 1];
-      ss.read(array_data_, sizeof(char) * array_data_size_);
-      array_data_[array_data_size_] = '\0';
-      array_[i].SetData(array_data_);
+    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
+      size_t array_size_ = 0;
+      ss >> array_size_;
+      std::string array_data_ = "";
+      for (size_t j = 0; j < array_size_; ++ j) {
+        std::string d;
+        ss >> d;
+        array_data_ = d + "\t";
+      }
+      array_[i].SetData(array_data_, array_size_);
     }
   }
 
@@ -173,12 +172,11 @@ public:
 
   virtual std::string ToString() {
     std::stringstream ss;
-    ss.write((char *)&size_, sizeof(size_t));
-    for (size_t i = 0; i < size_; ++ i) {
-      std::string array_data_ = array_[i].ToString();
-      size_t array_data_size_ = array_data_.size();
-      ss.write((char *)&array_data_size_, sizeof(size_t));
-      ss.write(array_data_.data(), sizeof(char) * array_data_.size());
+    ss << size_;
+    ss << Config::DATA_SEG;
+    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
+      ss << array_[i].ToString();
+      ss << Config::DATA_SEG;
     }
     return ss.str();
   }
@@ -230,11 +228,14 @@ private:
   }
 
   void Add(const Slice key) {
+    // std::cout << "Add " << key.ToString() << std::endl;
     Info info = GetInfo(key);
+    // std::cout << "Info" << std::endl;
+    // std::cout << info.fp_.TcoString() << std::endl << info.pos1 << "\t" << info.pos2 << std::endl;
+    size_ = size_ + 1;
     if (array_[info.pos1].Insert(info.fp_) || array_[info.pos2].Insert(info.fp_))
       return ;
     InsertAndKick(info.fp_, rand() % 2 == 0 ? info.pos1 : info.pos2);
-    size_ = size_ + 1;
   }
 };
 }

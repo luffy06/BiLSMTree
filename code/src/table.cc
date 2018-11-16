@@ -10,78 +10,92 @@ Table::Table() {
   filesystem_ = NULL;
 }
 
+/*
+* DATA BLOCK: key,\t,value,\t
+* INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
+*/
 Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   assert(kvs.size() > 0);
   filesystem_ = filesystem;
   // for data blocks
   std::vector<std::string> buffers_;
   // for index block
-  std::vector<size_t> offsets_;
   std::vector<Slice> last_keys_;
   // for filter block
   std::vector<Slice> keys_for_filter_;
 
   // std::cout << "Initialize Blocks" << std::endl;
   size_t size_ = 0;
-  size_t data_size_ = 0;
   std::stringstream ss;
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_for_filter_.push_back(kv_.key_);
-    size_t add_ = kv_.size() + 2 * sizeof(size_t);
-    data_size_ = data_size_ + add_;
+    size_t key_size_ = kv_.key_.size(); 
+    size_t value_size_ = kv_.value_.size();
+    size_t add_ = kv_.size() + Util::IntToString(key_size_).size() + Util::IntToString(value_size_).size() + 4;
     if (size_ + add_ > Config::TableConfig::BLOCKSIZE) {
       // a data block finish
       buffers_.push_back(ss.str());
       // record index for data block
-      offsets_.push_back(size_);
       last_keys_.push_back(kvs[i - 1].key_);
       // create a new block
       size_ = add_;
       ss.str("");
-      size_t key_size_ = kv_.key_.size(); 
-      size_t value_size_ = kv_.value_.size();
-      ss.write((char *)&key_size_, sizeof(size_t));
+      ss << key_size_;
+      ss << Config::DATA_SEG;
       ss.write(kv_.key_.data(), sizeof(char) * key_size_);
-      ss.write((char *)&value_size_, sizeof(size_t));
+      ss << Config::DATA_SEG;
+      ss << value_size_;
+      ss << Config::DATA_SEG;
       ss.write(kv_.value_.data(), sizeof(char) * value_size_);
+      ss << Config::DATA_SEG;
     }
     else {
       size_ = size_ + add_;
-      size_t key_size_ = kv_.key_.size(); 
-      size_t value_size_ = kv_.value_.size();
-      ss.write((char *)&key_size_, sizeof(size_t));
+      ss << key_size_;
+      ss << Config::DATA_SEG;
       ss.write(kv_.key_.data(), sizeof(char) * key_size_);
-      ss.write((char *)&value_size_, sizeof(size_t));
+      ss << Config::DATA_SEG;
+      ss << value_size_;
+      ss << Config::DATA_SEG;
       ss.write(kv_.value_.data(), sizeof(char) * value_size_);
+      ss << Config::DATA_SEG;
     }
   }
   if (size_ > 0) {
     buffers_.push_back(ss.str());
-    offsets_.push_back(size_);
     last_keys_.push_back(kvs[kvs.size() - 1].key_);
   }
   
   ss.str("");
-  // std::cout << "buffers_: " << buffers_.size() << std::endl;
-  // std::cout << "offsets_: " << offsets_.size() << std::endl;
-  // std::cout << "last_keys_: " << last_keys_.size() << std::endl;
-  // std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
+  std::cout << "buffers_: " << buffers_.size() << std::endl;
+  std::cout << "last_keys_: " << last_keys_.size() << std::endl;
+  std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
   // write into block
   data_block_number_ = buffers_.size();
   data_blocks_ = new Block*[data_block_number_];
+  size_t data_size_ = 0;
+  size_t last_offset = 0;
   for (size_t i = 0; i < data_block_number_; ++ i) {
     data_blocks_[i] = new Block(buffers_[i].data(), buffers_[i].size());
-    size_t last_key_size_ = last_keys_[i].size();
-    ss.write((char *)&last_key_size_, sizeof(size_t));
-    ss.write(last_keys_[i].data(), sizeof(char) * last_key_size_);
-    ss.write((char *)&offsets_[i], sizeof(size_t));
+    std::cout << "Data Block:" << i << std::endl << buffers_[i] << std::endl;
     size_t data_block_size_ = buffers_[i].size();
-    ss.write((char *)&data_block_size_, sizeof(size_t));
+    data_size_ = data_size_ + buffers_[i].size();
+    size_t last_key_size_ = last_keys_[i].size();
+    ss << last_key_size_;
+    ss << Config::DATA_SEG;
+    ss.write(last_keys_[i].data(), sizeof(char) * last_key_size_);
+    ss << Config::DATA_SEG;
+    ss << last_offset;
+    ss << Config::DATA_SEG;
+    ss << data_block_size_;
+    ss << Config::DATA_SEG;
+    last_offset = data_size_;
   }
-
   std::string buffer_ = ss.str();
   index_block_ = new Block(buffer_.data(), sizeof(char) * buffer_.size());
+  std::cout << "Index Block:" << buffer_ << std::endl;
+
   std::string algorithm = Util::GetAlgorithm();
   if (algorithm == std::string("LevelDB")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
@@ -93,20 +107,28 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     filter_ = NULL;
     assert(false);
   }
+  // std::cout << "Filter Block:" << filter_->ToString() << std::endl;
 
   ss.str("");
   size_t index_offset_ = data_size_;
   size_t filter_offset_ = data_size_ + index_block_->size();
-  ss.write((char *)&index_offset_, sizeof(size_t));
-  ss.write((char *)&filter_offset_, sizeof(size_t));
+  ss << index_offset_;
+  ss << Config::DATA_SEG;
+  ss << filter_offset_;
+  ss << Config::DATA_SEG;
   footer_data_ = ss.str();
 
   meta_ = Meta();
   meta_.smallest_ = kvs[0].key_;
   meta_.largest_ = kvs[kvs.size() - 1].key_;
   meta_.level_ = 0;
-  meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + Config::TableConfig::FOOTERSIZE;
+  meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
+  meta_.footer_size_ = footer_data_.size();
   std::cout << "file size in table:" << meta_.file_size_ << std::endl;
+  std::cout << "DataSize:" << data_size_ << std::endl;
+  std::cout << "IndexSize:" << index_block_->size() << std::endl;
+  std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
+  std::cout << "FooterSize:" << footer_data_.size() << std::endl;
 }
 
 Table::~Table() {

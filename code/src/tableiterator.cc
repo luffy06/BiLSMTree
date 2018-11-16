@@ -8,11 +8,11 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size) {
   std::stringstream ss;
   size_t file_number_ = filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
   size_t file_size_ = filesystem->GetFileSize(file_number_);
-  filesystem->Seek(file_number_, file_size_ - Config::TableConfig::FOOTERSIZE);
+  filesystem->Seek(file_number_, file_size_ - footer_size);
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss.str(filesystem->Read(file_number_, 2 * sizeof(size_t)));

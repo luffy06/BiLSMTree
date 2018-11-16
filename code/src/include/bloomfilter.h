@@ -31,7 +31,7 @@ public:
 
     std::stringstream ss;
     ss.str(data);
-    ss.read((char *)&bits_, sizeof(size_t));
+    ss >> bits_;
     size_t bytes = bits_ / 8;
     array_ = new char[bytes];
     ss.read(array_, sizeof(char) * bytes);
@@ -56,8 +56,10 @@ public:
   virtual std::string ToString() {
     std::stringstream ss;
     size_t bytes = bits_ / 8;
-    ss.write((char *)&bits_, sizeof(size_t));
+    ss << bits_;
+    ss << Config::DATA_SEG;
     ss.write(array_, sizeof(char) * bytes);
+    ss << Config::DATA_SEG;
     return ss.str();
   }
 
