@@ -37,9 +37,26 @@ public:
   }
 
   Slice Kick(const Slice fp) {
-    size_t i = rand() % size_;
-    Slice res = data_[i];
-    data_[i] = Slice(fp.data(), fp.size());
+    size_t p = rand() % size_;
+    Slice res = Slice(data_[p].data(), data_[p].size());
+    data_[p] = Slice(fp.data(), fp.size());
+    size_t i = p;
+    if (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
+      while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
+        Slice temp = Slice(data_[i].data(), data_[i].size());
+        data_[i] = Slice(data_[i - 1].data(), data_[i - 1].size());
+        data_[i - 1] = Slice(temp.data(), temp.size());
+        -- i;
+      }
+    }
+    else if (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
+      while (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
+        Slice temp = Slice(data_[i].data(), data_[i].size());
+        data_[i] = Slice(data_[i + 1].data(), data_[i + 1].size());
+        data_[i + 1] = Slice(temp.data(), temp.size());
+        ++ i;
+      }      
+    }
     return res;
   }
 
@@ -84,7 +101,6 @@ public:
       ++ j;
       ++ i;
     }
-
     size_ = size_ - deleted_indexs.size();
   }
 
@@ -171,7 +187,6 @@ public:
     // ss << "\n";
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       ss << array_[i].ToString();
-      ss << Config::DATA_SEG;
       // ss << "\n";
     }
     return ss.str();

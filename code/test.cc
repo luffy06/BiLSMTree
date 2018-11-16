@@ -381,7 +381,7 @@ int main() {
   // TestBiList(data);
   // TestSkipList(data);
   // TestLRU2Q(data);
-  TestFilter(small_data);
-  // TestDB(small_data);
+  // TestFilter(small_data);
+  TestDB(small_data);
   return 0;
 }
