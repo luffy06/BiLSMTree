@@ -2,7 +2,11 @@
 
 ## LevelDB
 
+### 简介
+
 LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree*[LSM-tree]*的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销*[GoogleWeb]*。
+
+### 结构
 
 ![LevelDBStructure](./pic/structure.png)
 
@@ -48,13 +52,30 @@ major contribution：
 2. 用CuckooFilter替换BloomFilter；
 3. 增加了数据上浮的操作；
 
-## 内存：二级缓存替换MemTable，多Immutable MemTable
+## 内存：多级缓存替换
+
+### 结构
 
 ![MemoryStructrue](pic/memorystructure.png)
 
-【图2：内存存储结构】**【图待修改】**
+【图2：内存存储结构】
 
-在原有的机制中，MemTable在满了以后就直接转换成Immutable MemTable，随后等待DUMP到$L_0$中。而**此时在MemTable中频繁访问的数据，将会直接随着原有机制一直DUMP到$L_0$中，当再读这些数据时，都需要读取外存中的SSTable**。为了改进这个问题，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。我们还提出内存中不再只有一个Immutable Memtable，而是同时存在n个Immutable MemTable，这n个Immutable MemTable存在于内存的一个长度为$N$的LRU队列中，每次将从该LRU队列中淘汰的Immutable MemTable DUMP到$L_0$中。
+我们提出的内存存储结构中，用LRU2Q替换原有的MemTable，同时维护一个由多个更小的Immutable Memtable组成的Imm LRU。用一个更小的MemTable作为缓冲，每当有数据从LRU2Q中淘汰时，数据将会被加入MemTable。当MemTable满了以后，将其加入Imm List。当Imm LRU满了之后，将该LRU队尾的Immutable MemTable淘汰，DUMP到外部存储设备中。
+
+### 与LevelDB比较
+
+1. 在原有的内存存储结构中，**在MemTable中频繁访问的数据，会因为新数据的加入而被转换成Immutable MemTable，随后DUMP到$L_0$中。当再读这些数据时，都需要进行IO读写。**我们所提出的结构能够让频繁访问的数据长时间被保存在内存中，而不会因为机制的问题而被强制DUMP到外部存储设备中。
+2. 同时，在原有的结构中，每当一个Immutable MemTable被DUMP到外部存储设备时，都会创建一个新的空的MemTable，并且因为一个MemTable的大小较大，所以此时内存的利用率会出现较大程度的下降。我们所提出的结构采用更小的MemTable和Immutable MemTable作为一个分配单位，不会较大程度的下降，基本上维持在较高的水准。
+
+### 例子
+
+![case1](pic/case1.png)
+
+【例子】
+
+
+
+为了改进这个问题，我们提出用LRU2Q来替换MemTable，当数据从2Q淘汰后，再将其加入Immutable Memtable。我们还提出内存中不再只有一个Immutable Memtable，而是同时存在n个Immutable MemTable，这n个Immutable MemTable存在于内存的一个长度为$N$的LRU队列中，每次将从该LRU队列中淘汰的Immutable MemTable DUMP到$L_0$中。
 
 LRU2Q由两个队列构成，一个是基于LRU的队列，另一个是FIFO队列。新数据都被直接插入LRU队列；当数据在两个队列中被访问到时，将数据移动到LRU队列的头部；当数据被LRU队列淘汰时，将按照FIFO的规则插入FIFO队列的头部；当数据被FIFO队列淘汰后，则意味着被2Q所淘汰。
 
