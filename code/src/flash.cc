@@ -3,7 +3,7 @@
 namespace bilsmtree {
 
 Flash::Flash(FlashResult *flashresult) {
-  std::cout << "CREATING FLASH" << std::endl;
+  // std::cout << "CREATING FLASH" << std::endl;
   // create block files
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     std::string block_path = GetBlockPath(i);
@@ -30,7 +30,7 @@ Flash::Flash(FlashResult *flashresult) {
   }
 
   flashresult_ = flashresult;
-  std::cout << "CREATE SUCCESS" << std::endl;
+  // std::cout << "CREATE SUCCESS" << std::endl;
 }
   
 Flash::~Flash() {

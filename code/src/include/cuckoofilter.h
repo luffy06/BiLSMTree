@@ -23,14 +23,14 @@ public:
   bool Insert(const Slice fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
       data_[size_] = Slice(fp.data(), fp.size());
-      size_ = size_ + 1;
-      size_t i = size_ - 1;
+      size_t i = size_;
       while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
         Slice temp = Slice(data_[i].data(), data_[i].size());
         data_[i] = Slice(data_[i - 1].data(), data_[i - 1].size());
         data_[i - 1] = Slice(temp.data(), temp.size());
         -- i;
       }
+      size_ = size_ + 1;
       return true;
     }
     return false;
@@ -83,7 +83,7 @@ public:
     for (size_t i = 0; i < size_; ++ i) {
       std::string d;
       ss >> d;
-      data_[i] = Slice(d);
+      data_[i] = Slice(d.data(), d.size());
     }
   }
 
@@ -144,6 +144,7 @@ public:
         ss >> d;
         array_data_ = d + "\t";
       }
+      // std::cout << "Set " << array_size_ << " Data:" << array_data_ << std::endl;
       array_[i].SetData(array_data_, array_size_);
     }
   }
@@ -211,7 +212,7 @@ private:
 
   Slice GetFingerPrint(const Slice key) {
     size_t f = Hash(key.data(), key.size(), FPSEED) % 255 + 1;
-    // std::cout << "FP:" << f << std::endl;
+    // std::cout << "Key:" << key.ToString() << "\tFP:" << f << std::endl;
     return Slice(Util::IntToString(f));
   }
 

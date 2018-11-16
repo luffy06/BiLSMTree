@@ -15,7 +15,6 @@ KVServer::~KVServer() {
 bool KVServer::Get(const Slice key, Slice& value) {
   Slice location_;
   if (lsmtree_->Get(key, location_)) {
-    // std::cout << "Get Location:" << location_.ToString() << std::endl;
     value = logmanager_->Get(location_);
     return true;
   }

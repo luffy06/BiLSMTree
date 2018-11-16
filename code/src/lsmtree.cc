@@ -119,7 +119,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   lsmtreeresult_->Read();
   Filter* filter;
   std::string algorithm = Util::GetAlgorithm();
-  // scctd::cout << filter_data_ << std::endl;
+  // std::cout << filter_data_ << std::endl;
   if (algorithm == std::string("LevelDB")) {
     filter = new BloomFilter(filter_data_);
   }
@@ -132,7 +132,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   }
   // std::cout << "Filter KeyMatch" << std::endl;
   if (!filter->KeyMatch(key)) {
-    std::cout << "Filter Doesn't Exist" << std::endl;
+    // std::cout << "Filter Doesn't Exist" << std::endl;
     filesystem_->Close(file_number_);
     return false;
   }
