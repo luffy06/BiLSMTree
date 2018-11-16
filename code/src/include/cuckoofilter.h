@@ -36,19 +36,6 @@ public:
     return res;
   }
 
-  bool Delete(const Slice fp) {
-    bool found = false;
-    for (size_t i = 0; i < size_; ++ i) {
-      if (found)
-        data_[i - 1] = data_[i];
-      if (data_[i].compare(fp) == 0)
-        found = true;
-    }
-    if (found)
-      size_ = size_ - 1;
-    return found;
-  }
-
   bool Find(const Slice fp) {
     for (size_t i = 0; i < size_; ++ i)
       if (data_[i].compare(fp) == 0)
@@ -86,7 +73,7 @@ public:
         ++ i;
         ++ k;
       }
-      data_[j] = Slice(data_[i].data());
+      data_[j] = Slice(data_[i].data(), data_[i].size());
       ++ j;
       ++ i;
     }
@@ -114,7 +101,7 @@ public:
 
   CuckooFilter(const std::vector<Slice>& keys) {
     array_ = new Bucket[Config::FilterConfig::CUCKOOFILTER_SIZE];
-    size_ = 0;
+    data_size_ = 0;
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
   }
@@ -122,7 +109,7 @@ public:
   CuckooFilter(const std::string data) {
     std::stringstream ss;
     ss.str(data);
-    ss >> size_;
+    ss >> data_size_;
     array_ = new Bucket[Config::FilterConfig::CUCKOOFILTER_SIZE];
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       size_t array_size_ = 0;
@@ -141,23 +128,20 @@ public:
     delete[] array_;
   }
 
-  bool Delete(const Slice key) {
-    Info info = GetInfo(key);
-    return array_[info.pos1].Delete(info.fp_) || array_[info.pos2].Delete(info.fp_);
-  }
-
   virtual bool KeyMatch(const Slice key) {
     Info info = GetInfo(key);
     return array_[info.pos1].Find(info.fp_) || array_[info.pos2].Find(info.fp_);  
   }
 
+  // this - cuckoofilter
   void Diff(CuckooFilter* cuckoofilter) {
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       Slice* data_ = array_[i].GetData();
+      size_t size_ = array_[i].GetSize();
       std::vector<size_t> deleted_indexs;
-      for (size_t i = 0; i < size_; ++ i) {
-        if (cuckoofilter -> FindFingerPrint(data_[i], i))
-          deleted_indexs.push_back(i);
+      for (size_t j = 0; j < size_; ++ j) {
+        if (cuckoofilter->FindFingerPrint(data_[j], i))
+          deleted_indexs.push_back(j);
       }
       array_[i].DeleteIndexs(deleted_indexs);
     }
@@ -172,7 +156,7 @@ public:
 
   virtual std::string ToString() {
     std::stringstream ss;
-    ss << size_;
+    ss << data_size_;
     ss << Config::DATA_SEG;
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       ss << array_[i].ToString();
@@ -193,15 +177,15 @@ private:
 
   Bucket *array_;
   // size_t capacity_;
-  size_t size_;
+  size_t data_size_;
 
   const size_t FPSEED = 0xc6a4a793;
   const size_t MAXKICK = 500;
 
   Slice GetFingerPrint(const Slice key) {
     size_t f = Hash(key.data(), key.size(), FPSEED) % 255 + 1;
-    std::string f_str = Util::IntToString(f);
-    return Slice(f_str.data(), f_str.size());
+    // std::cout << "FP:" << f << std::endl;
+    return Slice(Util::IntToString(f));
   }
 
   Info GetInfo(const Slice key) {
@@ -233,7 +217,7 @@ private:
     Info info = GetInfo(key);
     // std::cout << "Info" << std::endl;
     // std::cout << info.fp_.TcoString() << std::endl << info.pos1 << "\t" << info.pos2 << std::endl;
-    size_ = size_ + 1;
+    data_size_ = data_size_ + 1;
     if (array_[info.pos1].Insert(info.fp_) || array_[info.pos2].Insert(info.fp_))
       return ;
     InsertAndKick(info.fp_, rand() % 2 == 0 ? info.pos1 : info.pos2);

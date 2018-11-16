@@ -99,10 +99,10 @@ std::string LSMTree::GetFilename(size_t sequence_number_) {
 
 
 bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
-  std::cout << "GetValueFromFile Key:" << key.ToString() << std::endl;
+  // std::cout << "GetValueFromFile Key:" << key.ToString() << std::endl;
   std::string filename = GetFilename(meta.sequence_number_);
   std::stringstream ss;
-  std::cout << "file size:" << meta.file_size_ << std::endl;
+  // std::cout << "file size:" << meta.file_size_ << std::endl;
   size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(file_number_, meta.file_size_ - meta.footer_size_);
   std::string offset_data_ = filesystem_->Read(file_number_, 2 * sizeof(size_t));
@@ -112,7 +112,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   size_t filter_offset_ = 0;
   ss >> index_offset_;
   ss >> filter_offset_;
-  std::cout << "IndexOffset:" << index_offset_ << "\tFilterOffset:" << filter_offset_ << std::endl;
+  // std::cout << "IndexOffset:" << index_offset_ << "\tFilterOffset:" << filter_offset_ << std::endl;
   // READ FILTER
   filesystem_->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
@@ -139,7 +139,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   // READ INDEX BLOCK
   filesystem_->Seek(file_number_, index_offset_);
   std::string index_data_ = filesystem_->Read(file_number_, filter_offset_ - index_offset_);
-  std::cout << "Index Data:" << index_data_ << std::endl;
+  // std::cout << "Index Data:" << index_data_ << std::endl;
   lsmtreeresult_->Read();
   ss.str(index_data_);
   bool found = false;
@@ -153,7 +153,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
     ss >> offset_ >> data_block_size_;
-    std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
+    // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) <= 0) {
       found = true;
       break;
@@ -166,7 +166,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   // READ DATA BLOCK
   filesystem_->Seek(file_number_, offset_);
   std::string data_ = filesystem_->Read(file_number_, data_block_size_);
-  std::cout << "Find Data Block:" << data_ << std::endl;
+  // std::cout << "Find Data Block:" << data_ << std::endl;
   lsmtreeresult_->Read();
   filesystem_->Close(file_number_);
   ss.str(data_);
@@ -185,9 +185,9 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
-    std::cout << "Key:" << key_ << "\tValue:" << value_ << std::endl;
+    // std::cout << "Key:" << key_ << "\tValue:" << value_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) == 0) {
-      std::cout << "Find!!" << value_ << std::endl;
+      // std::cout << "Find!!" << value_ << std::endl;
       value = Slice(value_, value_size_);
       return true;
     }

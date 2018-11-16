@@ -24,7 +24,7 @@ Slice LogManager::Append(const KV kv) {
 }
 
 Slice LogManager::Get(const Slice location) {
-  std::cout << location.ToString() << std::endl;
+  // std::cout << location.ToString() << std::endl;
   std::stringstream ss;
   ss.str(location.ToString());
   std::string location_;
@@ -32,7 +32,7 @@ Slice LogManager::Get(const Slice location) {
   ss >> location_;
   ss >> size_;
   size_t loc_ = Util::StringToInt(location_);
-  std::cout << loc_ << "\t" << size_ << std::endl;
+  // std::cout << loc_ << "\t" << size_ << std::endl;
   KV kv = ReadKV(loc_, size_);
   return kv.value_;
 }
@@ -44,7 +44,7 @@ size_t LogManager::WriteKV(const KV kv) {
   ss << kv.value_.ToString();
   ss << Config::DATA_SEG;
   std::string log_data_ = ss.str();
-  std::cout << "Write Log Data:" << log_data_ << std::endl;
+  // std::cout << "Write Log Data:" << log_data_ << std::endl;
   size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
   filesystem_->Write(file_number_, log_data_.data(), log_data_.size());
   tail_ = tail_ + log_data_.size();
@@ -56,7 +56,7 @@ KV LogManager::ReadKV(const size_t location, const size_t size_) {
   size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(file_number_, location);
   std::string log_data_ = filesystem_->Read(file_number_, size_);
-  std::cout << "Log Data:" << log_data_ << std::endl;
+  // std::cout << "Log Data:" << log_data_ << std::endl;
   filesystem_->Close(file_number_);
   std::stringstream ss;
   ss.str(log_data_);

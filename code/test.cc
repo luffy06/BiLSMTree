@@ -297,6 +297,47 @@ void TestLRU2Q(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
+void TestFilter(const std::vector<bilsmtree::KV>& data) {
+  std::cout << seg << "TEST DB" << seg << std::endl;
+  std::string msg = "SUCCESS";
+  std::cout << "TEST Construction" << std::endl;
+  std::vector<bilsmtree::Slice> res;
+  for (size_t i = 0; i < data.size(); ++ i)
+    res.push_back(data[i].key_);
+  bilsmtree::CuckooFilter *cuckoofilter = new bilsmtree::CuckooFilter(res);
+
+  std::cout << "TEST KeyMatch" << std::endl;
+  for (size_t i = 0; i < data.size(); ++ i) {
+    if (!cuckoofilter->KeyMatch(data[i].key_)) {
+      msg = "Key doesn't exist";
+      break;
+    }
+  }
+
+  std::cout << "TEST Diff" << std::endl;
+  res.clear();
+  for (size_t i = 0; i < data.size(); i = i + 2)
+    res.push_back(data[i].key_);
+  bilsmtree::CuckooFilter *cuckoofilter2 = new bilsmtree::CuckooFilter(res);
+
+  std::cout << "Ready Diff" << std::endl;
+  cuckoofilter->Diff(cuckoofilter2);
+  for (size_t i = 0; i < data.size(); ++ i) {
+    if (i % 2 == 0 && cuckoofilter->KeyMatch(data[i].key_)) {
+      msg = "Diff error! Key delete failed";
+      break;
+    }
+    else if (i % 2 != 0 && !cuckoofilter->KeyMatch(data[i].key_)) {
+      msg = "Diff error! Key doesn't exist";
+      break;
+    }
+  }
+
+  delete cuckoofilter;
+  delete cuckoofilter2;
+  std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
+}
+
 void TestDB(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST DB" << seg << std::endl;
   std::string msg = "SUCCESS";
@@ -338,6 +379,7 @@ int main() {
   // TestBiList(data);
   // TestSkipList(data);
   // TestLRU2Q(data);
-  TestDB(small_data);
+  TestFilter(small_data);
+  // TestDB(small_data);
   return 0;
 }

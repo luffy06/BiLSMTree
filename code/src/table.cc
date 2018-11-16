@@ -68,9 +68,9 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   
   ss.str("");
-  std::cout << "buffers_: " << buffers_.size() << std::endl;
-  std::cout << "last_keys_: " << last_keys_.size() << std::endl;
-  std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
+  // std::cout << "buffers_: " << buffers_.size() << std::endl;
+  // std::cout << "last_keys_: " << last_keys_.size() << std::endl;
+  // std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
   // write into block
   data_block_number_ = buffers_.size();
   data_blocks_ = new Block*[data_block_number_];
@@ -78,7 +78,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   size_t last_offset = 0;
   for (size_t i = 0; i < data_block_number_; ++ i) {
     data_blocks_[i] = new Block(buffers_[i].data(), buffers_[i].size());
-    std::cout << "Data Block:" << i << std::endl << buffers_[i] << std::endl;
+    // std::cout << "Data Block:" << i << std::endl << buffers_[i] << std::endl;
     size_t data_block_size_ = buffers_[i].size();
     data_size_ = data_size_ + buffers_[i].size();
     size_t last_key_size_ = last_keys_[i].size();
@@ -94,7 +94,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   std::string buffer_ = ss.str();
   index_block_ = new Block(buffer_.data(), sizeof(char) * buffer_.size());
-  std::cout << "Index Block:" << buffer_ << std::endl;
+  // std::cout << "Index Block:" << buffer_ << std::endl;
 
   std::string algorithm = Util::GetAlgorithm();
   if (algorithm == std::string("LevelDB")) {
@@ -124,11 +124,11 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   meta_.level_ = 0;
   meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
   meta_.footer_size_ = footer_data_.size();
-  std::cout << "file size in table:" << meta_.file_size_ << std::endl;
-  std::cout << "DataSize:" << data_size_ << std::endl;
-  std::cout << "IndexSize:" << index_block_->size() << std::endl;
-  std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
-  std::cout << "FooterSize:" << footer_data_.size() << std::endl;
+  // std::cout << "file size in table:" << meta_.file_size_ << std::endl;
+  // std::cout << "DataSize:" << data_size_ << std::endl;
+  // std::cout << "IndexSize:" << index_block_->size() << std::endl;
+  // std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
+  // std::cout << "FooterSize:" << footer_data_.size() << std::endl;
 }
 
 Table::~Table() {

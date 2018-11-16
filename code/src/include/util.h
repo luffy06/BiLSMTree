@@ -76,7 +76,7 @@ public:
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 10000;  
+    static const size_t CUCKOOFILTER_SIZE = 100;
     static const size_t SEED = 0xbc91f1d34;
   };
 
