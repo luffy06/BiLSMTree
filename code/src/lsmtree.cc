@@ -132,6 +132,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   }
   // std::cout << "Filter KeyMatch" << std::endl;
   if (!filter->KeyMatch(key)) {
+    std::cout << "Filter Doesn't Exist" << std::endl;
     filesystem_->Close(file_number_);
     return false;
   }
@@ -147,15 +148,12 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   while (!ss.eof()) {
     size_t key_size_ = 0;
     ss >> key_size_;
-    // TODO
-    std::cout << "Key Size:" << key_size_ << "\tPos:" << ss.tellg() << std::endl;
-    char seg = '\0';
-    ss.put(seg);
+    ss.get();
     char *key_ = new char[key_size_ + 1];
-    ss.read(key_, sizeof(char) * (key_size_ + 1));
+    ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
     ss >> offset_ >> data_block_size_;
-    std::cout << "Index:" << key_size_ << "\t#" << key_ << "#\t" << offset_ << "\t" << data_block_size_ << std::endl;
+    std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) <= 0) {
       found = true;
       break;
@@ -174,13 +172,16 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   ss.str(data_);
   while (!ss.eof()) {
     size_t key_size_ = 0;
-    size_t value_size_ = 0;
     ss >> key_size_;
-    ss >> value_size_;
     char *key_ = new char[key_size_ + 1];
+    ss.get();
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
+
+    size_t value_size_ = 0;
+    ss >> value_size_;
     char *value_ = new char[value_size_ + 1];
+    ss.get();
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
