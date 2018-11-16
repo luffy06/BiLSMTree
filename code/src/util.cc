@@ -12,16 +12,13 @@ Util::~Util() {
 
 std::string Util::IntToString(size_t value) {
   std::stringstream ss;
-  std::string buf;
   ss << value;
-  ss >> buf;
-  return buf;
+  return ss.str();
 }
 
 size_t Util::StringToInt(const std::string value) {
   std::stringstream ss;
-  size_t buf;
-  ss << value;
+  ss.str(value);
   ss >> buf;
   return buf;
 }
