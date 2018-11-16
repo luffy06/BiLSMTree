@@ -210,8 +210,7 @@ private:
   const size_t MAXKICK = 500;
 
   Slice GetFingerPrint(const Slice key) {
-    size_t f = 1;
-    f = f + Hash(key.data(), key.size(), FPSEED) % 255;
+    size_t f = Hash(key.data(), key.size(), FPSEED) % 255 + 1;
     // std::cout << "FP:" << f << std::endl;
     return Slice(Util::IntToString(f));
   }
