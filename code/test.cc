@@ -314,14 +314,16 @@ void TestFilter(const std::vector<bilsmtree::KV>& data) {
     }
   }
 
+  // std::cout << cuckoofilter->ToString() << std::endl;
   std::cout << "TEST Diff" << std::endl;
   res.clear();
   for (size_t i = 0; i < data.size(); i = i + 2)
     res.push_back(data[i].key_);
   bilsmtree::CuckooFilter *cuckoofilter2 = new bilsmtree::CuckooFilter(res);
-
+  // std::cout << cuckoofilter2->ToString() << std::endl;
   std::cout << "Ready Diff" << std::endl;
   cuckoofilter->Diff(cuckoofilter2);
+  // std::cout << cuckoofilter->ToString() << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     if (i % 2 == 0 && cuckoofilter->KeyMatch(data[i].key_)) {
       msg = "Diff error! Key delete failed";
