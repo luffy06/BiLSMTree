@@ -22,8 +22,15 @@ public:
 
   bool Insert(const Slice fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
-      data_[size_] = Slice(fp.ToString());
+      data_[size_] = Slice(fp.data(), fp.size());
       size_ = size_ + 1;
+      size_t i = size_ - 1;
+      while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
+        Slice temp = Slice(data_[i].data(), data_[i].size());
+        data_[i] = Slice(data_[i - 1].data(), data_[i - 1].size());
+        data_[i - 1] = Slice(temp.data(), temp.size());
+        -- i;
+      }
       return true;
     }
     return false;
@@ -32,7 +39,7 @@ public:
   Slice Kick(const Slice fp) {
     size_t i = rand() % size_;
     Slice res = data_[i];
-    data_[i] = Slice(fp.ToString());
+    data_[i] = Slice(fp.data(), fp.size());
     return res;
   }
 
@@ -68,7 +75,7 @@ public:
   }
 
   void DeleteIndexs(const std::vector<size_t>& deleted_indexs) {
-    for (size_t i = 0, j = 0, k = 0; k < deleted_indexs.size();) {
+    for (size_t i = 0, j = 0, k = 0; i < size_;) {
       while (i < size_ && k < deleted_indexs.size() && i == deleted_indexs[k]) {
         ++ i;
         ++ k;
@@ -77,6 +84,7 @@ public:
       ++ j;
       ++ i;
     }
+
     size_ = size_ - deleted_indexs.size();
   }
 
@@ -140,8 +148,10 @@ public:
       size_t size_ = array_[i].GetSize();
       std::vector<size_t> deleted_indexs;
       for (size_t j = 0; j < size_; ++ j) {
-        if (cuckoofilter->FindFingerPrint(data_[j], i))
+        if (cuckoofilter->FindFingerPrint(data_[j], i)) {
+          // std::cout << "delete " << data_[j].ToString() << std::endl;
           deleted_indexs.push_back(j);
+        }
       }
       array_[i].DeleteIndexs(deleted_indexs);
     }
@@ -157,10 +167,12 @@ public:
   virtual std::string ToString() {
     std::stringstream ss;
     ss << data_size_;
-    ss << Config::DATA_SEG;
+    // ss << Config::DATA_SEG;
+    ss << "\n";
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       ss << array_[i].ToString();
-      ss << Config::DATA_SEG;
+      // ss << Config::DATA_SEG;
+      ss << "\n";
     }
     return ss.str();
   }
@@ -216,7 +228,7 @@ private:
     // std::cout << "Add " << key.ToString() << std::endl;
     Info info = GetInfo(key);
     // std::cout << "Info" << std::endl;
-    // std::cout << info.fp_.TcoString() << std::endl << info.pos1 << "\t" << info.pos2 << std::endl;
+    // std::cout << "FP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
     data_size_ = data_size_ + 1;
     if (array_[info.pos1].Insert(info.fp_) || array_[info.pos2].Insert(info.fp_))
       return ;
