@@ -64,7 +64,7 @@ def clean_data(project_path, dirname, prefix, suffix):
 
 
 def read(in_filename, out_filename):
-  replace_key = [':', ',', ';', '$']
+  replace_key = [':', ',', ';', '$', ' ', '\t']
   f = open(in_filename, 'r')
   lines = f.readlines()
   f.close()
