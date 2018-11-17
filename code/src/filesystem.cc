@@ -63,14 +63,12 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
 }
 
 void FileSystem::Seek(const size_t file_number, const size_t offset) {
+  std::cout << "Seek:" << fcbs_[file_number].filename_ << std::endl;
   size_t lba_ = fcbs_[file_number].block_start_;
   size_t offset_ = offset;
   while (offset_ >= Config::FileSystemConfig::BLOCK_SIZE) {
     offset_ = offset_ - Config::FileSystemConfig::BLOCK_SIZE;
-    if (fat_[lba_] == lba_) {
-      size_t new_lba_ = AssignFreeBlocks();
-      fat_[lba_] = new_lba_;
-    }
+    assert(fat_[lba_] != lba_);
     lba_ = fat_[lba_];
   }
 
@@ -254,6 +252,12 @@ int FileSystem::BinarySearchInBuffer(const size_t file_number) {
 }
 
 size_t FileSystem::AssignFreeBlocks() {
+  if (free_blocks_.empty()) {
+    for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
+      FCB fcb = (*it).second;
+      std::cout << "File Name:" << fcb.filename_ << "\tFile Size:" << fcb.filesize_ << std::endl;
+    }
+  }
   assert(!free_blocks_.empty());
   size_t new_block = free_blocks_.front();
   free_blocks_.pop();

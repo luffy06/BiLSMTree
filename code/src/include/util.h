@@ -42,13 +42,13 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "../logs/";
     static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
-    static const size_t BLOCK_NUMS = 128;
+    static const size_t BLOCK_NUMS = 1024;
     static const size_t PAGE_NUMS = 8;
-    static const size_t PAGE_SIZE = 1024; // 16KB
+    static const size_t PAGE_SIZE = 16 * 1024; // 16KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
     static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(BLOCK_NUMS * 0.2);
-    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.4);
+    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.8);
   };
 
   struct FileSystemConfig {
@@ -56,8 +56,8 @@ public:
     static const size_t WRITE_OPTION = 1 << 1;
     static const size_t APPEND_OPTION = 1 << 2;
     static const size_t MAX_FILE_OPEN = 1000;
-    static const size_t BLOCK_SIZE = 1024;
-    static const size_t MAX_BLOCK_NUMS = (1 << 16) * 4;
+    static const size_t BLOCK_SIZE = FlashConfig::PAGE_SIZE;
+    static const size_t MAX_BLOCK_NUMS = FlashConfig::LBA_NUMS;
   };
 
   struct SkipListConfig {
@@ -66,7 +66,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 10;
+    static const size_t MAXSIZE = 10;     // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
@@ -94,7 +94,6 @@ public:
 
   struct TableConfig {
     static const size_t BLOCKSIZE = 4 * 1024; // 4KB
-    static const size_t FOOTERSIZE = 2 * sizeof(size_t);
     static const size_t TABLESIZE = 2 * 1024 * 1024; // 2MB
     static constexpr const char* TABLEPATH = "../logs/leveldb/";
     static constexpr const char* TABLENAME = "sstable";

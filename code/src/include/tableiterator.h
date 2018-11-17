@@ -14,21 +14,29 @@ class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size);
+  TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size, LSMTreeResult *lsmtreeresult_);
 
   ~TableIterator();
   
   void ParseBlock(const std::string block_data);
 
-  bool HasNext();
+  bool HasNext() { return iter_ < kvs_.size(); }
 
-  size_t Id() { return id_;}
+  size_t Id() const { return id_;}
 
-  KV Next();
+  KV Next() { return kvs_[iter_++]; }
 
-  KV Current();
+  KV Current() const { return kvs_[iter_]; }
 
-  void SetId(size_t id);
+  void SetId(size_t id) { id_ = id; }
+
+  friend bool operator<(const TableIterator& a, const TableIterator& b) {
+    KV kv_a = a.Current();
+    KV kv_b = b.Current();
+    if (kv_a.key_.compare(kv_b.key_) != 0)
+      return kv_a.key_.compare(kv_b.key_) < 0;
+    return a.Id() < b.Id();
+  }
 private:
   size_t id_;
   std::vector<KV> kvs_;
