@@ -22,6 +22,15 @@ struct Meta {
     
   }
 
+  void Copy(const Meta meta) {
+    largest_ = Slice(meta.largest_.data(), meta.largest_.size());
+    smallest_ = Slice(meta.smallest_.data(), meta.smallest_.size());
+    sequence_number_ = meta.sequence_number_;
+    level_ = meta.level_;
+    file_size_ = meta.file_size_;
+    footer_size_ = meta.footer_size_;
+  }
+
   bool Intersect(Meta other) const {
     if (largest_.compare(other.smallest_) >= 0 && smallest_.compare(other.largest_) <= 0)
       return true;

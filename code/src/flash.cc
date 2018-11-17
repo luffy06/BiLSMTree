@@ -273,8 +273,8 @@ std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
 }
 
 void Flash::MajorCollectGarbage() {
-  std::cout << "MajorCollectGarbage" << std::endl;
-  std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
+  // std::cout << "MajorCollectGarbage" << std::endl;
+  // std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
   std::vector<BlockInfo> blocks_;
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     if (block_info_[i].status_ == PrimaryBlock) {
@@ -295,7 +295,7 @@ void Flash::MajorCollectGarbage() {
     size_t block_num_ = blocks_[i].block_num_;
     MinorCollectGarbage(block_num_);
   }
-  std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
+  // std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
 }
 
 size_t Flash::AssignFreeBlock() {

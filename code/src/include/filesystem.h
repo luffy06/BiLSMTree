@@ -55,6 +55,8 @@ public:
 
   size_t GetFileSize(const size_t file_number);
 
+  void SetFileSize(const size_t file_number, const size_t file_size);
+
   std::string Read(const size_t file_number, const size_t read_size);
 
   void Write(const size_t file_number, const char* data, const size_t write_size);

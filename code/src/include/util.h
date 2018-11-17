@@ -34,6 +34,7 @@ public:
   ~Config() { }
 
   static const char DATA_SEG = '\t';
+  static const bool SEEK_LOG = false;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us

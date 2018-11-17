@@ -12,7 +12,8 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::stringstream ss;
   size_t file_number_ = filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
   size_t file_size_ = filesystem->GetFileSize(file_number_);
-  // std::cout << "Seek Footer in TableIterator" << std::endl;
+  if (Config::SEEK_LOG)
+    std::cout << "Seek Footer in TableIterator" << std::endl;
   filesystem->Seek(file_number_, file_size_ - footer_size);
   std::string offset_data_ = filesystem->Read(file_number_, 2 * sizeof(size_t));
   ss.str(offset_data_);
@@ -22,7 +23,8 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   ss >> index_offset_;
   ss >> filter_offset_;
 
-  // std::cout << "Seek Index in TableIterator" << std::endl;
+  if (Config::SEEK_LOG)
+    std::cout << "Seek Index in TableIterator" << std::endl;
   filesystem->Seek(file_number_, index_offset_);
   std::string index_data_ = filesystem->Read(file_number_, filter_offset_ - index_offset_);
   lsmtreeresult_->Read();
@@ -39,7 +41,8 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     size_t data_block_size_ = 0;
     ss >> offset_ >> data_block_size_;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
-    // std::cout << "Seek Data in TableIterator" << std::endl;
+    if (Config::SEEK_LOG)
+      std::cout << "Seek Data in TableIterator" << std::endl;
     filesystem->Seek(file_number_, offset_);
     std::string block_data = filesystem->Read(file_number_, data_block_size_);
     lsmtreeresult_->Read();

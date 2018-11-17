@@ -29,7 +29,7 @@ bool DB::Get(const std::string key, std::string& value) {
   Slice value_;
   bool res = cacheserver_->Get(key, value_);
   if (!res) {
-    std::cout << "Get in Extern Storage" << std::endl;
+    // std::cout << "Get in Extern Storage" << std::endl;
     res = kvserver_->Get(key, value_);
   }
   if (res)

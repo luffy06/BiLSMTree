@@ -63,7 +63,8 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
 }
 
 void FileSystem::Seek(const size_t file_number, const size_t offset) {
-  std::cout << "Seek:" << fcbs_[file_number].filename_ << std::endl;
+  if (Config::SEEK_LOG)
+    std::cout << "Seek:" << fcbs_[file_number].filename_ << std::endl;
   size_t lba_ = fcbs_[file_number].block_start_;
   size_t offset_ = offset;
   while (offset_ >= Config::FileSystemConfig::BLOCK_SIZE) {
@@ -86,6 +87,10 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
 
 size_t FileSystem::GetFileSize(const size_t file_number) {
   return fcbs_[file_number].filesize_;
+}
+
+void FileSystem::SetFileSize(const size_t file_number, const size_t file_size) {
+  fcbs_[file_number].filesize_ = file_size;
 }
 
 std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
