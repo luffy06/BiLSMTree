@@ -13,8 +13,11 @@ SkipList::SkipList() {
 }
 
 SkipList::~SkipList() {
-  delete[] head_->forward_;
-  delete head_;
+  while (head_ != NULL) {
+    ListNode *p = head_->forward_[0];
+    delete head_;
+    head_ = p;
+  }
 }
 
 bool SkipList::IsFull() {

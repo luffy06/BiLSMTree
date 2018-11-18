@@ -21,16 +21,6 @@ public:
     Copy(d);
   }
 
-  Slice(const std::string s) : size_(s.size()) {
-    data_ = new char[size_ + 1];
-    Copy(s.data());
-  }
-
-  Slice(const char* s) : size_(strlen(s)) {
-    data_ = new char[size_ + 1];
-    Copy(s);
-  }
-
   Slice(const Slice&) = default;
   Slice& operator=(const Slice&) = default;
 
@@ -71,9 +61,15 @@ struct KV {
 
   KV() { }
 
-  KV(const std::string key, const std::string value) : key_(key), value_(value) { }
+  KV(const std::string key, const std::string value) {
+    key_ = Slice(key.data(), key.size());
+    value_ = Slice(value.data(), value.size());
+  }
 
-  KV(const Slice key, const Slice value) : key_(key), value_(value) {  }
+  KV(const Slice key, const Slice value) {
+    key_ = Slice(key.data(), key.size());
+    value_ = Slice(value.data(), value.size());
+  }
 
   size_t size() const { return key_.size() + value_.size(); }
 
