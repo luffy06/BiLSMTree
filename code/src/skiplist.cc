@@ -32,7 +32,7 @@ bool SkipList::Find(const Slice key, Slice& value) {
       p = p->forward_[i];
   }
   p = p->forward_[0];
-  if (p->kv_.key_.compare(key) == 0) {
+  if (p != NULL && p->kv_.key_.compare(key) == 0) {
     value = Slice(p->kv_.value_.data(), p->kv_.value_.size());
     return true;
   }
@@ -82,7 +82,7 @@ void SkipList::Delete(const Slice key) {
     update_[i] = p;
   }
   p = p->forward_[0];
-  if (p->kv_.key_.compare(key) == 0) {
+  if (p != NULL && p->kv_.key_.compare(key) == 0) {
     for (size_t i = 0; i < head_->level_; ++ i) {
       if (update_[i]->forward_[i] != p)
         break;

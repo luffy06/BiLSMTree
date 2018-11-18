@@ -59,7 +59,7 @@ void TestFlash(const std::vector<bilsmtree::KV>& data) {
   for (size_t i = 0; i < data.size(); ++ i) {
     size_t lba = i;
     char *db_data = flash->Read(lba);
-    if (data[i].value_ != std::string(db_data)) {
+    if (data[i].value_.ToString() != std::string(db_data)) {
       // std::cout << "Second " << i << "\nDB DATA" << std::endl << db_data << std::endl << "DATA" << std::endl << data[i].value_ << std::endl;
       msg = "Read error! Data doesn't match";
     }
@@ -72,7 +72,7 @@ void TestFlash(const std::vector<bilsmtree::KV>& data) {
   for (size_t i = 0; i < data.size(); ++ i) {
     size_t lba = i;
     char *db_data = flash->Read(lba);
-    if (data[i].key_ != std::string(db_data)) {
+    if (data[i].key_.ToString() != std::string(db_data)) {
       // std::cout << "First " << i << "\nDB DATA" << std::endl << db_data << std::endl << "DATA" << std::endl << data[i].key_ << std::endl;
       msg = "Read error! Data doesn't match";
     }
@@ -106,7 +106,7 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
     std::string filename = "test_" + bilsmtree::Util::IntToString(i);
     size_t file_number = filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::READ_OPTION);
     std::string fdata = filesystem->Read(file_number, data[i].key_.size());
-    if (fdata != data[i].key_)
+    if (fdata != data[i].key_.ToString())
       msg = "Read error! Data doesn't match";
     filesystem->Close(file_number);
   }
@@ -353,9 +353,9 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
-    // std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
+    std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
     if (!db->Get(data[i].key_.ToString(), db_value)) {
-      std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
+      std::cout << std::endl << data[i].key_.ToString() << " Cannot Get" << std::endl;
       msg = "Key doesn't exist";
       break;
     }

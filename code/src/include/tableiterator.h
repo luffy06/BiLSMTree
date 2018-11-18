@@ -26,7 +26,9 @@ public:
 
   KV Next() { return kvs_[iter_++]; }
 
-  KV Current() const { return kvs_[iter_]; }
+  KV Current() const {
+    return kvs_[iter_];
+  }
 
   void SetId(size_t id) { id_ = id; }
 

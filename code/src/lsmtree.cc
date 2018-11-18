@@ -16,13 +16,20 @@ LSMTree::~LSMTree() {
 // Checked
 bool LSMTree::Get(const Slice key, Slice& value) {
   for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+    std::cout << "Level:" << i << std::endl;
+    for (size_t j = 0; j < file_[i].size(); ++ j)
+      std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << std::endl;
+    for (size_t j = 0; j < list_[i].size(); ++ j)
+      std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << std::endl;
+  }
+  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
     // std::cout << "Level " << i << std::endl;
     // std::cout << "file_: " << file_[i].size() << std::endl;
     // std::cout << "list_: " << list_[i].size() << std::endl;
     std::vector<size_t> check_files_;
     if (i == 0) {
       for (size_t j = 0; j < file_[i].size(); ++ j) {
-        // std::cout << "file_:" << file_[i][j].smallest_.ToString().size() << "\t" << file_[i][j].largest_.ToString().size() << std::endl;
+        // std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << std::endl;
         if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0)
           check_files_.push_back(j);
       }
@@ -31,8 +38,8 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (file_[i].size() > 0) {
         size_t l = 0;
         size_t r = file_[i].size() - 1;
-        // std::cout << "file_ of l:" << file_[i][l].smallest_.ToString().size() << "\t" << file_[i][l].largest_.ToString().size() << std::endl;
-        // std::cout << "file_ of r:" << file_[i][r].smallest_.ToString().size() << "\t" << file_[i][r].largest_.ToString().size() << std::endl;
+        // std::cout << "file_ of l:" << file_[i][l].smallest_.ToString() << "\t" << file_[i][l].largest_.ToString() << std::endl;
+        // std::cout << "file_ of r:" << file_[i][r].smallest_.ToString() << "\t" << file_[i][r].largest_.ToString() << std::endl;
         if (key.compare(file_[i][r].largest_) <= 0 && key.compare(file_[i][l].smallest_) >= 0) {
           if (key.compare(file_[i][l].largest_) <= 0) {
             r = l;
@@ -55,7 +62,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
     }
     // std::cout << "List Size of " << i << ":" << list_[i].size() << std::endl;
     for (size_t j = 0; j < list_[i].size(); ++ j) {
-      // std::cout << "list_:" << list_[i][j].smallest_.ToString().size() << "\t" << list_[i][j].largest_.ToString().size() << std::endl;
+      // std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << std::endl;
       if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0)
         check_files_.push_back(j + file_[i].size());
     }
@@ -63,6 +70,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
     for (size_t j = 0; j < check_files_.size(); ++ j) {
       size_t p = check_files_[j];
       Meta meta = (p < file_[i].size() ? file_[i][p] : list_[i][p - file_[i].size()]);
+      // std::cout << "check:" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << std::endl;
       if (GetValueFromFile(meta, key, value)) {
         int deleted = recent_files_->Append(meta.sequence_number_);
         frequency_[meta.sequence_number_] ++;
@@ -82,13 +90,18 @@ bool LSMTree::Get(const Slice key, Slice& value) {
   return false;
 }
 
-// Checked
 void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
+  // std::cout << "Data to be DUMP" << std::endl;
+  // for (size_t i = 0; i < kvs.size(); ++ i)
+  //   std::cout << kvs[i].key_.ToString() << "\t";
+  // std::cout << std::endl;
   Table *table_ = new Table(kvs, filesystem_);
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
   table_->DumpToFile(filename, lsmtreeresult_);
   Meta meta = table_->GetMeta();
+  // std::cout << "DUMP L0" << std::endl;
+  // std::cout << "Smallest:" << meta.smallest_.ToString() << "\tLargest:" << meta.largest_.ToString() << std::endl;
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();

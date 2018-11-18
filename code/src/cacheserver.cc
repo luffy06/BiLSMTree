@@ -74,6 +74,7 @@ bool CacheServer::Get(const Slice key, Slice& value) {
     // std::cout << "Ready Find in Memtable" << std::endl;
     bool imm_res = mem_->Find(key, value);
     ListNode *p = head_->next_;
+    // size_t j = 0;
     // std::cout << "Ready Find in Immutable Memtable" << std::endl;
     while (p != NULL && !imm_res) {
       // std::cout << "Ready Find in Immutable Memtable:" << j++ << std::endl;
