@@ -30,7 +30,7 @@ bool SkipList::Find(const Slice key, Slice& value) {
   }
   p = p->forward_[0];
   if (p->kv_.key_.compare(key) == 0) {
-    value = p->kv_.value_;
+    value = Slice(p->kv_.value_.data(), p->kv_.value_.size());
     return true;
   }
   return false;
