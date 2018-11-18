@@ -47,12 +47,13 @@ void SkipList::Insert(const KV kv) {
   }
   p = p->forward_[0];
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
-    p->kv_.value_ = kv.value_;
+    p->kv_.value_ = Slice(kv.value_.data(), kv.value.size());
   }
   else {
     assert(!IsFull());
     ListNode* q = new ListNode();
-    q->kv_ = kv;
+    q->kv_.key_ = Slice(kv.key_.data(), kv.key_.size());
+    q->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
     q->level_ = GenerateLevel();
     q->forward_ = new ListNode*[q->level_];
     if (q->level_ > head_->level_) {
