@@ -178,7 +178,7 @@ $$
 $$
 T_{diff}=f_{I,m}\times 3\times (i-j)\times(LIST\_MAX\_NUM+1)- \sum^j_{k=i-1}c_k-1-\alpha \quad(4)
 $$
-其中$0\le j\le i-1$。
+其中$0\le j\le i-1$，$LIST\_MAX\_NUM$不超过10。
 
 因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。 
 
@@ -202,7 +202,7 @@ $$
 
 **Algorithm 3 维护最近$F$次访问频率**
 
-![algo3](D:/Program/BiLSMTree/doc/pic/algo3.png)
+![algo3](pic/algo3.png)
 
 算法3.3 展示了如何维护最近$F$次访问的文件序号。若$F$较小，则等价于将所有的文件序号放在一个FIFO中。若$F$较大，则在内存中维护2个FIFO，分别表示原来的一个FIFO的头部和尾部。删除数据时从头部FIFO$visit\_[0]$头部删除，添加数据时从尾部FIFO$visit\_[1]$尾部添加。
 
