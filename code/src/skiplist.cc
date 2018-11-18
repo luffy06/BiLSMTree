@@ -47,7 +47,7 @@ void SkipList::Insert(const KV kv) {
   }
   p = p->forward_[0];
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
-    p->kv_.value_ = Slice(kv.value_.data(), kv.value.size());
+    p->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
   }
   else {
     assert(!IsFull());
