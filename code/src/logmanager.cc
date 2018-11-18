@@ -20,7 +20,8 @@ Slice LogManager::Append(const KV kv) {
   ss << Config::DATA_SEG;
   ss << size_;
   ss << Config::DATA_SEG;
-  return Slice(ss.str());
+  std::string res = ss.str();
+  return Slice(res.data(), res.size());
 }
 
 Slice LogManager::Get(const Slice location) {

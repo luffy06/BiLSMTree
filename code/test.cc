@@ -218,7 +218,8 @@ void TestSkipList(const std::vector<bilsmtree::KV>& data) {
   std::cout << "TEST Update" << std::endl;
   for (int i = kv_data.size() - 1; i >= 0; -- i) {
     bilsmtree::KV kv = kv_data[i];
-    kv.value_ = bilsmtree::Slice(std::string(i, '$'));
+    std::string v = std::string(i, '$');
+    kv.value_ = bilsmtree::Slice(v.data(), v.size());
     skiplist->Insert(kv);
   }
   s_data = skiplist->GetAll();
