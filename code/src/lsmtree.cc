@@ -338,7 +338,8 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     q.pop();
     if (ti.HasNext()) {
       KV kv = ti.Next();
-      q.push(ti);
+      if (ti.HasNext())
+        q.push(ti);
       if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
         if (size_ + kv.size() > Config::TableConfig::TABLESIZE) {
           Table* t = new Table(buffers_, filesystem_);
