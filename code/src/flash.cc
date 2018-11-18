@@ -68,21 +68,23 @@ void Flash::Write(const size_t lba, const char* data) {
   // std::cout << std::endl << "Write LBA:" << lba << std::endl;
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;
-  // std::cout << "LBA:" << lba << std::endl;
   // std::cout << "BLOCK:" << block_num_ << "\tPAGE" << page_num_ << std::endl;
   // examinate block whether used or not
   // if it is replace block, find corresponding primary block
-  if (block_info_[block_num_].status_ == FreeBlock) { 
+  if (block_info_[block_num_].status_ == FreeBlock) {
+    // std::cout << "FreeBlock" << std::endl;
     block_info_[block_num_].status_ = PrimaryBlock;
   }
   else if (block_info_[block_num_].status_ == ReplaceBlock) {
-    if (block_info_[block_num_].corresponding_ == block_num_) {
+    // std::cout << "ReplaceBlock" << std::endl;
+    if (block_info_[block_num_].next_ == block_num_) {
       // have not distributed a primary block
       size_t primary_block_num_ = AssignFreeBlock();
-      block_info_[block_num_].corresponding_ = primary_block_num_;
+      block_info_[block_num_].next_ = primary_block_num_;
+      block_info_[primary_block_num_].prev_ = block_num_;
       block_info_[primary_block_num_].status_ = PrimaryBlock;
     }
-    block_num_ = block_info_[block_num_].corresponding_;
+    block_num_ = block_info_[block_num_].next_;
   }
   assert(block_info_[block_num_].status_ == PrimaryBlock);
   // std::cout << "Try " << block_num_ << std::endl;
@@ -90,14 +92,16 @@ void Flash::Write(const size_t lba, const char* data) {
   if (page_info_[block_num_][page_num_].status_ != PageFree) {
     // std::cout << "Write in ReplaceBlock" << std::endl;
     // no replace block
-    if (block_info_[block_num_].corresponding_ == block_num_) {
+    if (block_info_[block_num_].next_ == block_num_) {
       // std::cout << "Create new ReplaceBlock" << std::endl;
       size_t replace_block_num_ = AssignFreeBlock();
       block_info_[replace_block_num_].status_ = ReplaceBlock;
       block_info_[replace_block_num_].offset_ = 0;
-      block_info_[block_num_].corresponding_ = replace_block_num_;
+      block_info_[replace_block_num_].prev_ = block_num_;
+      block_info_[block_num_].next_ = replace_block_num_;
+
     }
-    size_t replace_block_num_ = block_info_[block_num_].corresponding_;
+    size_t replace_block_num_ = block_info_[block_num_].next_;
     // std::cout << "ReplaceBlock: " << replace_block_num_ << std::endl;
     if (block_info_[replace_block_num_].offset_ >= Config::FlashConfig::PAGE_NUMS) {
       std::pair<size_t, size_t> res = MinorCollectGarbage(block_num_);
@@ -199,11 +203,11 @@ void Flash::Erase(const size_t block_num) {
 }
 
 std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
-  // std::cout << "MinorCollectGarbage" << std::endl;
+  // std::cout << "MinorCollectGarbage:" << block_num << std::endl;
   assert(block_info_[block_num].status_ == PrimaryBlock);
   // std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
   // block_info_[block_num].Show();
-  // block_info_[block_info_[block_num].corresponding_].Show();
+  // block_info_[block_info_[block_num].next_].Show();
   size_t block_num_ = block_num;
   std::vector<size_t> erase_list_;
   size_t offset_ = 0;
@@ -232,8 +236,8 @@ std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
   }
   erase_list_.push_back(block_num_);
   // collect replacement block if exsits
-  if (block_info_[block_num_].corresponding_ != block_num_) {
-    block_num_ = block_info_[block_num_].corresponding_;
+  if (block_info_[block_num_].next_ != block_num_) {
+    block_num_ = block_info_[block_num_].next_;
     for (size_t j = 0; j < Config::FlashConfig::PAGE_NUMS; ++ j) {
       if (page_info_[block_num_][j].status_ == PageValid) {
         // std::cout << "ReplaceBlock PageValid:" << block_num_ << "\t" << j << std::endl;
@@ -257,9 +261,18 @@ std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
     erase_list_.push_back(block_num_);
   }
   // erase block
-  for (size_t i = 0; i < erase_list_.size(); ++ i)
-    Erase(erase_list_[i]);
-  // std::cout << "MinorCollectGarbage End" << std::endl;
+  for (size_t i = 0; i < erase_list_.size(); ++ i) {
+    size_t erase_block_num_ = erase_list_[i];
+    if (block_info_[erase_block_num_].prev_ != erase_block_num_) {
+      size_t prev_block_num_ = block_info_[erase_block_num_].prev_;
+      block_info_[prev_block_num_].next_ = prev_block_num_;
+    }
+    if (block_info_[erase_block_num_].next_ != erase_block_num_) {
+      size_t next_block_num_ = block_info_[erase_block_num_].next_;
+      block_info_[next_block_num_].prev_ = next_block_num_;
+    }
+    Erase(erase_block_num_);
+  }
   if (!block_assigned || offset_ >= Config::FlashConfig::PAGE_NUMS) {
     // create new block
     cur_block_num_ = AssignFreeBlock();
@@ -268,6 +281,7 @@ std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
     block_info_[cur_block_num_].status_ = PrimaryBlock;
   }
   assert(offset_ < Config::FlashConfig::PAGE_NUMS);
+  // std::cout << "MinorCollectGarbage End" << std::endl;
   // std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
   return std::make_pair(cur_block_num_, offset_);
 }
@@ -279,9 +293,9 @@ void Flash::MajorCollectGarbage() {
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     if (block_info_[i].status_ == PrimaryBlock) {
       BlockInfo bi = block_info_[i];
-      if (bi.corresponding_ != i) {
-        bi.invalid_nums_ = bi.invalid_nums_ + block_info_[bi.corresponding_].invalid_nums_;
-        bi.valid_nums_ = bi.valid_nums_ + block_info_[bi.corresponding_].valid_nums_;
+      if (bi.next_ != i) {
+        bi.invalid_nums_ = bi.invalid_nums_ + block_info_[bi.next_].invalid_nums_;
+        bi.valid_nums_ = bi.valid_nums_ + block_info_[bi.next_].valid_nums_;
       }
       blocks_.push_back(bi);
     }
@@ -296,6 +310,7 @@ void Flash::MajorCollectGarbage() {
     MinorCollectGarbage(block_num_);
   }
   // std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
+  // std::cout << "MajorCollectGarbage End" << std::endl;
 }
 
 size_t Flash::AssignFreeBlock() {
@@ -313,7 +328,7 @@ size_t Flash::AssignFreeBlock() {
 void Flash::ShowInfo() {
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     std::cout << "block:" << block_info_[i].block_num_ << std::endl;
-    std::cout << block_info_[i].corresponding_ << "\t" << block_info_[i].offset_ << std::endl;
+    std::cout << block_info_[i].next_ << "\t" << block_info_[i].offset_ << std::endl;
     std::cout << block_info_[i].invalid_nums_ << "\t" << block_info_[i].valid_nums_ << std::endl;
   }
 }

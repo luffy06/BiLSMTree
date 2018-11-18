@@ -4,6 +4,7 @@
 #include <iostream>
 #include <queue>
 #include <map>
+#include <set>
 #include <string>
 #include <fstream>
 
@@ -67,7 +68,8 @@ private:
   struct BlockInfo {
     size_t block_num_;
     BlockStatus status_;        // 0 free 1 primary 2 replacement
-    size_t corresponding_;      // the corresponding block: 1. the replacement block 2. the primary block
+    size_t next_;               // the corresponding block: 1. the replacement block 2. the primary block
+    size_t prev_;               // the corresponding block whose next is this
     size_t offset_;             // the offset of replacement block    
     size_t invalid_nums_;
     size_t valid_nums_;
@@ -75,7 +77,8 @@ private:
     BlockInfo() {
       block_num_ = 0;
       status_ = FreeBlock;
-      corresponding_ = 0;
+      next_ = 0;
+      prev_ = 0;
       offset_ = 0;
       invalid_nums_ = 0;
       valid_nums_ = 0;
@@ -84,7 +87,8 @@ private:
     BlockInfo(size_t block_num) {
       block_num_ = block_num;
       status_ = FreeBlock;
-      corresponding_ = block_num_;
+      next_ = block_num_;
+      prev_ = block_num_;
       offset_ = 0;
       invalid_nums_ = 0;
       valid_nums_ = 0;
@@ -92,8 +96,8 @@ private:
 
     void Show() {
       std::cout << "BLOCK:" << block_num_ << "\tSTATUS:" << status_ << std::endl;
-      std::cout << corresponding_ << "\t" << offset_ << std::endl;
-      std::cout << invalid_nums_ << "\t" << valid_nums_ << std::endl;
+      std::cout << "Prev:" << prev_ << "\tNext:" << next_ << "\tOffset:" << offset_ << std::endl;
+      std::cout << "Invalid:" << invalid_nums_ << "\tValid:" << valid_nums_ << std::endl;
     }
   };
 
