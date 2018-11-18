@@ -20,15 +20,25 @@ $L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示�
 
 ## CuckooFilter
 
+BloomFilter可能存在误报，并且无法删除元素。想要删除元素，则需要引入计数，但这样一来，原来每个bit空间就要扩张成一个计数值，占用空间又变大了。
 
+CuckooFilter[CuckooFilter]实现了利用较少计算换取较大空间。Cuckoo hash 有两种变形。一种通过增加哈希函数进一步提高空间利用率；另一种是增加哈希表，每个哈希函数对应一个哈希表，每次选择多个张表中空余位置进行放置。三个哈希表可以达到80% 的空间利用率。
+
+通常，Cuckoo Filter有两个哈希表，当有新的元素插入，它会使用第一个哈希函数hashA获取哈希k1 和位置 loc1。如果第一个hash表中loc1是空的，放在第一个表中；如果不为空，使用第二个哈希函数hashB得到哈希 k2，将哈希k2与哈希k1进行异或运算，获取第二个位置loc2。若loc2没有元素，放入loc2中；如果有元素，就进行布谷鸟哈希(循环踢出)。
+
+eg.使用hashA 和hashB 计算对应key x的位置a和b ：
 
 ## Flash
+
+Flash是一种长寿命的非易失性（在断电情况下仍能保持所存储的数据信息）的存储器。普通的Flash芯片是平面结构，数据只能前后左右移动。
+
+3D NAND Flash通过堆叠栅极层的结构提高了比特密度，可以实现数据在三维空间中的存储和传递，大幅提高了存储设备的存储能力。3D NAND Flash基本存储单元是Page , 擦除操作的基本单位是块。每一Page的有效容量是512字节的倍数。由于每个块的擦除时间几乎相同，块的容量将直接决定擦除性能。
 
 # Motivation
 
 目标：**基于Flash的LevelDB，在不影响原有写性能的基础上优化读放大问题**。
 
-## Read Amplification in LevelDB
+## LevelDB查找过程
 
 在LevelDB查找一个Key的步骤主要可以分为**在内存查找**和**在外存查找**两步：
 
@@ -89,7 +99,7 @@ major contribution：
 $$
 M_1 + M_2 + N\times M_{IM} \le M\quad (1)
 $$
-在分配内存空间时，将$M\times \alpha$的内存空间分配给LRU2Q，$M\times(1-\alpha)$的内存空间分配给Immutable MemTable 。内存中至少预留1个Immutable MemTable的空间，若不够，则降低Immutable MemTable的大小。
+在分配内存空间时，将$M\times \alpha​$的内存空间分配给LRU2Q，$M\times(1-\alpha)​$的内存空间分配给Immutable MemTable 。内存中至少预留1个Immutable MemTable的空间，若不够，则降低Immutable MemTable的大小。
 
 ### 伪代码
 
@@ -113,132 +123,94 @@ $$
 
 【图4：外部存储结构】
 
+如图4，我们为每层额外增加了一个list用于存放被上浮的文件。
 
+如图4（1），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起Overlap，将其先放在$L_1$层的额外的list中，随后在$L_1$层进行Compaction的时候将其合并到file中。
+
+如图4（2），当$L_5​$层额外的list中的一个文件被访问后，同样的通过计算将其移动到$L_0​$层，等待合并。
 
 ### 需要解决的问题
 
-1. 哪些数据需要上浮？
+1. 数据如何上浮？
 2. 数据上浮的层数？
-3. 数据如何上浮？
+3. 哪些数据需要上浮？
 
-### 1. 哪些数据需要上浮？
+#### 1. 数据如何上浮？
 
-在外部存储器中，数据从高层到低层是按照新旧度依次递减的，$L_0$层的数据最新， $L_6$层的数据最旧。根据前文所叙述的访问机制来看，相比于高层的SSTable，查找低层的SSTable会消耗更多的时间，所以我们认为数据分布不仅仅需要考虑数据的新旧度，同时还需要考虑数据的访问频率。当低层的某个SSTable的访问频率越来越高时，这个SSTable应该通过适当的调整，上浮到高层。
+##### 两个性质
 
-为了解决这一问题，我们对每个SSTable文件维护最近$F$次访问中的访问次数$f$，第$i$层的第$j$个SSTable的最近$F$次访问中的访问次数为$f_{i,j}$，若满足
-$$
-f_{i,j}\ge min(f_{i-1,k})  \times \beta\quad (2)
-$$
-其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为常数，那么认为这个SSTable文件需要进行上浮操作。
+1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap**。对于$L_0$层来说，数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，在DUMP的同时还需要进行多路归并，但是考虑到IO读写的代价对性能的影响，所以允许Immutable MemTable直接生成SSTable，直接DUMP到$L_0$层，其该层的SSTable之间的键值范围存在Overlap。$L_0$层至多只有4个SSTable，这也相对有了一定的折中，保证了查找效率。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
+2. **数据从$L_0$层到$L_6$层的新旧度逐渐降低，** $i$越小的$L_i$层的文件中的数据越新。若某个Key同时存在于多层的多个SSTable中，则$i$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j$越小的SSTable中的数据越新。
 
-每次更新文件访问次数时，就检查当前访问的文件是否需要上浮。为了避免频繁上浮，通过设定常数$\beta$来控制上浮的频率。若已有文件正在进行上浮，则当前上浮的文件需要等待之前的文件上浮完成后，再进行上浮操作。
+##### 为什么要换成CuckooFilter
 
-#### 维护每个文件最近访问次数
+文件M需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
 
-对于每个文件都记录最近$F$次的访问次数$f$。
+可以发现，在查找一个Key之前，LevelDB为了提高查找效率，对每个SSTable增加了一个Filter，用于快速判断一个Key是否存在在当前的SSTable中。因为Filter所能表示的Key的个数和实际SSTable的Key的个数是一样的，那么**可以把Filter看作整个SSTable的一个snapshot**。在去除旧数据时若能够只删除Filter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。**若DataBlock中某个Key是旧数据，那么上浮完成后在对应的Filter中这个Key已经被删除了，在Filter中就永远不会被查询到，就不会进一步查询DataBlock**。
 
-对于较小的$F$，用一个FIFO队列来维护最近的$F$次访问的文件序号。当从队列中弹出一个文件序号$q$时，将文件序号为$q$的文件的访问次数减一；当加入一个文件序号$p$时，将文件序号为$p$的文件的访问次数加一。
+LevelDB中引入的是BloomFilter，但它具有以下几点不足：
 
-![filefrequency](./pic/filefrequency.png)
+1. 存在一定的错误率，将不存在的Key可能会返回存在。
+2. 无法进行删除操作。
 
-【图3：较大$F$时，文件最近访问频率记录图】**【图待修改】**
+我们将文件上浮以后，需要继续保持原有的两个性质，我们使用查询效率更高，空间利用率更高，且无错误率的CuckooFilter[CuckooFilter]来替换BloomFilter。
 
-对于较大的$F$，将最近的$F$次访问中间部分的文件序号存储在外存，仅仅在内存维护2个最大大小为$F^{'}$的FIFO队列，一个是存储最近的$F$次访问头部的文件序号的队列$Q_{head}$，另一个是存储最近的$F$次访问尾部的文件序号的队列$Q_{tail}$。初始先往$Q_{head}$中添加文件序号，其次再往$Q_{tail}$中添加。当$Q_{tail}$满了以后，若维护的总文件序号数未达到$F$，则将$Q_{tail}$中的所有文件序号按次序存储外部存储设备，清空$Q_{tail}$，直到总文件序号数达到$F$为止，如图三所示。
+##### 具体操作
 
-当已经维护了$F$个最近访问的文件序号时，删除一个文件序号$q$，从$Q_{head}$弹出这个文件序号，将文件序号为$q$的文件的访问次数减一；添加一个文件序号$p$，将其加入$Q_{tail}$，将文件序号为$p$的文件的访问次数加一。当$Q_{head}$为空时，将$Q_{tail}$写入外存，清空队列$Q_{tail}$；再从外存中读入前$F^{'}$个文件序号，依次加入$Q_{head}$。
+对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
 
-**Algorithm 3 维护最近$F$次访问频率**
-
-![algo3](pic/algo3.png)
-
-算法3.3 展示了如何维护最近$F$次访问的文件序号。若$F$较小，则等价于将所有的文件序号放在一个FIFO中。若$F$较大，则在内存中维护2个FIFO，分别表示原来的一个FIFO的头部和尾部。删除数据时从头部FIFO$visit\_[0]$头部删除，添加数据时从尾部FIFO$visit\_[1]$尾部添加。
-
-### 数据上浮的层数？
-
-![formula](pic/formula.png)
-
-【图4：文件M在$L_j$层存在Overlap的文件】
+#### 2. 数据上浮的层数？
 
 对于$L_i$层的文件M，将它移动到$L_j$层：
 
-设常量$F$为最近的$F$次访问，$f$为最近$F$次访问中文件M被访问的次数，$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，不妨假设未来的$F$次访问中，文件M也将会被访问$f$次，同时文件M不会被Compaction，那么
+设$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗。假设未来的$F$次访问中，文件M也将会被访问$f_{i,M}$次，同时文件M不会被Compaction，那么考虑移动与不移动分别产生的代价：
 
-- 不移动文件M，这$f$次访问所带来的时间消耗为：$T_1=f\times 3\times T_R\times (4 + i)$
-- 将文件M移动到$L_j$层，这$f$次访问所带来的时间消耗为：$T_2=f\times 3\times T_R \times (4 + j) + T_W+T_R\times \sum^j_{k=i-1}c_k$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。
+- 不移动文件M：这$f_{i,M}$次访问所带来的时间消耗为：$T_1=f_{i,M}\times 3\times T_R\times (3 + i + i\times LIST\_MAX\_NUM)$。最坏情况下，在每一层（除$L_0$层外）的`file_`部分都需要查询一个文件，共计$i-1$个文件，$L_0$层每个文件都需要查询，共4个文件；每一层的`list_`部分的每个文件都需要查询，根据预设每层至多有$LIST\_MAX\_NUM$个文件存储在$list\_$中，所以总共有$4 + i-1 + i\times LIST\_MAX\_NUM$个文件需要查询，对于每个文件都需要进行3次IO读（读取FilterBlock，读取IndexBlock，读取DataBlock）。
+- 将文件M移动到$L_j$层，这$f_{i,M}$次访问所带来的时间消耗为：$T_2=f_{i,M}\times 3\times T_R \times (3+ j  + j\times LIST\_MAX\_NUM) + T_W+T_R\times( \sum^j_{k=i-1}c_k+1)$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。最坏情况下，$T_2$的前半部分为移动到$L_j$层后的查询文件$M$的代价，$T_W$为写入新的Filter的代价，$T_R\times (\sum^j_{k=i-1}c_k+1)$为读取文件$M$及从$L_{i-1}$层到$L_j$层与文件$M$存在Overlap的文件的Filter的代价。
 
-定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间消耗，若为负数，则表示增加时间消耗，那么：
+定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间代价，若为负数，则表示增加时间代价，那么：
 $$
-T_{diff}=f\times 3\times T_R\times (4 + i) - 3\times T_R\times (4 +j) - T_W - T_R \times \sum^j_{k=i-1}c_k
+T_{diff}=T_1-T_2=f_{i,M}\times 3\times T_R\times (3 + i + i\times LIST\_MAX\_NUM) \\- f_{i,M}\times 3\times T_R \times (3 + j + j\times LIST\_MAX\_NUM) \\- T_W -T_R\times( \sum^j_{k=i-1}c_k+1)
 \\
-T_{diff} = f\times 3\times T_R\times (i - j) - T_W-T_R\times \sum^j_{k=i-1}c_k \quad(3)
+T_{diff} = f_{i,M}\times 3\times T_R \times (i-j)\times(LIST\_MAX\_NUM + 1)\\-T_W-T_R\times( \sum^j_{k=i-1}c_k+1) \quad(3)
 $$
 因为$T_W\approx \alpha\times T_R$，所以公式（3）可以转换为
 $$
-T_{diff}=f\times 3\times (i-j)-\alpha - \sum^j_{k=i-1}c_k\quad(4)
+T_{diff}=f_{I,m}\times 3\times (i-j)\times(LIST\_MAX\_NUM+1)- \sum^j_{k=i-1}c_k-1-\alpha \quad(4)
 $$
 其中$0\le j\le i-1$。
 
 因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。 
 
-### 数据如何上浮？
+#### 3. 哪些数据需要上浮？
 
-#### mind-flow
+在外部存储器中，数据从高层到低层是按照新旧度依次递减的，$L_0$层的数据最新， $L_6$层的数据最旧。根据前文所叙述的访问机制来看，相比于高层的SSTable，查找低层的SSTable会消耗更多的时间。当一个低层的SSTable近期被频繁访问时，所产生的代价是很大的，因此我们认为**数据分布不仅仅需要考虑数据的新旧度，同时还需要考虑数据的访问频率**。当低层的某个SSTable的访问频率越来越高时，这个SSTable应该通过适当的调整，上浮到高层。
 
-1. 存储设备中不存在树状结构 --> 移动数据时只需要修改内存中树状结构
-2. 修改破坏了LevelDB树状结构的特性
-3. 如何高效的维护树状结构的特性
+我们对每个SSTable文件记录最近$F$次访问中的访问次数$f$，第$i$层的第$j$个SSTable的最近$F$次访问中的访问次数为$f_{i,j}$，若满足
+$$
+f_{i,j}\ge min(f_{i-1,k})  \times \beta (i > 0)\quad (2)
+$$
+其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为常数，那么这个SSTable文件需要进行上浮操作。
 
-存储在外存中的数据虽然被划分成$L_0$到$L_6$共7层，但是如果从存储设备的角度来看这些数据，它们之间并不存在层次结构，不同层的数据在存储器中都是平等的。而真正导致这种层次结构是因为内存中的基于LSM-tree的索引结构控制了数据的访问顺序，从而形成了树状的结构。基于这一点，对于数据的上浮，只需要修改内存中的索引结构不移动真正存储在外存中的数据就可以实现是数据的上浮。
+### 例子
 
-在内存中，用$file\_[i]$来存储$L_i$中所有SSTable文件的Meta信息，它是一个变长数组，$file\_[i][j]$表示$L_i$第$j$个文件的Meta信息，包括该文件中的最大键$lagerest\_$，最小键$smallest\_$等等。若想把$L_5$层的第2个SSTable上浮到$L_3 $层，那么只需要将该文件的Meta信息移动到$L_3 ​$层中即可。
 
-LevelDB之所以能够实现高效的查找，主要是因为满足了以下两个特性：
 
-1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap**。对于$L_0$层来说，数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，在DUMP的同时还需要进行多路归并，但是考虑到*<u>IO读写的代价对性能的影响</u>*，所以允许Immutable MemTable直接生成SSTable，直接DUMP到$L_0$层，其该层的SSTable之间的键值范围存在Overlap。$L_0$层至多只有4个SSTable，这也相对有了一定的折中，保证了查找效率。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
-2. **数据从$L_0​$层到$L_6​$层的新旧度逐渐降低。**换句话说就是$i​$越小的$L_i​$层的文件中的数据越新，若某个Key同时存在于多层的多个SSTable中，则$i​$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0​$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j​$越小的SSTable中的数据越新。
-
-当将某个SSTable文件按照索引地址移动的方式从低层流到到高层时，可能会破坏以上提到的两种特性。为了保持以上两种特性，我们提出了相应的解决方案。
-
-#### 上浮后存在Overlap
-
-![extra_list](pic/extra_list.jpeg)
-
-【图5：额外列表结构】**【图待修改】**
-
-上浮到$L_j$层的文件可能会与本层的其他文件出现Overlap，为了能够不影响原有的二分查找策略，我们为每层都添加一个额外的定长列表$list\_[j]$，列表的长度是十分小的，甚至可以只存一个文件。当移动文件$M$到$L_j$层时，我们直接将文件的Meta信息加入$list\_[j]$。
-
-对原有的查找和compaction操作需要进行相应的调整：
-
-* 在查找完原有的$file\_[j]$后，若未查找到数据，再依次查找$list\_[j]$。若还未查找到，再查找下一个level。
-* Compaction的触发条件仍为$file\_[j]$的大小超过阈值。
-* 对$L_j$层进行Compaction时，需要在$L_{j+1}$层选择与之Overlap的文件。在这个新的结构下，不仅仅从$file\_[j+1]$中选择，同时也从$list\_[j+1]$中选择。
-
-若$list\_[j]$的大小达到每层设定的阈值，则通过与Compaction相同的操作进行多路合并，将这几个文件合并，若与$file\_[j]$中的文件不存在Overlap，直接加入$file\_[j]$，否则重新加入$list\_[j]$。
+### 算法
 
 #### 上浮后去除旧数据
 
-**文件M需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。**文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
+**Algorithm 3 维护最近$F$次访问频率**
 
-可以发现，在查找一个Key之前，LevelDB为了提高查找效率，对每个SSTable增加了一个Filter，用于快速判断一个Key是否存在在当前的SSTable中。因为Filter所能表示的Key的个数和实际SSTable的Key的个数时一样的，那么**可以把Filter看作整个SSTable的一个snapshot**。在去除旧数据时若能够只删除Filter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。**若DataBlock中某个Key是旧数据，那么上浮完成后在对应的Filter中这个Key已经被删除了，在Filter中就永远不会被查询到，就不会进一步查询DataBlock**。
+![algo3](D:/Program/BiLSMTree/doc/pic/algo3.png)
 
-考虑LevelDB中使用的Filter是BloomFilter，它具有以下几点缺陷：
-
-1. 无法进行删除操作。
-2. 存在一定的错误率，将不存在的Key可能会返回存在。
-
-我们使用查询效率更高，空间利用率更高，且无错误率的CuckooFilter[CuckooFilter]来替换BloomFilter。
-
-对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
+算法3.3 展示了如何维护最近$F$次访问的文件序号。若$F$较小，则等价于将所有的文件序号放在一个FIFO中。若$F$较大，则在内存中维护2个FIFO，分别表示原来的一个FIFO的头部和尾部。删除数据时从头部FIFO$visit\_[0]$头部删除，添加数据时从尾部FIFO$visit\_[1]$尾部添加。
 
 **Algorithm 4 上浮求CuckooFilter差积**
 
 ![algo4](pic/algo4.png)
 
 
-
-# 改进
-
-1. Data、Index、Filter分别存储，Meta信息中存储SSTable文件对应的Filter的在Filter文件的offset，Index存储在Index的offset，Index中存储Datablock对应的value为对应的文件序列号和offset，Data可以分别存在多个固定大小文件中。尽量不对Data区域进行更新，Filter文件将会被频繁更新。
 
 # Trace
 
@@ -265,6 +237,6 @@ LevelDB之所以能够实现高效的查找，主要是因为满足了以下两�
 
 [BloomFilter]：
 
-[CuckooFilter]
+[CuckooFilter]：Cuckoo FIlter：Practically Better Than Bloom
 
 [LOCS]：An Efficient Design and Implementation of LSM-Tree based Key-Value Store on Open-Channel SSD 
