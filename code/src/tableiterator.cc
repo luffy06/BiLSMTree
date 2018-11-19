@@ -74,7 +74,8 @@ void TableIterator::ParseBlock(const std::string block_data) {
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
-    kvs_.push_back(KV(std::string(key_), std::string(value_)));
+    if (key_size_ > 0)
+      kvs_.push_back(KV(std::string(key_), std::string(value_)));
   }
 }
 

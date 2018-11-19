@@ -353,7 +353,7 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
-    std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
+    // std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
     if (!db->Get(data[i].key_.ToString(), db_value)) {
       std::cout << std::endl << data[i].key_.ToString() << " Cannot Get" << std::endl;
       msg = "Key doesn't exist";
@@ -373,7 +373,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 300; ++ i) {
+  for (size_t i = 1; i <= 500; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');

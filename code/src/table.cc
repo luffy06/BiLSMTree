@@ -15,6 +15,10 @@ Table::Table() {
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
 Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
+  // std::cout << "Create Table" << std::endl;
+  // for (size_t i = 0; i < kvs.size(); ++ i)
+  //   std::cout << kvs[i].key_.ToString() << "\t";
+  // std::cout << std::endl;
   assert(kvs.size() > 0);
   filesystem_ = filesystem;
   // for data blocks

@@ -61,9 +61,11 @@ public:
   }
 
   bool Find(const Slice fp) {
-    for (size_t i = 0; i < size_; ++ i)
+    for (size_t i = 0; i < size_; ++ i) {
+      // std::cout << "In Bucket:" << data_[i].ToString() << std::endl;
       if (data_[i].compare(fp) == 0)
         return true;
+    }
     return false;
   }
 
@@ -76,6 +78,9 @@ public:
   }
 
   void SetData(const std::string data, const size_t size) {
+    if (size > Config::CuckooFilterConfig::MAXBUCKETSIZE)
+      std::cout << "Error Size:" << size << std::endl;
+    assert(size < Config::CuckooFilterConfig::MAXBUCKETSIZE);
     data_ = new Slice[Config::CuckooFilterConfig::MAXBUCKETSIZE];
     std::stringstream ss;
     ss.str(data);
@@ -131,6 +136,7 @@ public:
   }
 
   CuckooFilter(const std::string data) {
+    // std::cout << data << std::endl;
     std::stringstream ss;
     ss.str(data);
     ss >> data_size_;
@@ -139,12 +145,15 @@ public:
       size_t array_size_ = 0;
       ss >> array_size_;
       std::string array_data_ = "";
+      // if (array_size_ > 0)
+      //   std::cout << "Init Array Data" << std::endl;
       for (size_t j = 0; j < array_size_; ++ j) {
         std::string d;
         ss >> d;
-        array_data_ = d + "\t";
+        array_data_ = array_data_ + d + "\t";
       }
-      // std::cout << "Set " << array_size_ << " Data:" << array_data_ << std::endl;
+      // if (array_size_ > 0)
+        // std::cout << "Set " << array_size_ << " Data:" << array_data_ << std::endl;
       array_[i].SetData(array_data_, array_size_);
     }
   }
@@ -155,6 +164,8 @@ public:
 
   virtual bool KeyMatch(const Slice key) {
     Info info = GetInfo(key);
+    // std::cout << "Info of Key:" << key.ToString() << std::endl;
+    // std::cout << "FP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
     return array_[info.pos1].Find(info.fp_) || array_[info.pos2].Find(info.fp_);  
   }
 
@@ -185,11 +196,8 @@ public:
     std::stringstream ss;
     ss << data_size_;
     ss << Config::DATA_SEG;
-    // ss << "\n";
-    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
+    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i)
       ss << array_[i].ToString();
-      // ss << "\n";
-    }
     return ss.str();
   }
 

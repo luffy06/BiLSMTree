@@ -20,6 +20,8 @@ public:
   
   void ParseBlock(const std::string block_data);
 
+  void ResetIter() { iter_ = 0; }
+
   bool HasNext() { return iter_ < kvs_.size(); }
 
   size_t Id() const { return id_;}
@@ -36,8 +38,8 @@ public:
     KV kv_a = a.Current();
     KV kv_b = b.Current();
     if (kv_a.key_.compare(kv_b.key_) != 0)
-      return kv_a.key_.compare(kv_b.key_) < 0;
-    return a.Id() < b.Id();
+      return kv_a.key_.compare(kv_b.key_) > 0;
+    return a.Id() > b.Id();
   }
 private:
   size_t id_;
