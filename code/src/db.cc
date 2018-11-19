@@ -16,6 +16,7 @@ DB::~DB() {
 }
 
 void DB::Put(const std::string key, const std::string value) {
+  // std::cout << "Put" << std::endl;
   KV kv_ = KV(key, value);
   SkipList* sl = cacheserver_->Put(kv_);
   if (sl != NULL) {
@@ -27,6 +28,7 @@ void DB::Put(const std::string key, const std::string value) {
 }
 
 bool DB::Get(const std::string key, std::string& value) {
+  // std::cout << "Get" << std::endl;
   Slice value_;
   Slice key_ = Slice(key.data(), key.size());
   bool res = cacheserver_->Get(key_, value_);

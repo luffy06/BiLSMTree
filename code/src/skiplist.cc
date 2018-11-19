@@ -6,7 +6,7 @@ SkipList::SkipList() {
   head_ = new ListNode();
   head_->level_ = GenerateLevel();
   head_->forward_ = new ListNode*[Config::SkipListConfig::MAXLEVEL];
-  for (size_t i = 0; i < head_->level_; ++ i)
+  for (size_t i = 0; i < Config::SkipListConfig::MAXLEVEL; ++ i)
     head_->forward_[i] = NULL;
   data_size_ = 0;
   writable_ = true;
@@ -25,6 +25,7 @@ bool SkipList::IsFull() {
 }
 
 bool SkipList::Find(const Slice key, Slice& value) {
+  std::cout << "SkipList::Find" << std::endl;
   ListNode* p = head_;
   assert(head_ != NULL);
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
@@ -34,14 +35,17 @@ bool SkipList::Find(const Slice key, Slice& value) {
   p = p->forward_[0];
   if (p != NULL && p->kv_.key_.compare(key) == 0) {
     value = Slice(p->kv_.value_.data(), p->kv_.value_.size());
+    std::cout << "SkipList::Find True" << std::endl;
     return true;
   }
+  std::cout << "SkipList::Find False" << std::endl;
   return false;
 }
 
 void SkipList::Insert(const KV kv) {
   assert(writable_);
   assert(head_ != NULL);
+  std::cout << "SkipList::Insert" << std::endl;
   ListNode *p = head_;
   ListNode *update_[Config::SkipListConfig::MAXLEVEL];
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
@@ -52,7 +56,7 @@ void SkipList::Insert(const KV kv) {
     update_[i] = p;
   }
   p = p->forward_[0];
-  // std::cout << "In Bottom" << std::endl;
+  std::cout << "In Bottom" << std::endl;
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
     p->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
   }
@@ -74,29 +78,7 @@ void SkipList::Insert(const KV kv) {
     }
     data_size_ = data_size_ + 1;
   }
-}
-
-void SkipList::Delete(const Slice key) {
-  assert(writable_);
-  ListNode *p = head_;
-  ListNode *update_[Config::SkipListConfig::MAXLEVEL];
-  for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
-    while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(key) < 0)
-      p = p->forward_[i];
-    update_[i] = p;
-  }
-  p = p->forward_[0];
-  if (p != NULL && p->kv_.key_.compare(key) == 0) {
-    for (size_t i = 0; i < head_->level_; ++ i) {
-      if (update_[i]->forward_[i] != p)
-        break;
-      update_[i]->forward_[i] = p->forward_[i];
-    }
-    delete p;
-    while (head_->level_ > 0 && head_->forward_[head_->level_] == NULL)
-      head_->level_ = head_->level_ - 1;
-    data_size_ = data_size_ - 1;
-  }
+  std::cout << "SkipList::Insert Success" << std::endl;
 }
 
 void SkipList::DisableWrite() {

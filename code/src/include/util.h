@@ -66,6 +66,10 @@ public:
     static const size_t MAXLEVEL = 4096;
   };
 
+  struct CacheServerConfig {
+    static const size_t MAXSIZE = 3; // max size of immutable memtables
+  };
+
   struct ImmutableMemTableConfig {
     static const size_t MAXSIZE = 1000;     // the number of <key, value> stored in immutable memetable
   };
@@ -103,10 +107,6 @@ public:
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
     static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
-  };
-
-  struct CacheServerConfig {
-    static const size_t MAXSIZE = 3; // max size of immutable memtables
   };
 
   struct CuckooFilterConfig {

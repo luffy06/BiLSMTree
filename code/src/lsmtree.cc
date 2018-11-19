@@ -466,7 +466,7 @@ void LSMTree::MajorCompaction(size_t level) {
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
+  // std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
@@ -485,8 +485,9 @@ void LSMTree::MajorCompaction(size_t level) {
     return a.smallest_.compare(b.smallest_) <= 0;
   });
   lsmtreeresult_->MajorCompaction();
-  // size_t level_max_file = static_cast<size_t>(pow(10, level + 1));
-  size_t level_max_file = static_cast<size_t>(pow(10, level));
+  std::cout << "MajorCompaction Success" << std::endl;
+  size_t level_max_file = static_cast<size_t>(pow(10, level + 1));
+  // size_t level_max_file = static_cast<size_t>(pow(10, level));
   if (file_[level + 1].size() > level_max_file)
     MajorCompaction(level + 1);
 }

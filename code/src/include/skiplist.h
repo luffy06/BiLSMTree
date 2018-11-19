@@ -20,8 +20,6 @@ public:
   
   void Insert(const KV kv);
 
-  void Delete(const Slice key);
-
   std::vector<KV> GetAll() const {
     std::vector<KV> res_;
     ListNode *p = head_;

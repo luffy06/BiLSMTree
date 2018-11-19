@@ -187,15 +187,15 @@ void TestBiList(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
-void TestSkipList(const std::vector<bilsmtree::KV>& data) {
+void TestSkipList(const std::vector<bilsmtree::KV>& kv_data) {
   std::cout << seg << "TEST SkipList" << seg << std::endl;
   std::string msg = "SUCCESS";  
-  std::vector<bilsmtree::KV> kv_data;
+  // std::vector<bilsmtree::KV> kv_data;
   bilsmtree::SkipList *skiplist = new bilsmtree::SkipList();
-  for (size_t i = 1; i <= 20; ++ i) {
-    bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
-    kv_data.push_back(kv);
-  }
+  // for (size_t i = 1; i <= 20; ++ i) {
+  //   bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
+  //   kv_data.push_back(kv);
+  // }
   std::cout << "TEST Insert" << std::endl;
   for (size_t i = 0; i < kv_data.size(); ++ i)
     skiplist->Insert(kv_data[i]);
@@ -373,7 +373,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 10000; ++ i) {
+  for (size_t i = 1; i <= 1000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
@@ -384,9 +384,9 @@ int main() {
   // TestFlash(data);
   // TestFileSystem(data);
   // TestBiList(data);
-  // TestSkipList(small_data);
+  TestSkipList(small_data);
   // TestLRU2Q(data);
   // TestFilter(small_data);
-  TestDB(small_data);
+  // TestDB(small_data);
   return 0;
 }
