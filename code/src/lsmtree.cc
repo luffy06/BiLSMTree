@@ -102,13 +102,13 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   std::string filename = GetFilename(sequence_number_);
   table_->DumpToFile(filename, lsmtreeresult_);
   Meta meta = table_->GetMeta();
-  // std::cout << "DUMP L0" << std::endl;
-  // std::cout << "Smallest:" << meta.smallest_.ToString() << "\tLargest:" << meta.largest_.ToString() << std::endl;
+  std::cout << "DUMP L0" << std::endl;
+  std::cout << "Smallest:" << meta.smallest_.ToString() << "\tLargest:" << meta.largest_.ToString() << std::endl;
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
   if (file_[0].size() > Config::LSMTreeConfig::L0SIZE) {
-    // std::cout << "Start MajorCompaction In AddTableToL0" << std::endl;
+    std::cout << "Start MajorCompaction In AddTableToL0" << std::endl;
     MajorCompaction(0);
   }
 }
@@ -408,7 +408,7 @@ void LSMTree::CompactList(size_t level) {
 }
 
 void LSMTree::MajorCompaction(size_t level) {
-  // std::cout << "MajorCompaction On Level:" << level << std::endl;
+  std::cout << "MajorCompaction On Level:" << level << std::endl;
   if (level == Config::LSMTreeConfig::LEVEL)
     return ;
   std::vector<Meta> metas;
@@ -466,7 +466,7 @@ void LSMTree::MajorCompaction(size_t level) {
     tables_.push_back(t);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  // std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
+  std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);

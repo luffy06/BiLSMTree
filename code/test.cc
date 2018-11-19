@@ -347,7 +347,7 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    // std::cout << "Put " << i << std::endl;
+    std::cout << "Put " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
@@ -384,7 +384,7 @@ int main() {
   // TestFlash(data);
   // TestFileSystem(data);
   // TestBiList(data);
-  // TestSkipList(data);
+  // TestSkipList(small_data);
   // TestLRU2Q(data);
   // TestFilter(small_data);
   TestDB(small_data);

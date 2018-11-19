@@ -24,6 +24,7 @@ bool KVServer::Get(const Slice key, Slice& value) {
 
 void KVServer::MinorCompact(const SkipList* sl) {
   std::vector<KV> data_ = sl->GetAll();
+  std::cout << "Get All data in Immutable Memtable:" << data_.size() << std::endl;
   // TODO: RESIZE BEFORE PUSH_BACK
   std::vector<KV> kvs_;
   for (size_t i = 0; i < data_.size(); ++ i) {
@@ -32,7 +33,9 @@ void KVServer::MinorCompact(const SkipList* sl) {
     // std::cout << "Key:" << kv_.key_.ToString() << "\tLocation:" << location_.ToString() << std::endl;
     kvs_.push_back(KV(kv_.key_, location_));
   }
+  std::cout << "Ready to AddTableToL0" << std::endl;
   lsmtree_->AddTableToL0(kvs_);
+  std::cout << "MinorCompact Success" << std::endl;
 }
 
 }

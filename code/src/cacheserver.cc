@@ -28,13 +28,13 @@ SkipList* CacheServer::Put(const KV kv) {
   KV pop_kv;
   SkipList* res = NULL;
   if (lru_->Put(kv, pop_kv)) {
-    // std::cout << "POP KV:" << pop_kv.key_.ToString() << std::endl;
+    std::cout << "POP KV:" << pop_kv.key_.ToString() << std::endl;
     // lru2q is full
     if (mem_->IsFull()) {
-      // std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
+      std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
       // immutable memtable is full
       if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
-        // std::cout << "DUMP" << std::endl;
+        std::cout << "DUMP" << std::endl;
         // the size of immutable memtables is full
         // record tail position
         ListNode* p = tail_;
@@ -62,8 +62,10 @@ SkipList* CacheServer::Put(const KV kv) {
       // create a new immutable memtable
       mem_ = new SkipList();
     }
+    std::cout << "Insert in Mem" << std::endl;
     // insert memtable
     mem_->Insert(pop_kv);
+    std::cout << std::string(10, '@') << std::endl;
   }
   return res;
 }
