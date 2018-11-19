@@ -373,7 +373,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 500; ++ i) {
+  for (size_t i = 1; i <= 10000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
