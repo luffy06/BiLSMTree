@@ -25,7 +25,7 @@ bool SkipList::IsFull() {
 }
 
 bool SkipList::Find(const Slice key, Slice& value) {
-  std::cout << "SkipList::Find" << std::endl;
+  // std::cout << "SkipList::Find" << std::endl;
   ListNode* p = head_;
   assert(head_ != NULL);
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
@@ -35,17 +35,17 @@ bool SkipList::Find(const Slice key, Slice& value) {
   p = p->forward_[0];
   if (p != NULL && p->kv_.key_.compare(key) == 0) {
     value = Slice(p->kv_.value_.data(), p->kv_.value_.size());
-    std::cout << "SkipList::Find True" << std::endl;
+    // std::cout << "SkipList::Find True" << std::endl;
     return true;
   }
-  std::cout << "SkipList::Find False" << std::endl;
+  // std::cout << "SkipList::Find False" << std::endl;
   return false;
 }
 
 void SkipList::Insert(const KV kv) {
   assert(writable_);
   assert(head_ != NULL);
-  std::cout << "SkipList::Insert" << std::endl;
+  // std::cout << "SkipList::Insert" << std::endl;
   ListNode *p = head_;
   ListNode *update_[Config::SkipListConfig::MAXLEVEL];
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
@@ -56,7 +56,7 @@ void SkipList::Insert(const KV kv) {
     update_[i] = p;
   }
   p = p->forward_[0];
-  std::cout << "In Bottom" << std::endl;
+  // std::cout << "In Bottom" << std::endl;
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
     p->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
   }
@@ -78,7 +78,7 @@ void SkipList::Insert(const KV kv) {
     }
     data_size_ = data_size_ + 1;
   }
-  std::cout << "SkipList::Insert Success" << std::endl;
+  // std::cout << "SkipList::Insert Success" << std::endl;
 }
 
 void SkipList::DisableWrite() {
