@@ -67,12 +67,12 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 200;     // the number of <key, value> stored in immutable memetable
+    static const size_t MAXSIZE = 1000;     // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 100;    // size of lru
-    static const size_t M2 = 100;    // size of fifo
+    static const size_t M1 = 1000;    // size of lru
+    static const size_t M2 = 1000;    // size of fifo
   };
 
   struct FilterConfig {

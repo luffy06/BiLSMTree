@@ -20,8 +20,9 @@ void DB::Put(const std::string key, const std::string value) {
   SkipList* sl = cacheserver_->Put(kv_);
   if (sl != NULL) {
     // need compaction
-    std::cout << "Ready to Compaction" << std::endl;
+    std::cout << "Ready to Minor Compaction" << std::endl;
     kvserver_->MinorCompact(sl);
+    std::cout << "Minor Compaction Success" << std::endl;
   }
 }
 
@@ -30,7 +31,7 @@ bool DB::Get(const std::string key, std::string& value) {
   Slice key_ = Slice(key.data(), key.size());
   bool res = cacheserver_->Get(key_, value_);
   if (!res) {
-    std::cout << "Get in Extern Storage" << std::endl;
+    // std::cout << "Get in Extern Storage" << std::endl;
     res = kvserver_->Get(key_, value_);
   }
   if (res)

@@ -19,8 +19,8 @@ def generate_workload(project_path):
                   (0.03, 0.48, 0.02, 0.47)]
 
   attributes = {
-    'recordcount': 100000,
-    'operationcount': 300000,
+    'recordcount': 10000,
+    'operationcount': 1000000,
     'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
     'readallfields': 'true',
     'requestdistribution': 'zipfian' # latest, uniform

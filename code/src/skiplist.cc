@@ -45,14 +45,14 @@ void SkipList::Insert(const KV kv) {
   ListNode *p = head_;
   ListNode *update_[Config::SkipListConfig::MAXLEVEL];
   for (int i = static_cast<int>(head_->level_) - 1; i >= 0; -- i) {
-    std::cout << "Search Level:" << i << std::endl;
+    // std::cout << "Search Level:" << i << std::endl;
     while (p->forward_[i] != NULL && p->forward_[i]->kv_.key_.compare(kv.key_) < 0)
       p = p->forward_[i];
-    std::cout << "Search Level End" << std::endl;
+    // std::cout << "Search Level End" << std::endl;
     update_[i] = p;
   }
   p = p->forward_[0];
-  std::cout << "In Bottom" << std::endl;
+  // std::cout << "In Bottom" << std::endl;
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
     p->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
   }
