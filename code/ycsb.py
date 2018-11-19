@@ -2,6 +2,7 @@ import os
 from functools import reduce
 
 workload_num = 12
+value_max_len = 300
 
 def generate_workload(project_path):
   distribution_attr = ['readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
@@ -19,7 +20,7 @@ def generate_workload(project_path):
                   (0.03, 0.48, 0.02, 0.47)]
 
   attributes = {
-    'recordcount': 10000,
+    'recordcount': 20000,
     'operationcount': 1000000,
     'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
     'readallfields': 'true',
@@ -79,6 +80,7 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
+      value = value[:300]
       nls.append(value)
       result.append(nls)
   f = open(out_filename, 'a')
