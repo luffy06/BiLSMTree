@@ -41,7 +41,6 @@ struct Meta {
 class Block {
 public:
   Block(const char* data, const size_t size) : size_(size) {
-    assert(size_ <= Config::TableConfig::BLOCKSIZE);
     data_ = new char[size_ + 1];
     for (size_t i = 0; i < size_; ++ i)
       data_[i] = data[i];

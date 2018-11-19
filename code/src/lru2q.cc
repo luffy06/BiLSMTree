@@ -24,10 +24,12 @@ bool LRU2Q::Put(const KV kv, KV& pop_kv) {
   if (pos.second != -1) {
     // lru has the key
     size_t index = pos.second;
-    if (index <= Config::LRU2QConfig::M1)
+    if (index <= Config::LRU2QConfig::M1) {
       lru_->Set(index, kv);
-    else
-      fifo_->Set(index, kv);
+    }
+    else {
+      fifo_->Set(index - Config::LRU2QConfig::M1, kv);
+    }
     MoveToHead(index);
     // update map of data
     map_[pos.first] = std::make_pair(kv.key_, lru_->Head());

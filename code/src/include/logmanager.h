@@ -14,7 +14,7 @@ public:
   
   ~LogManager();
 
-  Slice Append(const KV kv);
+  std::vector<KV> Append(const std::vector<KV> kvs);
 
   Slice Get(const Slice location);
 

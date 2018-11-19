@@ -101,12 +101,14 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   // for (size_t i = 0; i < kvs.size(); ++ i)
   //   std::cout << kvs[i].key_.ToString() << "\t";
   // std::cout << std::endl;
+  std::cout << "Create Table" << std::endl;
   Table *table_ = new Table(kvs, filesystem_);
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
+  std::cout << "Table DumpToFile" << std::endl;
   table_->DumpToFile(filename, lsmtreeresult_);
   Meta meta = table_->GetMeta();
-  // std::cout << "DUMP L0" << std::endl;
+  std::cout << "DUMP L0" << std::endl;
   // std::cout << "Smallest:" << meta.smallest_.ToString() << "\tLargest:" << meta.largest_.ToString() << std::endl;
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);

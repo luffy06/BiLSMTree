@@ -11,17 +11,34 @@ LogManager::~LogManager() {
   head_ = tail_ = record_count_ = 0;
 }
 
-Slice LogManager::Append(const KV kv) {
-  std::string location_ = Util::IntToString(tail_);
-  size_t size_ = WriteKV(kv);
-  record_count_ = record_count_ + 1;
-  std::stringstream ss;
-  ss << location_;
-  ss << Config::DATA_SEG;
-  ss << size_;
-  ss << Config::DATA_SEG;
-  std::string res = ss.str();
-  return Slice(res.data(), res.size());
+std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
+  std::vector<KV> res;
+  std::string total_data_ = "";
+  size_t pos = tail_;
+  for (size_t i = 0; i < kvs.size(); ++ i) {
+    KV kv = kvs[i];
+    std::stringstream ss;
+    ss << kv.key_.ToString();
+    ss << Config::DATA_SEG;
+    ss << kv.value_.ToString();
+    ss << Config::DATA_SEG;
+    std::string data = ss.str();
+    ss.str("");
+    ss << pos;
+    ss << Config::DATA_SEG;
+    ss << data.size();
+    ss << Config::DATA_SEG;
+    std::string value = ss.str();
+    res.push_back(KV(kv.key_.ToString(), value));
+    pos = pos + data.size();
+    total_data_ = total_data_ + data;
+    record_count_ = record_count_ + 1;
+  }
+  size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
+  filesystem_->Write(file_number_, total_data_.data(), total_data_.size());
+  tail_ = tail_ + total_data_.size();
+  filesystem_->Close(file_number_);
+  return res;
 }
 
 Slice LogManager::Get(const Slice location) {

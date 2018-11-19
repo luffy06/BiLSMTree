@@ -21,6 +21,8 @@ BiList::~BiList() {
 }
 
 void BiList::Set(size_t pos, const KV kv) {
+  if (pos <= 0 || pos > max_size_)
+    std::cout << pos << "\t" << max_size_ << std::endl;
   assert(pos > 0 && pos <= max_size_);
   data_[pos].kv_ = kv;
 }

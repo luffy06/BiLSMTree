@@ -31,23 +31,17 @@ bool KVServer::Get(const Slice key, Slice& value) {
 
 void KVServer::MinorCompact(const SkipList* sl) {
   std::vector<KV> data_ = sl->GetAll();
+  std::string algo = Util::GetAlgorithm();
   // std::cout << "Get All data in Immutable Memtable:" << data_.size() << std::endl;
   // TODO: RESIZE BEFORE PUSH_BACK
-  std::vector<KV> kvs_;
-  for (size_t i = 0; i < data_.size(); ++ i) {
-    KV kv_ = data_[i];
-    std::string algo = Util::GetAlgorithm();
-    if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV")) {
-      Slice location_ = logmanager_->Append(kv_);
-      // std::cout << "Key:" << kv_.key_.ToString() << "\tLocation:" << location_.ToString() << std::endl;
-      kvs_.push_back(KV(kv_.key_, location_));
-    }
-    else if (algo == std::string("LevelDB")) {
-      kvs_.push_back(kv_);
-    }
+  if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV")) {
+    std::vector<KV> kvs_ = logmanager_->Append(data_);
+    lsmtree_->AddTableToL0(kvs_);
+  }
+  else {
+    lsmtree_->AddTableToL0(data_);
   }
   // std::cout << "Ready to AddTableToL0" << std::endl;
-  lsmtree_->AddTableToL0(kvs_);
   // std::cout << "MinorCompact Success" << std::endl;
 }
 
