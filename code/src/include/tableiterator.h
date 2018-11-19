@@ -5,16 +5,14 @@
 #include <string>
 #include <sstream>
 
-#include "slice.h"
-#include "filesystem.h"
-
+#include "table.h"
 namespace bilsmtree {
 
 class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size, LSMTreeResult *lsmtreeresult_);
+  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
 
   ~TableIterator();
   
@@ -45,6 +43,7 @@ private:
   size_t id_;
   std::vector<KV> kvs_;
   size_t iter_;
+  Filter *filter_;
 };
 }
 

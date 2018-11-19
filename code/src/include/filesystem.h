@@ -53,8 +53,6 @@ public:
 
   void Seek(const size_t file_number, const size_t offset);
 
-  size_t GetFileSize(const size_t file_number);
-
   void SetFileSize(const size_t file_number, const size_t file_size);
 
   std::string Read(const size_t file_number, const size_t read_size);

@@ -101,7 +101,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   // std::cout << "Index Block:" << buffer_ << std::endl;
 
   std::string algorithm = Util::GetAlgorithm();
-  if (algorithm == std::string("LevelDB")) {
+  if (algorithm == std::string("LevelDB") || algorithm == std::string("LevelDB-KV")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
   else if (algorithm == std::string("BiLSMTree")) {

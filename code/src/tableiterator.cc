@@ -8,20 +8,36 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, const size_t footer_size, LSMTreeResult *lsmtreeresult_) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
   std::stringstream ss;
+  std::string algo = Util::GetAlgorithm();
   size_t file_number_ = filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
-  size_t file_size_ = filesystem->GetFileSize(file_number_);
   if (Config::SEEK_LOG)
     std::cout << "Seek Footer in TableIterator" << std::endl;
-  filesystem->Seek(file_number_, file_size_ - footer_size);
-  std::string offset_data_ = filesystem->Read(file_number_, 2 * sizeof(size_t));
+  filesystem->Seek(file_number_, meta.file_size_ - meta.footer_size_);
+  std::string offset_data_ = filesystem->Read(file_number_, meta.footer_size_);
   ss.str(offset_data_);
   lsmtreeresult_->Read();
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss >> index_offset_;
   ss >> filter_offset_;
+  // std::cout << "Index Offset:" << index_offset_ << "\tFilter Offset:" << filter_offset_ << std::endl;
+
+  filesystem->Seek(file_number_, filter_offset_);
+  std::string filter_data_ = filesystem->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
+  // std::cout << filter_data_ << std::endl;
+  lsmtreeresult_->Read();
+  if (algo == std::string("BiLSMTree")) {
+    filter_ = new CuckooFilter(filter_data_);
+  }
+  else if (algo == std::string("LevelDB-KV") || algo == std::string("LevelDB")) {
+    filter_ = new BloomFilter(filter_data_);
+  }
+  else {
+    filter_ = NULL;
+    assert(false);
+  }
 
   if (Config::SEEK_LOG)
     std::cout << "Seek Index in TableIterator" << std::endl;
@@ -51,6 +67,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   filesystem->Close(file_number_);
   id_ = 0;
   iter_ = 0;
+  delete filter_;
 }
 
 TableIterator::~TableIterator() {
@@ -74,8 +91,9 @@ void TableIterator::ParseBlock(const std::string block_data) {
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
-    if (key_size_ > 0)
+    if (key_size_ > 0 && filter_->KeyMatch(Slice(key_, key_size_))) {
       kvs_.push_back(KV(std::string(key_), std::string(value_)));
+    }
   }
 }
 

@@ -9,7 +9,6 @@
 
 #include "visitfrequency.h"
 #include "tableiterator.h"
-#include "table.h"
 
 namespace bilsmtree {
 

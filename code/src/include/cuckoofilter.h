@@ -80,7 +80,7 @@ public:
   void SetData(const std::string data, const size_t size) {
     if (size > Config::CuckooFilterConfig::MAXBUCKETSIZE)
       std::cout << "Error Size:" << size << std::endl;
-    assert(size < Config::CuckooFilterConfig::MAXBUCKETSIZE);
+    assert(size <= Config::CuckooFilterConfig::MAXBUCKETSIZE);
     data_ = new Slice[Config::CuckooFilterConfig::MAXBUCKETSIZE];
     std::stringstream ss;
     ss.str(data);
@@ -146,14 +146,14 @@ public:
       ss >> array_size_;
       std::string array_data_ = "";
       // if (array_size_ > 0)
-      //   std::cout << "Init Array Data" << std::endl;
+      //   std::cout << "Init " << array_size_ << " Array Data" << std::endl;
       for (size_t j = 0; j < array_size_; ++ j) {
         std::string d;
         ss >> d;
         array_data_ = array_data_ + d + "\t";
       }
       // if (array_size_ > 0)
-        // std::cout << "Set " << array_size_ << " Data:" << array_data_ << std::endl;
+      //   std::cout << "Set " << array_size_ << " Data:" << array_data_ << std::endl;
       array_[i].SetData(array_data_, array_size_);
     }
   }

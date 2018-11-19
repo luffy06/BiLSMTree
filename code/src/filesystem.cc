@@ -85,10 +85,6 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
   // std::cout << "FILE offset_:" << offset_ << std::endl;
 }
 
-size_t FileSystem::GetFileSize(const size_t file_number) {
-  return fcbs_[file_number].filesize_;
-}
-
 void FileSystem::SetFileSize(const size_t file_number, const size_t file_size) {
   fcbs_[file_number].filesize_ = file_size;
 }
