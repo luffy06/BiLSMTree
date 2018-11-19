@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.9)
 project(bilsmtree VERSION 1.0 LANGUAGES C CXX)
 
 # This project can use C11, but will gracefully decay down to C89.
