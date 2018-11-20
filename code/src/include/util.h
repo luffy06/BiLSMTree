@@ -43,9 +43,9 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "../logs/";
     static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
-    static const size_t BLOCK_NUMS = 1024;
-    static const size_t PAGE_NUMS = 8;
-    static const size_t PAGE_SIZE = 16 * 1024; // 16KB
+    static const size_t BLOCK_NUMS = 8192;
+    static const size_t PAGE_NUMS = 256;
+    static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
     static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(BLOCK_NUMS * 0.2);
@@ -67,21 +67,21 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 3; // max size of immutable memtables
+    static const size_t MAXSIZE = 3;        // max size of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 1000;     // the number of <key, value> stored in immutable memetable
+    static const size_t MAXSIZE = 100;      // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 1000;    // size of lru
-    static const size_t M2 = 1000;    // size of fifo
+    static const size_t M1 = 100;           // size of lru
+    static const size_t M2 = 100;           // size of fifo
   };
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 10000;
+    static const size_t CUCKOOFILTER_SIZE = 2000;
     static const size_t SEED = 0xbc91f1d34;
   };
 
@@ -91,7 +91,7 @@ public:
   };
 
   struct LSMTreeConfig {
-    static const size_t LEVEL = 7;
+    static const size_t LEVEL = 4;
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.2;
     static const size_t LISTSIZE = 4;
@@ -99,7 +99,7 @@ public:
 
   struct TableConfig {
     static const size_t BLOCKSIZE = 4 * 1024; // 4KB
-    static const size_t TABLESIZE = 2 * 1024 * 1024; // 2MB
+    static const size_t TABLESIZE = 50;
     static constexpr const char* TABLEPATH = "../logs/leveldb/";
     static constexpr const char* TABLENAME = "sstable";
   };
