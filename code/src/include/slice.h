@@ -21,6 +21,10 @@ public:
     Copy(d);
   }
 
+  ~Slice() {
+    delete data_;
+  }
+
   Slice(const Slice&) = default;
   Slice& operator=(const Slice&) = default;
 

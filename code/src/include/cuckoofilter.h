@@ -17,7 +17,7 @@ public:
   }
  
   ~Bucket() {
-    delete data_;
+    delete[] data_;
   }
 
   bool Insert(const Slice fp) {
