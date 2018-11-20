@@ -59,12 +59,13 @@ public:
 
   virtual std::string ToString() {
     std::stringstream ss;
-    size_t bytes = bits_ / 8;
     ss << bits_;
     ss << Config::DATA_SEG;
-    for (size_t i = 0; i < bytes; ++ i)
+    size_t bytes = bits_ / 8;
+    for (size_t i = 0; i < bytes; ++ i) {
       ss << array_[i];
       ss << Config::DATA_SEG;
+    }
     return ss.str();
   }
 
