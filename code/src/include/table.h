@@ -36,6 +36,15 @@ struct Meta {
       return true;
     return false;
   }
+
+  void Show() {
+    std::cout << std::string(20, '*') << std::endl;
+    std::cout << "SEQ:" << sequence_number_ << "\tLevel:" << level_ << std::endl;
+    std::cout << "Smallest:" << smallest_.ToString() << std::endl;
+    std::cout << "Largest:" << largest_.ToString() << std::endl;
+    std::cout << "FileSize:" << file_size_ << "\tFooterSize:" << footer_size_ << std::endl;
+    std::cout << std::string(20, '*') << std::endl;
+  }
 };
 
 class Block {

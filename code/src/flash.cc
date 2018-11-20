@@ -60,12 +60,15 @@ char* Flash::Read(const size_t lba) {
   size_t page_num_ = pba.page_num_;
   // read page
   std::pair<size_t, char*> res = ReadByPageNum(block_num_, page_num_);
+  assert(lba == res.first);
+  // std::cout << "Read From Flash:" << res.second << std::endl << std::endl;
   return res.second;
 }
 
 void Flash::Write(const size_t lba, const char* data) {
   // calculate block num and page num
   // std::cout << std::endl << "Write LBA:" << lba << std::endl;
+  // std::cout << "Write Flash:" << data << std::endl;
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;
   // std::cout << "BLOCK:" << block_num_ << "\tPAGE" << page_num_ << std::endl;
@@ -287,8 +290,8 @@ std::pair<size_t, size_t> Flash::MinorCollectGarbage(const size_t block_num) {
 }
 
 void Flash::MajorCollectGarbage() {
-  // std::cout << "MajorCollectGarbage" << std::endl;
-  // std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
+  std::cout << "MajorCollectGarbage In Flash" << std::endl;
+  std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
   std::vector<BlockInfo> blocks_;
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     if (block_info_[i].status_ == PrimaryBlock) {
@@ -309,8 +312,8 @@ void Flash::MajorCollectGarbage() {
     size_t block_num_ = blocks_[i].block_num_;
     MinorCollectGarbage(block_num_);
   }
-  // std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
-  // std::cout << "MajorCollectGarbage End" << std::endl;
+  std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
+  std::cout << "MajorCollectGarbage In Flash End" << std::endl;
 }
 
 size_t Flash::AssignFreeBlock() {

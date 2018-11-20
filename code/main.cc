@@ -20,10 +20,10 @@ int main() {
     for (size_t j = 0; !f.eof(); ++ j) {
       std::string op, key, value, db_value;
       f >> op >> key >> value;
-      if (j % 1000 == 0) {
-        std::cout << "RUN " << j << std::endl;
-        // std::cout << "Op:" << op << "\t" << key << "\t" << value << std::endl;
-      }
+      // if (j % 1000 == 0) {
+        std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+        // std::cout << key << "\t" << value << std::endl;
+      // }
       if (op == "INSERT" || op == "UPDATE")
         db->Put(key, value);
       else if (op == "SCAN" || op == "READ")

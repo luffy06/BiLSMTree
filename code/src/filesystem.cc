@@ -108,6 +108,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
     char *c_data = flash_->Read(fs.lba_);
     c_data[fs.offset_ + read_size_] = '\0';
     data = data + std::string(c_data + fs.offset_, read_size_);
+    delete c_data;
     fs.offset_ = fs.offset_ + read_size_;
   }
   else {
@@ -115,6 +116,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
     char *c_data = flash_->Read(fs.lba_);
     c_data[Config::FileSystemConfig::BLOCK_SIZE] = '\0';
     data = data + std::string(c_data + fs.offset_, Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
+    delete c_data;
     read_size_ = read_size_ - (Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
     fs.lba_ = fat_[fs.lba_];
     fs.offset_ = 0;
@@ -123,6 +125,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
       c_data = flash_->Read(fs.lba_);
       c_data[Config::FileSystemConfig::BLOCK_SIZE] = '\0';
       data = data + std::string(c_data, Config::FileSystemConfig::BLOCK_SIZE);
+      delete c_data;
       read_size_ = read_size_ - Config::FileSystemConfig::BLOCK_SIZE;
       fs.lba_ = fat_[fs.lba_];
       fs.offset_ = 0;
@@ -132,13 +135,16 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
       c_data = flash_->Read(fs.lba_);
       c_data[read_size_] = '\0';
       data = data + std::string(c_data, read_size_);
+      delete c_data;
       fs.offset_ = read_size_;
     }
   }
+  // std::cout << "Data Read From FileSystem:" << data << std::endl;
   return data;
 }
 
 void FileSystem::Write(const size_t file_number, const char* data, const size_t write_size) {
+  // std::cout << "Write FileSystem:" << data << std::endl;
   std::string data_(data, write_size);
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
@@ -160,6 +166,9 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
     // write [0, write_size) or [0, BLOCK_SIZE - fs.offset_)
     size_t add_ = std::min(write_size, Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
     char *c_data = flash_->Read(fs.lba_);
+    // std::cout << "Origin data:" << c_data << std::endl;
+    // std::cout << fs.offset_ << "\t" << add_ << std::endl;
+    // std::cout << "Concat:" << data_.substr(0, add_) << std::endl;
     std::string w_data = std::string(c_data, fs.offset_) + 
                         data_.substr(0, add_);
     flash_->Write(fs.lba_, w_data.c_str());

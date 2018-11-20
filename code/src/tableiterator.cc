@@ -9,6 +9,8 @@ TableIterator::TableIterator() {
 }
 
 TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
+  // std::cout << "Read:" << filename << std::endl;
+  // meta.Show();
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   size_t file_number_ = filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
@@ -23,7 +25,9 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   ss >> index_offset_;
   ss >> filter_offset_;
   // std::cout << "Index Offset:" << index_offset_ << "\tFilter Offset:" << filter_offset_ << std::endl;
-
+  assert(index_offset_ != 0);
+  assert(filter_offset_ != 0);
+  // std::cout << "Load Filter Data" << std::endl;
   filesystem->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
@@ -39,12 +43,14 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     assert(false);
   }
 
+  // std::cout << "Load Index Data" << std::endl;
   if (Config::SEEK_LOG)
     std::cout << "Seek Index in TableIterator" << std::endl;
   filesystem->Seek(file_number_, index_offset_);
   std::string index_data_ = filesystem->Read(file_number_, filter_offset_ - index_offset_);
   lsmtreeresult_->Read();
   // std::cout << "Index Data:" << index_data_ << std::endl;
+  // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
   while (!ss.eof()) {
     size_t key_size_ = 0;
@@ -75,6 +81,7 @@ TableIterator::~TableIterator() {
 
 void TableIterator::ParseBlock(const std::string block_data) {
   std::stringstream ss;
+  std::string algo = Util::GetAlgorithm();
   ss.str(block_data);
   while (!ss.eof()) {
     size_t key_size_ = 0;
@@ -91,8 +98,13 @@ void TableIterator::ParseBlock(const std::string block_data) {
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
-    if (key_size_ > 0 && filter_->KeyMatch(Slice(key_, key_size_))) {
-      kvs_.push_back(KV(std::string(key_), std::string(value_)));
+    if (algo == std::string("BiLSMTree")) {
+      if (key_size_ > 0 && filter_->KeyMatch(Slice(key_, key_size_))) {
+        kvs_.push_back(KV(std::string(key_), std::string(value_)));
+      }
+    }
+    else {
+      kvs_.push_back(KV(std::string(key_), std::string(value_)));      
     }
   }
 }

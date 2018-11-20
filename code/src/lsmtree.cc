@@ -108,8 +108,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   std::cout << "Table DumpToFile" << std::endl;
   table_->DumpToFile(filename, lsmtreeresult_);
   Meta meta = table_->GetMeta();
-  std::cout << "DUMP L0" << std::endl;
-  // std::cout << "Smallest:" << meta.smallest_.ToString() << "\tLargest:" << meta.largest_.ToString() << std::endl;
+  std::cout << "DUMP L0:" << filename << std::endl;
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
@@ -354,10 +353,9 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
 }
 
 std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& tables) {
-  // std::cout << "MergeTables Start:" << tables.size() << std::endl;
+  std::cout << "MergeTables Start:" << tables.size() << std::endl;
   std::vector<KV> buffers_;
   std::vector<Table*> result_;
-  size_t size_ = 0;
   std::priority_queue<TableIterator> q, p;
   for (size_t i = 0; i < tables.size(); ++ i) {
     TableIterator ti = tables[i];
@@ -373,21 +371,19 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     if (ti.HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
-      if (size_ + kv.size() > Config::TableConfig::TABLESIZE) {
+      if (buffers_.size() > Config::TableConfig::TABLESIZE) {
         Table* t = new Table(buffers_, filesystem_);
         result_.push_back(t);
         buffers_.clear();
-        size_ = 0;
       }
       buffers_.push_back(kv);
-      size_ = size_ + kv.size();
     }
   }
-  if (size_ > 0) {
+  if (buffers_.size() > 0) {
     Table* t = new Table(buffers_, filesystem_);
     result_.push_back(t);
   }
-  // std::cout << "MergeTables End:" << result_.size() << std::endl;
+  std::cout << "MergeTables End:" << result_.size() << std::endl;
   return result_;
 }
 
@@ -416,37 +412,47 @@ void LSMTree::CompactList(size_t level) {
 
 void LSMTree::MajorCompaction(size_t level) {
   std::cout << "MajorCompaction On Level:" << level << std::endl;
+  std::cout << "File Size:" << file_[level + 1].size() << "\tList Size:" << list_[level + 1].size() << std::endl;
   if (level == Config::LSMTreeConfig::LEVEL)
     return ;
   std::vector<Meta> metas;
   std::string algo = Util::GetAlgorithm();
+  size_t level_max_file_Li = static_cast<size_t>(pow(10, level));
+  if (file_[level].size() <= level_max_file_Li)
+    return ;
+  size_t select_numb_Li = file_[level].size() - level_max_file_Li;
   // select a file from Li
   // select from file_
-  size_t index = 0;
+  std::vector<size_t> indexs;
+  indexs.push_back(0);
   for (size_t i = 1; i < file_[level].size(); ++ i) {
     Meta m = file_[level][i];
-    size_t last_seq_ = file_[level][index].sequence_number_;
-    if (frequency_[m.sequence_number_] < frequency_[last_seq_]) 
-      index = i;
+    size_t last_index = indexs[indexs.size() - 1];
+    if (indexs.size() < select_numb_Li || (indexs.size() == select_numb_Li && frequency_[m.sequence_number_] < frequency_[file_[level][indexs[last_index]].sequence_number_])) {
+      bool add_ = false;
+      for (size_t j = 0; j < indexs.size(); ++ j) {
+        size_t index = indexs[j];
+        if (frequency_[m.sequence_number_] < frequency_[file_[level][index].sequence_number_]) {
+          indexs.insert(indexs.begin() + j, i);
+          add_ = true;
+        }
+      }
+      if (!add_)
+        indexs.insert(indexs.end(), i);
+      if (indexs.size() > select_numb_Li)
+        indexs.erase(indexs.begin() + indexs.size() - 1);
+    }
+  }
+  assert(indexs.size() == select_numb_Li);
+  for (size_t i = 0; i < indexs.size(); ++ i) {
+    size_t index = indexs[i];
+    metas.push_back(file_[level][index]);
   }
   if (algo == std::string("BiLSMTree")) {
     // select from list_
-    for (size_t i = 0; i < list_[level].size(); ++ i) {
-      Meta m = list_[level][i];
-      size_t last_seq_ = (index >= file_[level].size() ? list_[level][index - file_[level].size()].sequence_number_ : file_[level][index].sequence_number_);
-      if (frequency_[m.sequence_number_] < frequency_[last_seq_])
-        index = i + file_[level].size();
-    }
-  }
-  // push meta
-  if (index >= file_[level].size()) {
-    index = index - file_[level].size();
-    metas.push_back(list_[level][index]);
-    list_[level].erase(list_[level].begin() + index);
-  }
-  else {
-    metas.push_back(file_[level][index]);
-    file_[level].erase(file_[level].begin() + index);
+    for (size_t i = 0; i < list_[level].size(); ++ i)
+      metas.push_back(list_[level][i]);
+    list_[level].clear();
   }
   // select overlap files
   // select from file_
@@ -473,11 +479,13 @@ void LSMTree::MajorCompaction(size_t level) {
     }
   }
 
+  std::cout << "Create TableIterator Size:" << metas.size() << std::endl;
   std::vector<TableIterator> tables_;
   for (size_t i = 0; i < metas.size(); ++ i) {
     TableIterator t = TableIterator(GetFilename(metas[i].sequence_number_), filesystem_, metas[i], lsmtreeresult_);
     tables_.push_back(t);
   }
+  std::cout << "Create TableIterator Success" << std::endl;
   std::vector<Table*> merged_tables = MergeTables(tables_);
   // std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
@@ -487,21 +495,22 @@ void LSMTree::MajorCompaction(size_t level) {
     Meta meta = merged_tables[i]->GetMeta();
     meta.sequence_number_ = sequence_number_;
     // std::cout << "File DUMP To Level " << level + 1 << std::endl;
-    // std::cout << "SEQ:" << meta.sequence_number_ << "\t" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << std::endl;
+    // meta.Show();
     file_[level + 1].push_back(meta);
     delete merged_tables[i];
   }
   
+  std::cout << "Sort" << std::endl;
   std::sort(file_[level + 1].begin(), file_[level + 1].end(), [](const Meta& a, const Meta& b)->bool { 
     if (a.largest_.compare(b.largest_) != 0)
       return a.largest_.compare(b.largest_) <= 0;
     return a.smallest_.compare(b.smallest_) <= 0;
   });
+  std::cout << "Sort End" << std::endl;
   lsmtreeresult_->MajorCompaction();
   std::cout << "MajorCompaction Success" << std::endl;
-  size_t level_max_file = static_cast<size_t>(pow(10, level + 1));
-  // size_t level_max_file = static_cast<size_t>(pow(10, level));
-  if (file_[level + 1].size() > level_max_file)
+  size_t level_max_file_Lj = static_cast<size_t>(pow(10, level + 1));
+  if (file_[level + 1].size() > level_max_file_Lj)
     MajorCompaction(level + 1);
 }
 

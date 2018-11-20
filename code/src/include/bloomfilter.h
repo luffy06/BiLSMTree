@@ -19,7 +19,9 @@ public:
     bits_ = keys.size() * Config::FilterConfig::BITS_PER_KEY;
     if (bits_ < 64) bits_ = 64;
     size_t bytes = bits_ / 8;
-    array_ = new char[bytes];
+    array_ = new size_t[bytes];
+    for (size_t i = 0; i < bytes; ++ i)
+      array_[i] = 0;
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
   }
@@ -33,8 +35,10 @@ public:
     ss.str(data);
     ss >> bits_;
     size_t bytes = bits_ / 8;
-    array_ = new char[bytes];
-    ss.read(array_, sizeof(char) * bytes);
+    array_ = new size_t[bytes];
+    for (size_t i = 0; i < bytes; ++ i) {
+      ss >> array_[i];
+    }
   }
   
   ~BloomFilter() {
@@ -58,15 +62,16 @@ public:
     size_t bytes = bits_ / 8;
     ss << bits_;
     ss << Config::DATA_SEG;
-    ss.write(array_, sizeof(char) * bytes);
-    ss << Config::DATA_SEG;
+    for (size_t i = 0; i < bytes; ++ i)
+      ss << array_[i];
+      ss << Config::DATA_SEG;
     return ss.str();
   }
 
 
 private:
   size_t k_;
-  char *array_;
+  size_t *array_;
   size_t bits_;
 
   void Add(const Slice key) {

@@ -58,6 +58,7 @@ int VisitFrequency::Append(size_t file_number) {
 }
 
 void VisitFrequency::Dump() {
+  assert(false);
   size_t file_number_ = filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, 
         Config::FileSystemConfig::WRITE_OPTION | Config::FileSystemConfig::APPEND_OPTION);
   while (!visit_[1].empty()) {
@@ -70,6 +71,7 @@ void VisitFrequency::Dump() {
 }
 
 void VisitFrequency::Load() {
+  assert(false);
   size_t file_number_ = filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, 
         Config::FileSystemConfig::READ_OPTION);
   for (size_t i = 0; i < Config::VisitFrequencyConfig::MAXQUEUESIZE; ++ i) {
