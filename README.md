@@ -47,6 +47,12 @@
 6. db查找一个key时多查找的次数(R)
 7. immutable memtable dump到l0的次数(R)
 
+## Config
+
+BiLSMTree
+LevelDB-KV
+LevelDB
+
 ## OVERHEAD
 
 * 时间
@@ -57,4 +63,3 @@
 # TODO
 
 1. REDESIGN SKIPLIST GetAll()
-2. priority_queue tableiterator
