@@ -447,6 +447,7 @@ void LSMTree::MajorCompaction(size_t level) {
   for (size_t i = 0; i < indexs.size(); ++ i) {
     size_t index = indexs[i];
     metas.push_back(file_[level][index]);
+    file_[level].erase(file_[level].begin() + index - i);
   }
   if (algo == std::string("BiLSMTree")) {
     // select from list_
@@ -499,12 +500,8 @@ void LSMTree::MajorCompaction(size_t level) {
     delete merged_tables[i];
   }
   
-  std::cout << "Sort" << std::endl;
-  std::sort(file_[level + 1].begin(), file_[level + 1].end(), [](const Meta& a, const Meta& b)->bool { 
-    if (a.largest_.compare(b.largest_) != 0)
-      return a.largest_.compare(b.largest_) <= 0;
-    return a.smallest_.compare(b.smallest_) <= 0;
-  });
+  std::cout << level + 1 << " Sort " << file_[level + 1].size() << std::endl;
+  std::sort(file_[level + 1].begin(), file_[level + 1].end());
   std::cout << "Sort End" << std::endl;
   lsmtreeresult_->MajorCompaction();
   std::cout << "MajorCompaction Success" << std::endl;

@@ -45,6 +45,12 @@ struct Meta {
     std::cout << "FileSize:" << file_size_ << "\tFooterSize:" << footer_size_ << std::endl;
     std::cout << std::string(20, '*') << std::endl;
   }
+
+  friend bool operator<(const Meta& a, const Meta& b) {
+    if (a.largest_.compare(b.largest_) != 0)
+      return a.largest_.compare(b.largest_) <= 0;
+    return a.smallest_.compare(b.smallest_) <= 0;
+  }
 };
 
 class Block {
