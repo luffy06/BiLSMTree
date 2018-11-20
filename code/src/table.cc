@@ -123,8 +123,8 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   footer_data_ = ss.str();
 
   meta_ = Meta();
-  meta_.smallest_ = kvs[0].key_;
-  meta_.largest_ = kvs[kvs.size() - 1].key_;
+  meta_.smallest_ = Slice(kvs[0].key_.data(), kvs[0].key_.size());
+  meta_.largest_ = Slice(kvs[kvs.size() - 1].key_.data(), kvs[kvs.size() - 1].key_.size());
   meta_.level_ = 0;
   meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
   meta_.footer_size_ = footer_data_.size();

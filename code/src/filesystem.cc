@@ -108,7 +108,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
     char *c_data = flash_->Read(fs.lba_);
     c_data[fs.offset_ + read_size_] = '\0';
     data = data + std::string(c_data + fs.offset_, read_size_);
-    delete c_data;
+    delete[] c_data;
     fs.offset_ = fs.offset_ + read_size_;
   }
   else {
@@ -116,7 +116,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
     char *c_data = flash_->Read(fs.lba_);
     c_data[Config::FileSystemConfig::BLOCK_SIZE] = '\0';
     data = data + std::string(c_data + fs.offset_, Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
-    delete c_data;
+    delete[] c_data;
     read_size_ = read_size_ - (Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
     fs.lba_ = fat_[fs.lba_];
     fs.offset_ = 0;
@@ -125,7 +125,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
       c_data = flash_->Read(fs.lba_);
       c_data[Config::FileSystemConfig::BLOCK_SIZE] = '\0';
       data = data + std::string(c_data, Config::FileSystemConfig::BLOCK_SIZE);
-      delete c_data;
+      delete[] c_data;
       read_size_ = read_size_ - Config::FileSystemConfig::BLOCK_SIZE;
       fs.lba_ = fat_[fs.lba_];
       fs.offset_ = 0;
@@ -135,7 +135,7 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
       c_data = flash_->Read(fs.lba_);
       c_data[read_size_] = '\0';
       data = data + std::string(c_data, read_size_);
-      delete c_data;
+      delete[] c_data;
       fs.offset_ = read_size_;
     }
   }

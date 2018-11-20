@@ -495,6 +495,7 @@ void LSMTree::MajorCompaction(size_t level) {
     merged_tables[i]->DumpToFile(filename, lsmtreeresult_);
     Meta meta = merged_tables[i]->GetMeta();
     meta.sequence_number_ = sequence_number_;
+    meta.level_ = level + 1;
     // std::cout << "File DUMP To Level " << level + 1 << std::endl;
     file_[level + 1].push_back(meta);
     delete merged_tables[i];

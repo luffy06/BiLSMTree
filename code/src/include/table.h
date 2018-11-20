@@ -47,6 +47,8 @@ struct Meta {
   }
 
   friend bool operator<(const Meta& a, const Meta& b) {
+    std::cout << "Compare:" << a.largest_.ToString() << "\t" << b.largest_.ToString() << std::endl;
+    std::cout << "SEQ:" << a.sequence_number_ << "\t" << b.sequence_number_ << std::endl;
     if (a.largest_.compare(b.largest_) != 0)
       return a.largest_.compare(b.largest_) <= 0;
     return a.smallest_.compare(b.smallest_) <= 0;

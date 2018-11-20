@@ -21,8 +21,11 @@ public:
     Copy(d);
   }
 
-  Slice(const Slice&) = default;
-  Slice& operator=(const Slice&) = default;
+  Slice(const Slice& s) {
+    size_ = s.size();
+    data_ = new char[size_ + 1];
+    Copy(s.data());
+  }
 
   const char* data() const { return data_; }
 
