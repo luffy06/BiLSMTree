@@ -98,7 +98,7 @@ public:
   };
 
   struct TableConfig {
-    static const size_t BLOCKSIZE = 4 * 1024; // 4KB
+    static const size_t BLOCKSIZE = 512;    // 4KB
     static const size_t TABLESIZE = 50;
     static constexpr const char* TABLEPATH = "../logs/leveldb/";
     static constexpr const char* TABLENAME = "sstable";
