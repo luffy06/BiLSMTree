@@ -4,7 +4,7 @@
 
 ### 简介
 
-LevelDB是Google开源的持久化KV数据库，具有很高的随机写、顺序读/写性能，但随机读性能一般。LevelDB在外存存储时使用了LSM-Tree*[LSM-tree]*的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销*[GoogleWeb]*。
+LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values【LevelDB】.它具有很高的随机写（45.0MB/s）、顺序写（62.7MB/s和顺序读性能（232.2MB/s），但随机读性能一般【LevelDB - Performance】。LevelDB在外存存储时使用了LSM-Tree【LSM-tree】的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销【LevelDB】。
 
 ### 结构
 
