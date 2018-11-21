@@ -1,32 +1,66 @@
+
+
 # Background
 
 ## LevelDB
 
 ### 简介
 
-LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values【LevelDB】.它具有很高的随机写（45.0MB/s）、顺序写（62.7MB/s和顺序读性能（232.2MB/s），但随机读性能一般【LevelDB - Performance】。LevelDB在外存存储时使用了LSM-Tree【LSM-tree】的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销【LevelDB】。
+LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values【LevelDB】.LevelDB is an open source key-value store that originated
+from Google’s BigTable 【Bigtable】它具有很高的随机写（45.0MB/s）、顺序写（62.7MB/s和顺序读性能（232.2MB/s），但随机读性能一般【LevelDB - Performance】。LevelDB在外存存储时使用了LSM-Tree【LSM-tree】的结构，对索引变更进行延迟及批量处理，并通过多路归并的方法高效的将数据更新迁移到磁盘，降低索引插入的开销。
 
 ### 结构
 
-![LevelDBStructure](./pic/structure.png)
+![LevelDBStructure](./pic/leveldb.png)
 
-【图1：LevelDB结构】【**图待修改**】
+【图1：LevelDB结构】
 
-图1是LevelDB的整体结构，在内存中键值对数据存储在一个由跳表实现的MemTable中，当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable接受新的输入。在外存中，键值对数据存储在一系列SSTable中，这些SSTable被划分为7个层级，依次是$L_0$层到$L_6$层，每层所包含的文件数依次成倍数增长。同时外存中还存储一些辅助用的日志文件，如每层都对应一个MANIFEST文件，它罗列了当前层所包含的SSTable文件，当前层所表示的键值范围和其他的重要的数据。
+图1是LevelDB的整体结构。
 
-SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件可以划分成4个区域：数据块区域，索引块区域，过滤器块区域，footer块区域。数据块区域由许多数据块构成，每个数据块包含许多个键值对数据。索引块区域包含一个索引块，它存储了每个数据块的最大值、在文件中的偏移量等相关信息，偏于快速定位到数据所在的数据块。过滤器块区域包含一个或多个过滤器块，为了加速查找过程，快速确定一个数据是否存在于一个SSTable文件中， LevelDB给每个SSTable增加了一个布隆过滤器*[BloomFilter]*。footer块区域存储了每个区域在SSTable文件中的相应位置。
+The main data structures in LevelDB are an on-disk log file, two in-memory sorted skiplists (memtable and immutable memtable), and seven levels ($L_0$ to $L_6$) of on-disk Sorted String Table (SSTable) files.【WiscKey】
 
-$L_0$层到$L_6$层，除了$L_0$层以外，其他层内的所有SSTable表示的键值范围不存在Overlap。当$L_i$层的SSTable数量达到了上限或某个SSTable长时间未被命中，LevelDB将从$L_i$层中选择一个SSTable，通过Compaction操作将其中的有效数据流动到$L_{i+1}$层。LevelDB的Compaction操作主要可以分为2种类型：minor compaction，major compaction。LevelDB会自动检查Immutable MemTable是否存在，若存在则执行minor compaction，将Immutable MemTable封装成一个SSTable，加入$L_0$层。major compaction是在外存中主要的Compaction操作，它将$L_i$层的一个SSTable中的有效数据流动到$L_{i+1}$层。具体操作为首先从$L_i$层中确定需要compaction的SSTable，同时在$L_{i+1}$层中选择所有与其表示的键值范围有交集的SSTable。将这些SSTable利用类归并排序的思想按照键值范围进行多路归并。当某个键在$L_i$层和$L_{i+1}$层的SSTable同时出现时，按照数据的新旧程度，将$L_{i+1}$层的键值抛弃，保留$L_i$层的键值。最后合并好的数据再划分成新的多个SSTable，插入到$L_{i +1}$层中，此时这几个SSTable表示的键值范围不存在Overlap。
+LevelDB initially stores inserted key-value pairs in a log file and the in-memory memtable. Once the memtable is full, LevelDB switches to a new memtable and log file to handle further inserts from the user; in the background, the previous memtable is converted into an immutable memtable, and a compaction thread then flushes it to disk, generating a new SSTable file at level 0 ($L_0$) with a rough size of 2MB; the previous log file is subsequently discarded. 【WiscKey】
 
-## CuckooFilter
+当MemTable写满后，LevelDB将它被转换成一个不可写的Immutable MemTable，等待着被移动到外存，并创建一个新的空的MemTable接受新的输入。【https://github.com/google/leveldb/blob/master/doc/impl.md （Level 0）】
 
-BloomFilter可能存在误报，并且无法删除元素。想要删除元素，则需要引入计数，但这样一来，原来每个bit空间就要扩张成一个计数值，占用空间又变大了。
+SSTable是LevelDB在外存中主要的数据组织形式，每个SSTable文件可以划分成4个区域：数据块区域，索引块区域，Meta块区域，footer块区域。数据块区域由许多数据块构成，每个数据块包含许多个键值对数据。索引块区域包含一个索引块，它存储了每个数据块的最大值、在文件中的偏移量等相关信息，偏于快速定位到数据所在的数据块。Meta块区域可以用于对LevelDB进行功能扩展，如添加过滤器以加速查找过程。footer块区域存储了每个区域在SSTable文件中的相应位置。【https://github.com/google/leveldb/blob/master/doc/table_format.md】
 
-CuckooFilter[CuckooFilter]实现了利用较少计算换取较大空间。Cuckoo hash 有两种变形。一种通过增加哈希函数进一步提高空间利用率；另一种是增加哈希表，每个哈希函数对应一个哈希表，每次选择多个张表中空余位置进行放置。三个哈希表可以达到80% 的空间利用率。
+The youngest level, Level 0, is produced by writing the Immutable MemTable from main memory to the disk. 【LOCS】When the size of level L exceeds its limit, we compact it in a background thread. The compaction picks a file from level L and all overlapping files from the next level L+1. Note that if a level-L file overlaps only part of a level-(L+1) file, the entire file at level-(L+1) is used as an input to the compaction and will be discarded after the compaction. Aside: because level-0 is special (files in it may overlap each other), we treat compactions from level-0 to level-1 specially: a level-0 compaction may pick more than one level-0 file in case some of these files overlap each other.【https://github.com/google/leveldb/blob/master/doc/impl.md（Compactions）】
 
-通常，Cuckoo Filter有两个哈希表，当有新的元素插入，它会使用第一个哈希函数hashA获取哈希k1 和位置 loc1。如果第一个hash表中loc1是空的，放在第一个表中；如果不为空，使用第二个哈希函数hashB得到哈希 k2，将哈希k2与哈希k1进行异或运算，获取第二个位置loc2。若loc2没有元素，放入loc2中；如果有元素，就进行布谷鸟哈希(循环踢出)。
+Thus SSTables in Level 0 could contain overlapping keys. However, in other levels the key range of SSTables are non-overlapping. Each level has a limit on the maximum number of SSTables, or equivalently, on the total amount of data because each SSTable has a fixed size in a level. The limit grows at an exponential rate with the level number. For example, the maximum amount of data in Level 1 will not exceed 10 MB, and it will not exceed 100 MB for Level 2. 【LOCS】
 
-eg.使用hashA 和hashB 计算对应key x的位置a和b ：
+## CuckooFilter介绍及结合
+
+BloomFilter具有以下两点不足：
+
+1. 具有一定的错误率。将不存在的元素返回存在。
+2. 无法删除元素。
+
+也有很多对BloomFilter的改进：
+
+* 引入计数。extend Bloom filters to allow deletions. A counting Bloom filter uses an array of counters in place of an array of bits. 【摘自CuckooFilter中对Counting BloomFilter的引用】
+* 分成小块。do not support deletion, but provide better spatial locality on lookups. A blocked Bloom filter
+  consists of an array of small Bloom filters, each fitting in one CPU cache line. 【摘自CuckooFilter中对Blocked BloomFilter的引用】
+* Hash tables using d-left hashing [19] store fingerprints for stored items. These filters delete items by removing their fingerprint.  【摘自CuckooFilter中对d-left Counting BloomFilter的引用】
+
+### CuckooFilter的介绍
+
+Cuckoo filters support adding and removing items dynamically while achieving even higher performance than Bloom filters. 【CuckooFilter】
+
+![cuckoofilter](pic/cuckoofilter.png)
+
+【图2：用于理解CuckooFilter，不使用该图】
+
+CuckooFilter使用的Hash方法是CuckooHash【CuckooHash】，A basic cuckoo hash table consists of an array of buckets where each item has two candidate buckets determined by hash functions h1(x) and
+h2(x).  【CuckooFilter】
+
+A basic cuckoo hash table consists of an array of buckets where each item has two candidate buckets determined by hash functions h1(x) and h2(x).  If either of x’s two buckets is empty, the algorithm inserts x to that free bucket and the insertion completes. If neither bucket has space, as is the case in this example, the item selects one of the candidate buckets, kicks out the existing item (in this case “a”) and re-inserts this victim item to its own alternate location. 【CuckooFilter】The lookup of the element can be performed using the same two hash values.  【PA CuckooFilter】
+
+### CuckooFilter的结合
+
+用CuckooFilter来表示一个SSTable中都包含哪些Key。当因为Overlap而要删除SSTable中的某些Key时，仅仅删除CuckooFilter中的Key，而不重新组织DataBlock。
+
+具体见：外存：数据上浮，替换Filter --> 1. 数据如何上浮？ --> 具体操作
 
 ## Flash
 
@@ -95,11 +129,11 @@ major contribution：
 
 ### 大小分析
 
-假设内存大小为$M$，LRU2Q中每个队列占的大小分别为$M_1, M_2$，默认认为$M_1 = M_2$；每个Immutable MemTable的大小固定为$M_{IM}$，默认2MB，那么需要满足：
-$$
-M_1 + M_2 + N\times M_{IM} \le M\quad (1)
-$$
-在分配内存空间时，将$M\times \alpha​$的内存空间分配给LRU2Q，$M\times(1-\alpha)​$的内存空间分配给Immutable MemTable 。内存中至少预留1个Immutable MemTable的空间，若不够，则降低Immutable MemTable的大小。
+内存空间最少需要保证一个MemTable和一个Immutable Memtable（默认均2MB）。
+
+若内存不足4MB，则按平均分一半划分为MemTable，一半划分为Immutable MemTable。
+
+当内存大于4MB，优先增加LRU2Q的大小。当LRU2Q的大小为所有MemTable和Immutable MemTable的2倍时，增加一个Immutable MemTable。当Immutable MemTable数量达到设定上限（默认为4）时，剩下的内存均分配给LRU2Q。
 
 ### 伪代码
 
@@ -240,3 +274,18 @@ $$
 [CuckooFilter]：Cuckoo FIlter：Practically Better Than Bloom
 
 [LOCS]：An Efficient Design and Implementation of LSM-Tree based Key-Value Store on Open-Channel SSD 
+
+[BigTable]：F. Chang, J. Dean, S. Ghemawat, W. C. Hsieh, D. A. Wallach, M. Burrows, T. Chandra, A. Fikes, and R. E. Gruber. Bigtable: A distributed storage system for structured data. ACM Trans. Comput. Syst., 26(2):4:1–4:26, June 2008 
+
+[WiscKey]：
+
+[PA CuckooFilter]：Minseok Kwon, Vijay Shankar, Pedro Reviriego:Position-aware cuckoo filters. ANCS 2018: 151-153
+
+[Counting BloomFilter]：L. Fan, P. Cao, J. Almeida, and A. Z. Broder. Summary cache: A scalable wide-area Web cache sharing protocol. In Proc. ACM SIGCOMM, Vancouver, BC, Canada, Sept. 1998. 
+
+[Blocked BloomFilter]：F. Putze, P. Sanders, and S. Johannes. Cache-, hash- and spaceefficient bloom filters. In Experimental Algorithms, pages 108–121. Springer Berlin / Heidelberg, 2007. 
+
+[d-left Counting BloomFilter]：F. Bonomi, M. Mitzenmacher, R. Panigrahy, S. Singh, and
+G. Varghese. An improved construction for counting bloom filters. In 14th Annual European Symposium on Algorithms, LNCS 4168, pages 684–695, 2006. 
+
+[CuckooHash]：R. Pagh and F. Rodler. Cuckoo hashing. Journal of Algorithms,51(2):122–144, May 2004. 
