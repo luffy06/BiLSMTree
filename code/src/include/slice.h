@@ -17,14 +17,11 @@ public:
   }
 
   Slice(const char* d, size_t n) : size_(n) {
+    assert(size_ <= 1000000);
     data_ = new char[size_ + 1];
-    Copy(d);
-  }
-
-  Slice(const Slice& s) {
-    size_ = s.size();
-    data_ = new char[size_ + 1];
-    Copy(s.data());
+    for (size_t i = 0; i < size_; ++ i)
+      data_[i] = d[i];
+    data_[size_] = '\0';
   }
 
   const char* data() const { return data_; }
@@ -33,12 +30,15 @@ public:
 
   bool empty() const { return size_ == 0; }
 
-  char operator[](size_t n) const {
-    assert(n < size_);
-    return data_[n];
-  }
-
-  std::string ToString() const { 
+  std::string ToString() const {
+    if (size_ >= 1000000) {
+      std::cout << size_ << std::endl;
+      for (size_t i = 0; i < 10000; ++ i)
+        std::cout << data_[i];
+      std::cout << std::endl;
+      std::cout << strlen(data_) << std::endl;
+    }
+    assert(size_ <= 1000000);
     return std::string(data_, size_); 
   }
 
@@ -50,12 +50,6 @@ public:
 private:
   char *data_;
   size_t size_;
-
-  void Copy(const char* d) {
-    for (size_t i = 0; i < size_; ++ i)
-      data_[i] = d[i];
-    data_[size_] = '\0';
-  }
 };
 
 struct KV {

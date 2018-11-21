@@ -45,6 +45,10 @@ private:
   void CompactList(size_t level);
 
   void MajorCompaction(size_t level);
+
+  bool CheckFileList(size_t level);
+
+  void ShowFileList(size_t level);
 };
 }
 

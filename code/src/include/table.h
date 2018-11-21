@@ -19,7 +19,6 @@ struct Meta {
   size_t footer_size_;
 
   Meta() {
-    
   }
 
   void Copy(const Meta meta) {
@@ -37,18 +36,23 @@ struct Meta {
     return false;
   }
 
-  void Show() {
+  void Show() const {
     std::cout << std::string(20, '*') << std::endl;
     std::cout << "SEQ:" << sequence_number_ << "\tLevel:" << level_ << std::endl;
+    std::cout << "Smallest Size:" << smallest_.size() << std::endl;
     std::cout << "Smallest:" << smallest_.ToString() << std::endl;
+    std::cout << "Largest Size:" << largest_.size() << std::endl;
     std::cout << "Largest:" << largest_.ToString() << std::endl;
     std::cout << "FileSize:" << file_size_ << "\tFooterSize:" << footer_size_ << std::endl;
     std::cout << std::string(20, '*') << std::endl;
   }
 
   friend bool operator<(const Meta& a, const Meta& b) {
-    std::cout << "Compare:" << a.largest_.ToString() << "\t" << b.largest_.ToString() << std::endl;
-    std::cout << "SEQ:" << a.sequence_number_ << "\t" << b.sequence_number_ << std::endl;
+    // std::cout << "Compare a:" << a.largest_.size() << std::endl;
+    // std::cout << a.largest_.ToString() << std::endl;
+    // std::cout << "Compare b:" << b.largest_.size() << std::endl;
+    // std::cout << b.largest_.ToString() << std::endl;
+    // std::cout << "SEQ:" << a.sequence_number_ << "\t" << b.sequence_number_ << std::endl;
     if (a.largest_.compare(b.largest_) != 0)
       return a.largest_.compare(b.largest_) <= 0;
     return a.smallest_.compare(b.smallest_) <= 0;

@@ -18,6 +18,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     std::cout << "Seek Footer in TableIterator" << std::endl;
   filesystem->Seek(file_number_, meta.file_size_ - meta.footer_size_);
   std::string offset_data_ = filesystem->Read(file_number_, meta.footer_size_);
+  // std::cout << "Offset In TableIterator:" << offset_data_ << std::endl;
   ss.str(offset_data_);
   lsmtreeresult_->Read();
   size_t index_offset_ = 0;

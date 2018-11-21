@@ -111,7 +111,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     filter_ = NULL;
     assert(false);
   }
-  // std::cout << "Filter Block:" << filter_->ToString() << std::endl;
+  // std::cout << "Filter Block In Table:" << filter_->ToString() << std::endl;
 
   ss.str("");
   size_t index_offset_ = data_size_;

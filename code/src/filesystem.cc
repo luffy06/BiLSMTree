@@ -24,7 +24,7 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
   // std::cout << "OPEN " << filename << std::endl;
   if (open_number_ >= Config::FileSystemConfig::MAX_FILE_OPEN) {
     std::cout << "FILE OPEN MAX" << std::endl;
-    exit(-1);
+    assert(false);
   }
 
   size_t file_number_ = 0;
@@ -45,7 +45,7 @@ size_t FileSystem::Open(const std::string filename, const size_t mode) {
   int index = BinarySearchInBuffer(file_number_);
   if (index != -1) {
     std::cout << "FILE \'" << filename << "\' IS OPEN" << std::endl;
-    exit(-1); 
+    assert(false); 
   }
 
   FileStatus fs;
@@ -77,7 +77,7 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
-    exit(-1);
+    assert(false);
   }
   FileStatus& fs = file_buffer_[index];
   fs.lba_ = lba_;
@@ -94,13 +94,13 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
   size_t read_size_ = read_size;
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
-    exit(-1);
+    assert(false);
   }
 
   FileStatus& fs = file_buffer_[index];
   if (!(fs.mode_ & Config::FileSystemConfig::READ_OPTION)) {
     std::cout << "CANNOT READ WITHOUT READ PERMISSION" << std::endl;
-    exit(-1);
+    assert(false);
   }
   
   std::string data = "";
@@ -149,20 +149,20 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
-    exit(-1);
+    assert(false);
   }
 
   FileStatus& fs = file_buffer_[index];
   if (!(fs.mode_ & (Config::FileSystemConfig::WRITE_OPTION | Config::FileSystemConfig::APPEND_OPTION))) {
     std::cout << "CANNOT WRITE WITHOUT WRITE PERMISSION" << std::endl;
-    exit(-1);
+    assert(false);
   }
 
   if (fs.mode_ & Config::FileSystemConfig::APPEND_OPTION)
     Seek(file_number, fcbs_[file_number].filesize_);
 
   size_t size_ = 0;
-  if (fs.offset_ < Config::FileSystemConfig::BLOCK_SIZE) {
+  if (fs.offset_ > 0 && fs.offset_ < Config::FileSystemConfig::BLOCK_SIZE) {
     // write [0, write_size) or [0, BLOCK_SIZE - fs.offset_)
     size_t add_ = std::min(write_size, Config::FileSystemConfig::BLOCK_SIZE - fs.offset_);
     char *c_data = flash_->Read(fs.lba_);
@@ -175,9 +175,11 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
     size_ = size_ + add_;
     fs.offset_ = fs.offset_ + add_;
     if (fs.offset_ >= Config::FileSystemConfig::BLOCK_SIZE) {
-      size_t new_lba_ = AssignFreeBlocks();
-      fat_[fs.lba_] = new_lba_;
-      fs.lba_ = new_lba_;
+      if (fat_[fs.lba_] == fs.lba_) {
+        size_t new_lba_ = AssignFreeBlocks();
+        fat_[fs.lba_] = new_lba_;
+      }
+      fs.lba_ = fat_[fs.lba_];
       fs.offset_ = 0;
     }
     
@@ -187,9 +189,11 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
     // std::cout << data_.substr(size_, size_ + Config::FileSystemConfig::BLOCK_SIZE) << std::endl;
     flash_->Write(fs.lba_, data_.substr(size_, size_ + Config::FileSystemConfig::BLOCK_SIZE).c_str());
     size_ = size_ + Config::FileSystemConfig::BLOCK_SIZE;
-    size_t new_lba_ = AssignFreeBlocks();
-    fat_[fs.lba_] = new_lba_;
-    fs.lba_ = new_lba_;
+      if (fat_[fs.lba_] == fs.lba_) {
+        size_t new_lba_ = AssignFreeBlocks();
+        fat_[fs.lba_] = new_lba_;
+      }
+    fs.lba_ = fat_[fs.lba_];
     fs.offset_ = 0;
   }
   if (size_ < write_size) {
@@ -200,6 +204,7 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
 }
 
 void FileSystem::Delete(const std::string filename) {
+  // std::cout << "Delete In FileSystem:" << filename << std::endl;
   size_t file_number_ = 0;
   bool found = false;
   for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
@@ -211,12 +216,10 @@ void FileSystem::Delete(const std::string filename) {
 
   if (found) {
     int index = BinarySearchInBuffer(file_number_);
-    if (index == -1) {
-      std::cout << "FILE IS NOT OPEN" << std::endl;
-      exit(-1);
+    if (index != -1) {
+      file_buffer_.erase(file_buffer_.begin() + index);
     }
 
-    file_buffer_.erase(file_buffer_.begin() + index);
     size_t lba_ = fcbs_[file_number_].block_start_;
     while (fat_[lba_] != lba_) {
       free_blocks_.push(lba_);
