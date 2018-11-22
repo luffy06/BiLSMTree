@@ -193,6 +193,8 @@ LevelDB中引入的是BloomFilter，但它具有以下几点不足：
 
 ![relativecomplement](pic/relativecomplement.png)
 
+【图6：求过滤器的相对补集】
+
 对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
 
 #### 2. 数据上浮的层数？
@@ -242,19 +244,25 @@ $$
 
 算法3.3 展示了如何维护最近$F$次访问的文件序号。若$F$较小，则等价于将所有的文件序号放在一个FIFO中。若$F$较大，则在内存中维护2个FIFO，分别表示原来的一个FIFO的头部和尾部。删除数据时从头部FIFO$visit\_[0]$头部删除，添加数据时从尾部FIFO$visit\_[1]$尾部添加。
 
-**Algorithm 4 上浮求CuckooFilter差积**
+**Algorithm 4 上浮文件**
 
 ![algo4](pic/algo4.png)
 
-算法3.4 展示如果在
+算法3.4 展示将$L_i$层的文件$M$上浮到$L_j$层的过程。读取$M$的Filter data $S_M$。依次从$L_{i-1}$层到$L_j$层，读出每层所有与文件$M$存在Overlap的文件的Filter data $S^u_t(i-1\le u\le j)$，将$S_M$求$S_t^u$的相对补集，$S_M-S^u_t$。全部更新完成后，将最终的Filter data 重新写入文件$M$中。从$L_i$层删除文件$M$的meta信息，并将其加入$L_j$层的$buffer$中。
 
 **Algorithm 5 从外存查询一个key**
 
+![algo5](pic/algo5.png)
 
+算法3.5展示了如何从外存中查询一个key。从$L_0$层依次到$L_6$层，首先从$file[i]$数组中选择包含$key$的meta信息加入$check\_files$备选，然后再从$buffer[i]$中选择包含$key$的meta信息加入$check\_files$。当$L_i$层的备选meta信息全部选择完毕后，依次检查每个meta信息对应的文件是否包含$key$。检查的步骤是，首先读取Filter信息，检查$key$是否存在于Filter中。若不存在继续检查下一个meta信息，若存在读取index块信息，并根据index块信息读取data块信息，查找$key$是否存在。若找到，返回对应的$value$，否则继续检查下一个meta信息。若所有层都没有找到$key$，返回NULL。
 
 **Algorithm 6 改进的Compaction**
 
+![algo5](pic/algo6.png)
 
+算法3.6展示了在外存中如何做Compaction。因为Compaction的时候可能也会将同层$buffer$中的SSTable DUMP到下一层或者合并部分下一层$buffer$中的文件，所以对于下一层来说，每次Compaction后相比于原来增加的文件数数量可能会超过一个。那么在选择文件时，不再是选择一个文件向下DUMP，而是根据当前层的文件数量阈值$10^{level}$，选择超出阈值数量的文件数$over\_numb$，按照文件新旧程度依次加入$merge\_files$。考虑到选择$n$个文件同时向下Compaction，那么在判断Overlap时，需要和这$n$个文件组成的大区间$[key_{min}, key_{max}]$比较。又因为同一层中$buffer$中的文件可能与$file$中的文件存在Overlap，所以先从$file$中选择Overlap的文件，后更新$key_{min}$和$key_{max}$，再从$buffer$中选择Overlap的文件，将他们均加入$merge\_files$。
+
+选择了所有待合并的文件后，用和原来相同的多路合并策略进行多路合并。需要注意的是，对于每路的SSTable，每当从flash中读出一个$key$准备合并时，先判断该$key$是否存在于该SSTable的Filter中，若不存在直接舍弃这个$key$。最后合并完成后，将合并后的新的SSTable文件加入下一层的$file$数组中。
 
 # Trace
 
