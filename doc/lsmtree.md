@@ -102,7 +102,7 @@ major contribution：
 
 ![MemoryStructrue](pic/memorystructure.png)
 
-【图2：内存存储结构】
+【图3：内存存储结构】
 
 我们提出的内存存储结构中，用LRU2Q替换原有的MemTable，同时维护一个由多个更小的Immutable Memtable组成的Imm LRU。用一个更小的MemTable作为缓冲，每当有数据从LRU2Q中淘汰时，数据将会被加入MemTable。当MemTable满了以后，将其加入Imm List。当Imm LRU满了之后，将该LRU队尾的Immutable MemTable淘汰，DUMP到外部存储设备中。
 
@@ -115,9 +115,9 @@ major contribution：
 
 ![case1](pic/case1.png)
 
-【图3：例子】
+【图4：例子】
 
-如图3，内存中已经存入了`a,b,c,d,e,f,g,h,i`，如子图1。在原来的结构中，Immutable MemTable中保存了`e,f,g,h,i`，MemTable中保存了`a,b,c,d`，还留有一个空位置；在我们提出的结构中，LRU2Q中，LRU队列保存了`a,b`，FIFO队列保存了`c,d`。MemTable中仅保存了`e`，也还留有一个空位置。Imm LRU中包含了两个Immutable MemTable，分别存储了`f,g`和`h,i`。两种结构中的内存利用率均为90%。
+如图4，内存中已经存入了`a,b,c,d,e,f,g,h,i`，如子图1。在原来的结构中，Immutable MemTable中保存了`e,f,g,h,i`，MemTable中保存了`a,b,c,d`，还留有一个空位置；在我们提出的结构中，LRU2Q中，LRU队列保存了`a,b`，FIFO队列保存了`c,d`。MemTable中仅保存了`e`，也还留有一个空位置。Imm LRU中包含了两个Immutable MemTable，分别存储了`f,g`和`h,i`。两种结构中的内存利用率均为90%。
 
 如子图2，当读了`d`和`h`之后，原来的结构中与子图1中没有发生任何变化。而在我们提出的结构中，因为`d`存储在LRU2Q中的FIFO队列，所以被访问了以后，被挪动到LRU队列的头部，并将队尾的`b`踢到FIFO队列中。因为`h`存储在Imm LRU的第二个Immutable中，所以访问了之后，将这个Immutable移动到Imm LRU的头部。需要注意的是，Imm LRU只是为了Immutable MemTable的DUMP而设计，而实际在访问的过程时，仍然按照加入Imm LRU的先后顺序访问，以保证数据的新旧程度。
 
@@ -155,13 +155,13 @@ major contribution：
 
 ![externstorage](pic/externstorage.png)
 
-【图4：外部存储结构】
+【图5：外部存储结构】
 
-如图4，我们为每层额外增加了一个list用于存放被上浮的文件。
+如图5，我们为每层额外增加了一个buffer用于存放被上浮的文件。
 
-如图4（1），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起Overlap，将其先放在$L_1$层的额外的list中，随后在$L_1$层进行Compaction的时候将其合并到file中。
+如图5（a），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起Overlap，将其先放在$L_1$层的额外的list中，随后在$L_1$层进行Compaction的时候将其合并到file中。
 
-如图4（2），当$L_5​$层额外的list中的一个文件被访问后，同样的通过计算将其移动到$L_0​$层，等待合并。
+如图5（b），当$L_5$层额外的list中的一个文件被访问后，同样的通过计算将其移动到$L_0$层，等待合并。
 
 ### 需要解决的问题
 
@@ -190,6 +190,8 @@ LevelDB中引入的是BloomFilter，但它具有以下几点不足：
 我们将文件上浮以后，需要继续保持原有的两个性质，我们使用查询效率更高，空间利用率更高，且无错误率的CuckooFilter[CuckooFilter]来替换BloomFilter。
 
 ##### 具体操作
+
+![relativecomplement](pic/relativecomplement.png)
 
 对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
 
@@ -243,6 +245,14 @@ $$
 **Algorithm 4 上浮求CuckooFilter差积**
 
 ![algo4](pic/algo4.png)
+
+算法3.4 展示如果在
+
+**Algorithm 5 从外存查询一个key**
+
+
+
+**Algorithm 6 改进的Compaction**
 
 
 
