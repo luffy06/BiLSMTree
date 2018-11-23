@@ -2,7 +2,7 @@
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB')
+algos=('LevelDB' 'LevelDB-KV')
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
     rm 'config.in'
@@ -17,7 +17,7 @@ for algo in ${algos[*]}; do
     filename=`basename $file`
     echo 'DATA '${filename}
     echo 'RUNNING '${filename} >> ${resultname}
-    echo `build/main` < ${datafolder}/${filename}  >> ${resultname}
+    echo `build/main < $datafolder/$filename` >> ${resultname}
   done
 done
 echo 'LOADING RESULT'

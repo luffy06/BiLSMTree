@@ -14,7 +14,7 @@ int main() {
   size_t j = 0;
   while (std::cin >> op >> key >> value) {
     // if (j % 1000 == 0) {
-      // std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    //   std::cout << "RUN " << j << "\tOp:" << op << std::endl;
     //   std::cout << key << "\t" << value << std::endl;
     // }
     if (op == "INSERT" || op == "UPDATE")
