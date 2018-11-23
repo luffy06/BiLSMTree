@@ -34,6 +34,8 @@ public:
 
   void SetId(size_t id) { id_ = id; }
 
+  size_t DataSize() { return kvs_.size(); }
+
   friend bool operator<(const TableIterator& a, const TableIterator& b) {
     KV kv_a = a.Current();
     KV kv_b = b.Current();

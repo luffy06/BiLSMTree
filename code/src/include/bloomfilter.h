@@ -19,8 +19,8 @@ public:
     bits_ = keys.size() * Config::FilterConfig::BITS_PER_KEY;
     if (bits_ < 64) bits_ = 64;
     size_t bytes = bits_ / 8;
-    array_ = new size_t[bytes];
-    for (size_t i = 0; i < bytes; ++ i)
+    array_ = new size_t[bytes + 1];
+    for (size_t i = 0; i <= bytes; ++ i)
       array_[i] = 0;
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
@@ -35,7 +35,7 @@ public:
     ss.str(data);
     ss >> bits_;
     size_t bytes = bits_ / 8;
-    array_ = new size_t[bytes];
+    array_ = new size_t[bytes + 1];
     for (size_t i = 0; i < bytes; ++ i) {
       ss >> array_[i];
     }
@@ -80,7 +80,9 @@ private:
     const size_t delta_ = (h >> 17) | (h << 15);
     for (size_t j = 0; j < k_; ++ j) {
       const size_t bitpos = h % bits_;
-      array_[bitpos / 8] |= (1 << (bitpos % 8));
+      const size_t pos = bitpos / 8;
+      assert(pos <= (bits_ / 8));
+      array_[pos] |= (1 << (bitpos % 8));
       h += delta_;
     }  
   }

@@ -28,47 +28,39 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   // for filter block
   std::vector<Slice> keys_for_filter_;
 
-  // std::cout << "Initialize Blocks" << std::endl;
   size_t size_ = 0;
   std::stringstream ss;
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
-    keys_for_filter_.push_back(kv_.key_);
+    // std::cout << "Iterate: " << kv_.key_.ToString() << std::endl;
+    keys_for_filter_.push_back(Slice(kv_.key_.data(), kv_.key_.size()));
     size_t key_size_ = kv_.key_.size(); 
     size_t value_size_ = kv_.value_.size();
     size_t add_ = kv_.size() + Util::IntToString(key_size_).size() + Util::IntToString(value_size_).size() + 4;
-    if (size_ + add_ > Config::TableConfig::BLOCKSIZE) {
+    size_ = size_ + add_;
+
+    ss << key_size_;
+    ss << Config::DATA_SEG;
+    ss.write(kv_.key_.data(), sizeof(char) * key_size_);
+    ss << Config::DATA_SEG;
+    ss << value_size_;
+    ss << Config::DATA_SEG;
+    ss.write(kv_.value_.data(), sizeof(char) * value_size_);
+    ss << Config::DATA_SEG;
+
+    if (size_ >= Config::TableConfig::BLOCKSIZE) {
       // a data block finish
       buffers_.push_back(ss.str());
       // record index for data block
-      last_keys_.push_back(kvs[i - 1].key_);
+      last_keys_.push_back(Slice(kvs[i].key_.data(), kvs[i].key_.size()));
       // create a new block
-      size_ = add_;
+      size_ = 0;
       ss.str("");
-      ss << key_size_;
-      ss << Config::DATA_SEG;
-      ss.write(kv_.key_.data(), sizeof(char) * key_size_);
-      ss << Config::DATA_SEG;
-      ss << value_size_;
-      ss << Config::DATA_SEG;
-      ss.write(kv_.value_.data(), sizeof(char) * value_size_);
-      ss << Config::DATA_SEG;
-    }
-    else {
-      size_ = size_ + add_;
-      ss << key_size_;
-      ss << Config::DATA_SEG;
-      ss.write(kv_.key_.data(), sizeof(char) * key_size_);
-      ss << Config::DATA_SEG;
-      ss << value_size_;
-      ss << Config::DATA_SEG;
-      ss.write(kv_.value_.data(), sizeof(char) * value_size_);
-      ss << Config::DATA_SEG;
     }
   }
   if (size_ > 0) {
     buffers_.push_back(ss.str());
-    last_keys_.push_back(kvs[kvs.size() - 1].key_);
+    last_keys_.push_back(Slice(kvs[kvs.size() - 1].key_.data(), kvs[kvs.size() - 1].key_.size()));
   }
   
   ss.str("");
@@ -85,10 +77,9 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     // std::cout << "Data Block:" << i << std::endl << buffers_[i] << std::endl;
     size_t data_block_size_ = buffers_[i].size();
     data_size_ = data_size_ + buffers_[i].size();
-    size_t last_key_size_ = last_keys_[i].size();
-    ss << last_key_size_;
+    ss << last_keys_[i].size();
     ss << Config::DATA_SEG;
-    ss.write(last_keys_[i].data(), last_key_size_);
+    ss.write(last_keys_[i].data(), last_keys_[i].size());
     ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;
