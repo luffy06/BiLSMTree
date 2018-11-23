@@ -15,7 +15,7 @@ Table::Table() {
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
 Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
-  std::cout << "Create Table" << std::endl;
+  // std::cout << "Create Table" << std::endl;
   // for (size_t i = 0; i < kvs.size(); ++ i)
   //   std::cout << kvs[i].key_.ToString() << "\t";
   // std::cout << std::endl;
@@ -72,9 +72,9 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   
   ss.str("");
-  std::cout << "buffers_: " << buffers_.size() << std::endl;
-  std::cout << "last_keys_: " << last_keys_.size() << std::endl;
-  std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
+  // std::cout << "buffers_: " << buffers_.size() << std::endl;
+  // std::cout << "last_keys_: " << last_keys_.size() << std::endl;
+  // std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
   // write into block
   data_block_number_ = buffers_.size();
   data_blocks_ = new Block*[data_block_number_];
@@ -133,7 +133,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   // std::cout << "IndexSize:" << index_block_->size() << std::endl;
   // std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
   // std::cout << "FooterSize:" << footer_data_.size() << std::endl;
-  std::cout << "Create Table Success" << std::endl;
+  // std::cout << "Create Table Success" << std::endl;
 }
 
 Table::~Table() {

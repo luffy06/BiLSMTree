@@ -2,7 +2,7 @@ import os
 from functools import reduce
 
 workload_num = 12
-value_max_len = 300
+value_max_len = 100
 
 def generate_workload(project_path):
   distribution_attr = ['readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
@@ -73,14 +73,14 @@ def read(in_filename, out_filename):
   for i, l in enumerate(lines):
     if l.startswith('INSERT') or l.startswith('UPDATE') or l.startswith('SCAN') or l.startswith('READ'):
       ls = l.split()
-      nls = [ls[0], ls[2]]
+      nls = [ls[0], ls[2][:value_max_len]]
       value = ''
       for j in range(3, len(ls)):
         value = value + ls[j] + ' '
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      value = value[:300]
+      value = value[:value_max_len]
       nls.append(value)
       result.append(nls)
   f = open(out_filename, 'a')
