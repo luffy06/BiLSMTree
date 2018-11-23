@@ -17,6 +17,13 @@ public:
   }
 
   Slice(const char* d, size_t n) : size_(n) {
+    if (size_ >= 1000000) {
+      std::cout << "Error Size:" << size_ << std::endl;
+      for (size_t i = 0; i < 10000; ++ i)
+        std::cout << data_[i];
+      std::cout << std::endl;
+      std::cout << strlen(data_) << std::endl;
+    }
     assert(size_ <= 1000000);
     data_ = new char[size_ + 1];
     for (size_t i = 0; i < size_; ++ i)
@@ -32,7 +39,7 @@ public:
 
   std::string ToString() const {
     if (size_ >= 1000000) {
-      std::cout << size_ << std::endl;
+      std::cout << "Error Size:" << size_ << std::endl;
       for (size_t i = 0; i < 10000; ++ i)
         std::cout << data_[i];
       std::cout << std::endl;
