@@ -21,9 +21,11 @@ void DB::Put(const std::string key, const std::string value) {
   SkipList* sl = cacheserver_->Put(kv_);
   if (sl != NULL) {
     // need compaction
-    std::cout << "Ready to Minor Compaction" << std::endl;
+    if (Config::TRACE_LOG)
+      std::cout << "Ready to Minor Compaction" << std::endl;
     kvserver_->MinorCompact(sl);
-    std::cout << "Minor Compaction Success" << std::endl;
+    if (Config::TRACE_LOG)
+      std::cout << "Minor Compaction Success" << std::endl;
   }
 }
 

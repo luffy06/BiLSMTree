@@ -91,11 +91,10 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
     assert(fat_[lba_] != lba_);
     lba_ = fat_[lba_];
   }
-
   assert(offset_ < Config::FileSystemConfig::BLOCK_SIZE);
   int index = BinarySearchInBuffer(file_number);
   if (index == -1) {
-    std::cout << "FILE IS NOT OPEN" << std::endl;
+    std::cout << "FILE " << fcbs_[file_number].filename_ << " IS NOT OPEN" << std::endl;
     assert(false);
   }
   FileStatus& fs = file_buffer_[index];

@@ -290,8 +290,8 @@ void TestLRU2Q(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
-void TestFilter(const std::vector<bilsmtree::KV>& data) {
-  std::cout << seg << "TEST DB" << seg << std::endl;
+void TestCuckooFilter(const std::vector<bilsmtree::KV>& data) {
+  std::cout << seg << "TEST CuckooFilter" << seg << std::endl;
   std::string msg = "SUCCESS";
   std::cout << "TEST Construction" << std::endl;
   std::vector<bilsmtree::Slice> res;
@@ -330,6 +330,27 @@ void TestFilter(const std::vector<bilsmtree::KV>& data) {
 
   delete cuckoofilter;
   delete cuckoofilter2;
+  std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
+}
+
+void TestBloomFilter(const std::vector<bilsmtree::KV>& data) {
+  std::cout << seg << "TEST BloomFilter" << seg << std::endl;
+  std::string msg = "SUCCESS";
+  std::cout << "TEST Construction" << std::endl;
+  std::vector<bilsmtree::Slice> res;
+  for (size_t i = 0; i < data.size(); ++ i)
+    res.push_back(data[i].key_);
+  bilsmtree::BloomFilter *blooomfilter = new bilsmtree::BloomFilter(res);
+
+  std::cout << "TEST KeyMatch" << std::endl;
+  for (size_t i = 0; i < data.size(); ++ i) {
+    if (!blooomfilter->KeyMatch(data[i].key_)) {
+      msg = "Key doesn't exist";
+      break;
+    }
+  }
+
+  delete blooomfilter;
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
@@ -384,7 +405,9 @@ int main() {
   // TestBiList(data);
   // TestSkipList(small_data);
   // TestLRU2Q(data);
-  // TestFilter(small_data);
-  TestDB(small_data);
+  // TestCuckooFilter(small_data);
+  // TestBloomFilter(small_data);
+  for (size_t i = 0; i < 5; ++ i)
+    TestDB(small_data);
   return 0;
 }

@@ -17,6 +17,7 @@ public:
   bool Get(const std::string key, std::string& value);
 
   void ShowResult() { 
+    std::cout << "ALGORITHM:" << Util::GetAlgorithm() << std::endl;
     std::cout << "LATENCY:" << result_->flashresult_->GetLatency() << std::endl;
     std::cout << "ERASE TIMES:" << result_->flashresult_->GetEraseTimes() << std::endl;
     std::cout << "READ FILES:" << result_->lsmtreeresult_->GetReadFiles() << std::endl;
