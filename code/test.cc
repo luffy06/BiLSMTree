@@ -339,21 +339,27 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    // std::cout << "Put " << i << std::endl;
+    std::cout << "Put " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
-    // std::cout << std::endl << "Get " << data[i].key_.ToString() << std::endl;
-    if (!db->Get(data[i].key_.ToString(), db_value)) {
-      std::cout << std::endl << data[i].key_.ToString() << " Cannot Get" << std::endl;
-      msg = "Key doesn't exist";
-      break;
+    size_t r = rand() % 2;
+    std::cout << "RUN " << i << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
+    if (r == 0) {
+      db->Put(data[i].key_.ToString(), data[i].value_.ToString());
     }
-    else if (db_value != data[i].value_.ToString()) {
-      msg = "Value  doesn't match DBValue:";
-      break;
+    else {
+      if (!db->Get(data[i].key_.ToString(), db_value)) {
+        std::cout << std::endl << data[i].key_.ToString() << " Cannot Get" << std::endl;
+        msg = "Key doesn't exist";
+        break;
+      }
+      else if (db_value != data[i].value_.ToString()) {
+        msg = "Value  doesn't match DBValue:";
+        break;
+      }
     }
   }
   delete db;
@@ -365,7 +371,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 10000; ++ i) {
+  for (size_t i = 1; i <= 20000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
