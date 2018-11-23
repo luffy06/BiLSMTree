@@ -5,6 +5,7 @@ namespace bilsmtree {
 LogManager::LogManager(FileSystem* filesystem) {
   head_ = tail_ = record_count_ = 0;
   filesystem_ = filesystem;
+  filesystem_->Create(Config::LogManagerConfig::LOG_PATH);
 }
 
 LogManager::~LogManager() {

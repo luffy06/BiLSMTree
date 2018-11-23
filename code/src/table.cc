@@ -15,7 +15,7 @@ Table::Table() {
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
 Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
-  // std::cout << "Create Table" << std::endl;
+  std::cout << "Create Table" << std::endl;
   // for (size_t i = 0; i < kvs.size(); ++ i)
   //   std::cout << kvs[i].key_.ToString() << "\t";
   // std::cout << std::endl;
@@ -72,9 +72,9 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   
   ss.str("");
-  // std::cout << "buffers_: " << buffers_.size() << std::endl;
-  // std::cout << "last_keys_: " << last_keys_.size() << std::endl;
-  // std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
+  std::cout << "buffers_: " << buffers_.size() << std::endl;
+  std::cout << "last_keys_: " << last_keys_.size() << std::endl;
+  std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
   // write into block
   data_block_number_ = buffers_.size();
   data_blocks_ = new Block*[data_block_number_];
@@ -88,7 +88,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     size_t last_key_size_ = last_keys_[i].size();
     ss << last_key_size_;
     ss << Config::DATA_SEG;
-    ss.write(last_keys_[i].data(), sizeof(char) * last_key_size_);
+    ss.write(last_keys_[i].data(), last_key_size_);
     ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;
@@ -133,6 +133,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   // std::cout << "IndexSize:" << index_block_->size() << std::endl;
   // std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
   // std::cout << "FooterSize:" << footer_data_.size() << std::endl;
+  std::cout << "Create Table Success" << std::endl;
 }
 
 Table::~Table() {
@@ -146,6 +147,8 @@ Meta Table::GetMeta() {
 }
 
 void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult) {
+  // std::cout << "DumpToFile " << filename << std::endl;
+  filesystem_->Create(filename);
   size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   for (size_t i = 0; i < data_block_number_; ++ i) {
     // std::cout << "Write Data Block " << i << std::endl;
@@ -159,7 +162,7 @@ void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult)
   // std::cout << "Write Filter Block " << std::endl;
   filesystem_->Write(file_number_, filter_data.data(), filter_data.size());
   lsmtreeresult->Write();
-  // std::cout << "Write Footer Block " << std::endl;
+  // std::cout << "Write Footer Block " << footer_data_ << std::endl;
   filesystem_->Write(file_number_, footer_data_.data(), footer_data_.size());
   filesystem_->Close(file_number_);
 }

@@ -14,7 +14,7 @@ LSMTree::~LSMTree() {
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
-  // std::cout << "LSMTree Get" << std::endl;
+  // std::cout << "LSMTree Get:" << key.ToString() << std::endl;
   // for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
   //   std::cout << "Level:" << i << std::endl;
   //   std::cout << "file_: " << file_[i].size() << std::endl;
@@ -25,6 +25,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
   //     std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << std::endl;
   // }
   std::string algo = Util::GetAlgorithm();
+  size_t checked = 0;
   for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
     // std::cout << "Level " << i << std::endl;
     // std::cout << "file_: " << file_[i].size() << std::endl;
@@ -33,8 +34,10 @@ bool LSMTree::Get(const Slice key, Slice& value) {
     if (i == 0) {
       for (size_t j = 0; j < file_[i].size(); ++ j) {
         // std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << std::endl;
-        if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0)
+        if (key.compare(file_[i][j].smallest_) >= 0 && key.compare(file_[i][j].largest_) <= 0) {
+          // std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << std::endl;
           check_files_.push_back(j);
+        }
       }
     }
     else {
@@ -67,13 +70,16 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       // std::cout << "List Size of " << i << ":" << list_[i].size() << std::endl;
       for (size_t j = 0; j < list_[i].size(); ++ j) {
         // std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << std::endl;
-        if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0)
+        if (key.compare(list_[i][j].smallest_) >= 0 && key.compare(list_[i][j].largest_) <= 0) {
+          // std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << std::endl;
           check_files_.push_back(j + file_[i].size());
+        }
       }
     }
     // std::cout << "check_files_: " << check_files_.size() << std::endl;
     for (size_t j = 0; j < check_files_.size(); ++ j) {
       size_t p = check_files_[j];
+      checked = checked + 1;
       Meta meta = (p < file_[i].size() ? file_[i][p] : list_[i][p - file_[i].size()]);
       // std::cout << "check:" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << std::endl;
       if (GetValueFromFile(meta, key, value)) {
@@ -82,14 +88,17 @@ bool LSMTree::Get(const Slice key, Slice& value) {
           frequency_[meta.sequence_number_] ++;
           if (deleted != -1) frequency_[deleted] --;
           // TODO: RUN BY ALPHA
-          if (RollBack(i, meta)) {
-            if (p >= file_[i].size())
-              list_[i].erase(list_[i].begin() + p - file_[i].size());
-            else
-              file_[i].erase(file_[i].begin() + p);
+          if (i > 0) {
+            size_t high_fre = frequency_[file_[i - 1][0].sequence_number_];
+            for (size_t k = 1; k < file_[i - 1].size(); ++ k) {
+              if (frequency_[file_[i - 1][k].sequence_number_] < high_fre)
+                high_fre = frequency_[file_[i - 1][k].sequence_number_];
+            }
+            if (frequency_[meta.sequence_number_] * (1. + Config::LSMTreeConfig::ALPHA) >= high_fre)
+              RollBack(i, meta, p);
           }
         }
-        lsmtreeresult_->Check(j + 1);
+        lsmtreeresult_->Check(checked);
         return true;
       }
     }
@@ -113,6 +122,12 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
+  std::string algo = Util::GetAlgorithm();
+  if (algo == std::string("BiLSMTree")) {
+    int deleted = recent_files_->Append(sequence_number_);
+    frequency_[sequence_number_] ++;
+    if (deleted != -1) frequency_[deleted] --;
+  }
   if (file_[0].size() > Config::LSMTreeConfig::L0SIZE) {
     // std::cout << "Start MajorCompaction In AddTableToL0" << std::endl;
     MajorCompaction(0);
@@ -158,7 +173,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   Filter* filter;
   std::string algorithm = Util::GetAlgorithm();
   // std::cout << filter_data_ << std::endl;
-  if (algorithm == std::string("LevelDB")) {
+  if (algorithm == std::string("LevelDB") || algorithm == std::string("LevelDB-KV")) {
     filter = new BloomFilter(filter_data_);
   }
   else if (algorithm == std::string("BiLSMTree")) {
@@ -170,7 +185,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   }
   // std::cout << "Filter KeyMatch" << std::endl;
   if (!filter->KeyMatch(key)) {
-    // std::cout << "Filter Doesn't Exist" << std::endl;
+    // std::cout << filter_data_ << std::endl;
+    std::cout << "Filter Doesn't Exist" << std::endl;
     filesystem_->Close(file_number_);
     return false;
   }
@@ -185,7 +201,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   bool found = false;
   size_t offset_ = 0;
   size_t data_block_size_ = 0;
-  while (!ss.eof()) {
+  while (true) {
     size_t key_size_ = 0;
     ss >> key_size_;
     ss.get();
@@ -193,6 +209,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
     ss >> offset_ >> data_block_size_;
+    if (ss.tellg() == -1)
+      break;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) <= 0) {
       found = true;
@@ -212,7 +230,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   lsmtreeresult_->Read();
   filesystem_->Close(file_number_);
   ss.str(data_);
-  while (!ss.eof()) {
+  while (true) {
     size_t key_size_ = 0;
     ss >> key_size_;
     char *key_ = new char[key_size_ + 1];
@@ -226,6 +244,9 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.get();
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
+
+    if (ss.tellg() == -1)
+      break;
 
     // std::cout << "Key:" << key_ << "\tValue:" << value_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) == 0) {
@@ -249,8 +270,8 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   }
   size_t target_level = now_level;
   double diff = 0;
-  for (int i = now_level - 1; i > 0; -- i) {
-    double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i) - Config::FlashConfig::READ_WRITE_RATE - overlaps[i];
+  for (int i = now_level - 1; i >= 0; -- i) {
+    double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i) * (Config::LSMTreeConfig::LISTSIZE + 1) - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1;
     if (diff_t > diff) {
       target_level = i;
       diff = diff_t;
@@ -259,14 +280,14 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   return target_level;
 }
 
-bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
+void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos) {
   // std::cout << "Ready RollBack" << std::endl;
   if (now_level == 0)
-    return false;
+    return ;
   size_t to_level = GetTargetLevel(now_level, meta);
   assert(to_level <= now_level);
   if (to_level == now_level)
-    return false;
+    return ;
   std::cout << "RollBack Now Level:" << now_level << " To Level:" << to_level << std::endl;
   // std::cout << "FileSize:" << meta.file_size_ << " [" << meta.smallest_.ToString().size() << "\t" << meta.largest_.ToString().size() << "]" << std::endl;
   std::stringstream ss;
@@ -291,11 +312,11 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
     std::cout << "Seek Fitler in RollBack" << std::endl;
   filesystem_->Seek(file_number_, filter_offset_);
   std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
-  // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read();
   std::string algorithm = Util::GetAlgorithm();
   assert(algorithm == std::string("BiLSMTree"));
   CuckooFilter *filter = new CuckooFilter(filter_data_);
+  // std::cout << "Init FilterDataSize:" << filter->ToString().size() << "\t" << filter_data_.size() << std::endl;
   for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
     int l = 0;
     int r = static_cast<int>(file_[i].size()) - 1;
@@ -330,13 +351,15 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
       CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
       filter->Diff(to_filter);
       filesystem_->Close(to_file_number_);
+      // std::cout << "FilterDataSize:" << filter->ToString().size() << std::endl;
     }
   }
   if (Config::SEEK_LOG)
     std::cout << "Seek Filter for Write in RollBack" << std::endl;
-  // std::cout << "ReWrite File Footer: " << meta.sequence_number_ << std::endl;
   filesystem_->Seek(file_number_, filter_offset_);
-  size_t file_size_minus_ = filter->ToString().size() - filter_data_.size();
+  int file_size_minus_ = filter_data_.size() - filter->ToString().size();
+  // std::cout << "Final FilterDataSize:" << filter->ToString().size() << "\t" << filter_data_.size() << std::endl;
+  // std::cout << "ReWrite File Footer: " << meta.sequence_number_ << "\t" << file_size_minus_ << std::endl;
   assert(file_size_minus_ >= 0);
   filter_data_ = filter->ToString();
   filesystem_->Write(file_number_, filter_data_.data(), filter_data_.size());
@@ -351,10 +374,13 @@ bool LSMTree::RollBack(const size_t now_level, const Meta meta) {
   new_meta.level_ = to_level;
   // add to list_
   list_[to_level].push_back(new_meta);
+  if (pos >= file_[now_level].size())
+    list_[now_level].erase(list_[now_level].begin() + pos - file_[now_level].size());
+  else
+    file_[now_level].erase(file_[now_level].begin() + pos);
   if (list_[to_level].size() >= Config::LSMTreeConfig::LISTSIZE)
     CompactList(to_level);
   std::cout << "RollBack Success" << std::endl;
-  return true;
 }
 
 std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& tables) {
@@ -372,11 +398,11 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     TableIterator ti = q.top();
     q.pop();
     KV kv = ti.Next();
-    // std::cout << "Add:" << kv.key_.ToString() << "\tfrom:" << ti.Id() << "\t";
+    // std::cout << "Add:" << kv.key_.ToString() << "\tfrom:" << ti.Id() << std::endl;
     if (ti.HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
-      if (buffers_.size() > Config::TableConfig::TABLESIZE) {
+      if (buffers_.size() >= Config::TableConfig::TABLESIZE) {
         // std::cout << "Create Table:[" << (*buffers_.begin()).key_.ToString() << "\t" << (*buffers_.rbegin()).key_.ToString() << "]" << std::endl;
         Table* t = new Table(buffers_, filesystem_);
         result_.push_back(t);
@@ -395,13 +421,16 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
 }
 
 void LSMTree::CompactList(size_t level) {
+  std::cout << "Create TableIterator In CompactList Size:" << list_[level].size() << std::endl;
   std::vector<TableIterator> tables_;
   for (size_t i = 0; i < list_[level].size(); ++ i) {
     std::string filename = GetFilename(list_[level][i].sequence_number_);
+    // std::cout << "CompactList filename:" << filename << std::endl;
     TableIterator t = TableIterator(filename, filesystem_, list_[level][i], lsmtreeresult_);
     tables_.push_back(t);
     filesystem_->Delete(filename);
   }
+  std::cout << "Create TableIterator In CompactList Success" << std::endl;
   list_[level].clear();
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
@@ -432,6 +461,7 @@ void LSMTree::MajorCompaction(size_t level) {
   if (file_[level].size() <= level_max_file_Li)
     return ;
   size_t select_numb_Li = file_[level].size() - level_max_file_Li;
+  // std::cout << "SELECT NUMB:" << select_numb_Li << std::endl;
   // select a file from Li
   // select from file_
   std::vector<size_t> indexs;
@@ -439,7 +469,7 @@ void LSMTree::MajorCompaction(size_t level) {
   for (size_t i = 1; i < file_[level].size(); ++ i) {
     Meta m = file_[level][i];
     size_t last_index = indexs[indexs.size() - 1];
-    if (indexs.size() < select_numb_Li || (indexs.size() == select_numb_Li && frequency_[m.sequence_number_] < frequency_[file_[level][indexs[last_index]].sequence_number_])) {
+    if (indexs.size() < select_numb_Li || (indexs.size() == select_numb_Li && frequency_[m.sequence_number_] < frequency_[file_[level][last_index].sequence_number_])) {
       bool add_ = false;
       for (size_t j = 0; j < indexs.size(); ++ j) {
         size_t index = indexs[j];
@@ -479,47 +509,52 @@ void LSMTree::MajorCompaction(size_t level) {
     list_[level].clear();
   }
   // select overlap files
-  // select from file_
-  size_t pos = metas.size();
-  // std::cout << "Select From Li:" << pos << std::endl;
-  for (size_t j = 0; j < pos; ++ j) {
-    Meta meta = metas[j];
-    for (size_t i = 0; i < file_[level + 1].size(); ) {
-      if (file_[level + 1][i].Intersect(meta)) {
-        metas.push_back(file_[level + 1][i]);
-        file_[level + 1].erase(file_[level + 1].begin() + i);
+  Meta meta = metas[0];
+  for (size_t i = 1; i < metas.size(); ++ i) {
+    if (metas[i].smallest_.compare(meta.smallest_) < 0)
+      meta.smallest_ = Slice(metas[i].smallest_.data(), metas[i].smallest_.size());
+    if (metas[i].largest_.compare(meta.largest_) > 0)
+      meta.largest_ = Slice(metas[i].largest_.data(), metas[i].largest_.size());
+  }
+  if (algo == std::string("BiLSMTree")) {
+    // select from list_
+    for (size_t i = 0; i < list_[level + 1].size(); ) {
+      if (list_[level + 1][i].Intersect(meta)) {
+        metas.push_back(list_[level + 1][i]);
+        list_[level + 1].erase(list_[level + 1].begin() + i);
       }
       else {
         ++ i;
       }
     }
   }
-  if (algo == std::string("BiLSMTree")) {
-    // select from list_
-    for (size_t j = 0; j < pos; ++ j) {
-      Meta meta = metas[j];
-      for (size_t i = 0; i < list_[level + 1].size(); ) {
-        if (list_[level + 1][i].Intersect(meta)) {
-          metas.push_back(list_[level + 1][i]);
-          list_[level + 1].erase(list_[level + 1].begin() + i);
-        }
-        else {
-          ++ i;
-        }
-      }
+  meta = metas[0];
+  for (size_t i = 1; i < metas.size(); ++ i) {
+    if (metas[i].smallest_.compare(meta.smallest_) < 0)
+      meta.smallest_ = Slice(metas[i].smallest_.data(), metas[i].smallest_.size());
+    if (metas[i].largest_.compare(meta.largest_) > 0)
+      meta.largest_ = Slice(metas[i].largest_.data(), metas[i].largest_.size());
+  }
+  // select from file_
+  for (size_t i = 0; i < file_[level + 1].size(); ) {
+    if (file_[level + 1][i].Intersect(meta)) {
+      metas.push_back(file_[level + 1][i]);
+      file_[level + 1].erase(file_[level + 1].begin() + i);
+    }
+    else {
+      ++ i;
     }
   }
-
-  std::cout << "Create TableIterator Size:" << metas.size() << std::endl;
+  std::cout << "Create TableIterator In MajorCompaction Size:" << metas.size() << std::endl;
   std::vector<TableIterator> tables_;
   for (size_t i = 0; i < metas.size(); ++ i) {
     std::string filename = GetFilename(metas[i].sequence_number_);
-    // std::cout << "DUMP Filename:" << filename << "[" << metas[i].smallest_.ToString() << ",\t" << metas[i].largest_.ToString() << "]" << std::endl;
+    // std::cout << "MERGE Filename:" << filename << " from Level:" << metas[i].level_ << "[" << metas[i].smallest_.ToString() << ",\t" << metas[i].largest_.ToString() << "]" << std::endl;
     TableIterator t = TableIterator(filename, filesystem_, metas[i], lsmtreeresult_);
     tables_.push_back(t);
     filesystem_->Delete(filename);
   }
-  std::cout << "Create TableIterator Success" << std::endl;
+  std::cout << "Create TableIterator In MajorCompaction Success" << std::endl;
   std::vector<Table*> merged_tables = MergeTables(tables_);
   // std::cout << "After Merge Size:" << merged_tables.size() << std::endl;
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
@@ -544,7 +579,6 @@ void LSMTree::MajorCompaction(size_t level) {
       file_[level + 1].insert(file_[level + 1].end(), meta);
     }
     delete merged_tables[i];
-    assert(CheckFileList(level + 1));
   }
   assert(CheckFileList(level + 1));
   // for (size_t i = 0; i < file_[level + 1].size(); ++ i)
@@ -561,15 +595,14 @@ void LSMTree::MajorCompaction(size_t level) {
 
 bool LSMTree::CheckFileList(size_t level) {
   if (level == 0) return true;
-  // std::cout << "CheckFileList" << std::endl;
-  // for (size_t i = 0; i < file_[level].size(); ++ i)
-  //   std::cout << file_[level][i].smallest_.ToString() << "\t" << file_[level][i].largest_.ToString() << std::endl;
   for (size_t i = 0; i < file_[level].size(); ++ i) {
     if (file_[level][i].smallest_.compare(file_[level][i].largest_) > 0) {
       std::cout << "META ERROR" << std::endl;
       return false;
     }
     if (i < file_[level].size() - 1 && file_[level][i].largest_.compare(file_[level][i + 1].smallest_) >= 0) {
+      std::cout << file_[level][i].largest_.ToString() << "\t" << file_[level][i + 1].smallest_.ToString() << std::endl;
+      ShowFileList(level, false);
       std::cout << "FILE LIST ERROR" << std::endl;
       return false;
     }
@@ -577,11 +610,16 @@ bool LSMTree::CheckFileList(size_t level) {
   return true;
 }
 
-void LSMTree::ShowFileList(size_t level) {
+void LSMTree::ShowFileList(size_t level, bool show_list) {
   std::cout << std::string(30, '%') << std::endl;
   std::cout << "ShowFileList" << std::endl;
   for (size_t i = 0; i < file_[level].size(); ++ i)
     std::cout << file_[level][i].smallest_.ToString() << "\t" << file_[level][i].largest_.ToString() << std::endl;
+  if (show_list) {
+    std::cout << "ShowList" << std::endl;
+    for (size_t i = 0; i < list_[level].size(); ++ i)
+      std::cout << list_[level][i].smallest_.ToString() << "\t" << list_[level][i].largest_.ToString() << std::endl;    
+  }
   std::cout << std::string(30, '%') << std::endl;
 }
 

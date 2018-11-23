@@ -33,6 +33,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::string filter_data_ = filesystem->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read();
+  Filter *filter_ = NULL;
   if (algo == std::string("BiLSMTree")) {
     filter_ = new CuckooFilter(filter_data_);
   }
@@ -53,7 +54,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
-  while (!ss.eof()) {
+  while (true) {
     size_t key_size_ = 0;
     ss >> key_size_;
     ss.get();
@@ -63,13 +64,15 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     size_t offset_ = 0;
     size_t data_block_size_ = 0;
     ss >> offset_ >> data_block_size_;
+    if (ss.tellg() == -1)
+      break;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     if (Config::SEEK_LOG)
       std::cout << "Seek Data in TableIterator" << std::endl;
     filesystem->Seek(file_number_, offset_);
     std::string block_data = filesystem->Read(file_number_, data_block_size_);
     lsmtreeresult_->Read();
-    ParseBlock(block_data);
+    ParseBlock(block_data, filter_);
   }
   filesystem->Close(file_number_);
   id_ = 0;
@@ -80,11 +83,11 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
 TableIterator::~TableIterator() {
 }
 
-void TableIterator::ParseBlock(const std::string block_data) {
+void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   ss.str(block_data);
-  while (!ss.eof()) {
+  while (true) {
     size_t key_size_ = 0;
     ss >> key_size_;
     char *key_ = new char[key_size_ + 1];
@@ -98,9 +101,12 @@ void TableIterator::ParseBlock(const std::string block_data) {
     ss.get();
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
-
+    
+    if (ss.tellg() == -1)
+      break;
+    
     if (algo == std::string("BiLSMTree")) {
-      if (key_size_ > 0 && filter_->KeyMatch(Slice(key_, key_size_))) {
+      if (key_size_ > 0 && filter->KeyMatch(Slice(key_, key_size_))) {
         kvs_.push_back(KV(std::string(key_), std::string(value_)));
       }
     }

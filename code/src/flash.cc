@@ -51,7 +51,7 @@ Flash::~Flash() {
 char* Flash::Read(const size_t lba) {
   // read block num and page num from page table
   if (page_table_.find(lba) == page_table_.end()) {
-    std::cout << "Read " << lba << std::endl;
+    std::cout << "LBA:" << lba << " doesn't exist!" << std::endl;
     assert(false);
   }
   PBA pba = page_table_[lba];

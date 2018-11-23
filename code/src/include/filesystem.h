@@ -51,6 +51,8 @@ public:
 
   size_t Open(const std::string filename, const size_t mode);
 
+  void Create(const std::string filename);
+
   void Seek(const size_t file_number, const size_t offset);
 
   void SetFileSize(const size_t file_number, const size_t file_size);

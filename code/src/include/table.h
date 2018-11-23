@@ -61,6 +61,11 @@ struct Meta {
 
 class Block {
 public:
+  Block() {
+    data_ = NULL;
+    size_ = 0;
+  }
+
   Block(const char* data, const size_t size) : size_(size) {
     data_ = new char[size_ + 1];
     for (size_t i = 0; i < size_; ++ i)

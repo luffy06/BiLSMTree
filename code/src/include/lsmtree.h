@@ -38,7 +38,7 @@ private:
 
   size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
-  bool RollBack(const size_t now_level, const Meta meta);
+  void RollBack(const size_t now_level, const Meta meta, const size_t pos);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator>& tables);
 
@@ -48,7 +48,7 @@ private:
 
   bool CheckFileList(size_t level);
 
-  void ShowFileList(size_t level);
+  void ShowFileList(size_t level, bool show_list);
 };
 }
 

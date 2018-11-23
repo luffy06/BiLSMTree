@@ -6,10 +6,13 @@ VisitFrequency::VisitFrequency(size_t max_size, FileSystem* filesystem) {
   filesystem_ = filesystem;
   max_size_ = max_size;
   size_ = 0;
-  if (max_size_ > Config::VisitFrequencyConfig::MAXQUEUESIZE * 2)
+  if (max_size_ > Config::VisitFrequencyConfig::MAXQUEUESIZE * 2) {
     mode_ = 1;
-  else
+    filesystem_->Create(Config::VisitFrequencyConfig::FREQUENCYPATH);
+  }
+  else {
     mode_ = 0;
+  }
 }
 
 VisitFrequency::~VisitFrequency() {

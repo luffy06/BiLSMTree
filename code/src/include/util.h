@@ -35,6 +35,7 @@ public:
 
   static const char DATA_SEG = '\t';
   static const bool SEEK_LOG = false;
+  static const bool FILESYSTEM_LOG = false;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -43,7 +44,7 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "../logs/";
     static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
-    static const size_t BLOCK_NUMS = 8192;
+    static const size_t BLOCK_NUMS = 4096;
     static const size_t PAGE_NUMS = 256;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
@@ -71,7 +72,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 100;      // the number of <key, value> stored in immutable memetable
+    static const size_t MAXSIZE = 300;      // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
@@ -94,7 +95,7 @@ public:
     static const size_t LEVEL = 4;
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.2;
-    static const size_t LISTSIZE = 4;
+    static const size_t LISTSIZE = 100;
   };
 
   struct TableConfig {
