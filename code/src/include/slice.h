@@ -24,10 +24,6 @@ public:
     data_[size_] = '\0';
   }
 
-  ~Slice() {
-    delete data_;
-  }
-
   const char* data() const { return data_; }
 
   size_t size() const { return size_; }
