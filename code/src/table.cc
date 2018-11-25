@@ -120,6 +120,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
   meta_.footer_size_ = footer_data_.size();
   // std::cout << "file size in table:" << meta_.file_size_ << std::endl;
+  // std::cout << "[" << meta_.smallest_.ToString() << "\t" << meta_.largest_.ToString() << "]" << std::endl;
   // std::cout << "DataSize:" << data_size_ << std::endl;
   // std::cout << "IndexSize:" << index_block_->size() << std::endl;
   // std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;

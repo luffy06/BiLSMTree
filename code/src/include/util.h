@@ -33,18 +33,19 @@ public:
 
   ~Config() { }
 
+  static constexpr const char* ALGO_PATH = "../config.in";
   static const char DATA_SEG = '\t';
   static const bool SEEK_LOG = false;
   static const bool FILESYSTEM_LOG = false;
-  static const bool TRACE_LOG = false;
+  static const bool TRACE_LOG = true;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
     static const size_t WRITE_LATENCY = 200;          // 200us
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
-    static constexpr const char* BASE_PATH = "logs/";
-    static constexpr const char* LOG_PATH = "logs/flashlog.txt";
+    static constexpr const char* BASE_PATH = "../logs/";
+    static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
     static const size_t BLOCK_NUMS = 4096;
     static const size_t PAGE_NUMS = 256;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
@@ -73,7 +74,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 300;      // the number of <key, value> stored in immutable memetable
+    static const size_t MAXSIZE = 100;      // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
@@ -83,32 +84,32 @@ public:
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 2000;
+    static const size_t CUCKOOFILTER_SIZE = 65536;
     static const size_t SEED = 0xbc91f1d34;
   };
 
   struct LogManagerConfig {
-    static constexpr const char* LOG_PATH = "logs/VLOG";
+    static constexpr const char* LOG_PATH = "../logs/VLOG";
     static const size_t GARBARGE_THRESOLD = 20;
   };
 
   struct LSMTreeConfig {
     static const size_t LEVEL = 4;
     static const size_t L0SIZE = 4;
-    static constexpr const double ALPHA = 0.2;
+    static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 100;
   };
 
   struct TableConfig {
     static const size_t BLOCKSIZE = 512;    // 4KB
     static const size_t TABLESIZE = 50;
-    static constexpr const char* TABLEPATH = "logs/leveldb/";
+    static constexpr const char* TABLEPATH = "../logs/leveldb/";
     static constexpr const char* TABLENAME = "sstable";
   };
 
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
-    static constexpr const char* FREQUENCYPATH = "logs/frequency.log";
+    static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
   };
 
   struct CuckooFilterConfig {

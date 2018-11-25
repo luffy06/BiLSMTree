@@ -19,12 +19,12 @@ public:
   void ShowResult() { 
     // std::cout << "ALGORITHM:" << Util::GetAlgorithm() << std::endl;
     std::cout << "LATENCY:" << result_->flashresult_->GetLatency() << std::endl;
-    std::cout << "ERASE TIMES:" << result_->flashresult_->GetEraseTimes() << std::endl;
-    std::cout << "READ FILES:" << result_->lsmtreeresult_->GetReadFiles() << std::endl;
-    std::cout << "WRITE FILES:" << result_->lsmtreeresult_->GetWriteFiles() << std::endl;
-    std::cout << "MINOR COMPACTION:" << result_->lsmtreeresult_->GetMinorCompactionTimes() << std::endl;
-    std::cout << "MAJOR COMPACTION:" << result_->lsmtreeresult_->GetMajorCompactionTimes() << std::endl;
-    std::cout << "AVERAGE CHECK TIMES:" << result_->lsmtreeresult_->GetCheckTimesAvg() << std::endl;
+    std::cout << "ERASE_TIMES:" << result_->flashresult_->GetEraseTimes() << std::endl;
+    std::cout << "READ_FILES:" << result_->lsmtreeresult_->GetReadFiles() << std::endl;
+    std::cout << "WRITE_FILES:" << result_->lsmtreeresult_->GetWriteFiles() << std::endl;
+    std::cout << "MINOR_COMPACTION:" << result_->lsmtreeresult_->GetMinorCompactionTimes() << std::endl;
+    std::cout << "MAJOR_COMPACTION:" << result_->lsmtreeresult_->GetMajorCompactionTimes() << std::endl;
+    std::cout << "AVERAGE_CHECK_TIMES:" << result_->lsmtreeresult_->GetCheckTimesAvg() << std::endl;
   }
 private:
   CacheServer *cacheserver_;

@@ -307,22 +307,24 @@ void TestCuckooFilter(const std::vector<bilsmtree::KV>& data) {
     }
   }
 
-  // std::cout << cuckoofilter->ToString() << std::endl;
+  // std::cout << cuckoofilter->ToString() << std::endl << std::endl;
   std::cout << "TEST Diff" << std::endl;
   res.clear();
   for (size_t i = 0; i < data.size(); i = i + 2)
     res.push_back(data[i].key_);
   bilsmtree::CuckooFilter *cuckoofilter2 = new bilsmtree::CuckooFilter(res);
-  // std::cout << cuckoofilter2->ToString() << std::endl;
+  // std::cout << cuckoofilter2->ToString() << std::endl << std::endl;
   std::cout << "Ready Diff" << std::endl;
   cuckoofilter->Diff(cuckoofilter2);
-  // std::cout << cuckoofilter->ToString() << std::endl;
+  // std::cout << cuckoofilter->ToString() << std::endl << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     if (i % 2 == 0 && cuckoofilter->KeyMatch(data[i].key_)) {
+      std::cout << data[i].key_.ToString() << std::endl;
       msg = "Diff error! Key delete failed";
       break;
     }
     else if (i % 2 != 0 && !cuckoofilter->KeyMatch(data[i].key_)) {
+      std::cout << data[i].key_.ToString() << std::endl;
       msg = "Diff error! Key doesn't exist";
       break;
     }
@@ -392,7 +394,7 @@ int main() {
   srand(seed);
   std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 20000; ++ i) {
+  for (size_t i = 1; i <= 10000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
@@ -407,7 +409,7 @@ int main() {
   // TestLRU2Q(data);
   // TestCuckooFilter(small_data);
   // TestBloomFilter(small_data);
-  for (size_t i = 0; i < 5; ++ i)
-    TestDB(small_data);
+  // for (size_t i = 0; i < 5; ++ i)
+  TestDB(small_data);
   return 0;
 }

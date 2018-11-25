@@ -106,9 +106,8 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
       break;
     
     if (algo == std::string("BiLSMTree")) {
-      if (key_size_ > 0 && filter->KeyMatch(Slice(key_, key_size_))) {
+      if (key_size_ > 0 && filter->KeyMatch(Slice(key_, key_size_)))
         kvs_.push_back(KV(std::string(key_), std::string(value_)));
-      }
     }
     else {
       kvs_.push_back(KV(std::string(key_), std::string(value_)));      

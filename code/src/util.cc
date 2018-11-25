@@ -32,7 +32,7 @@ bool Util::ExistFile(const std::string filename) {
 }
 
 std::string Util::GetAlgorithm() {
-  std::fstream f("config.in", std::ios::in);
+  std::fstream f(Config::ALGO_PATH, std::ios::in);
   std::string algorithm;
   f >> algorithm;
   f.close();

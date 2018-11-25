@@ -96,17 +96,18 @@ public:
     return data_;
   }
 
-  void DeleteIndexs(const std::vector<size_t>& deleted_indexs) {
-    for (size_t i = 0, j = 0, k = 0; i < size_;) {
-      while (i < size_ && k < deleted_indexs.size() && i == deleted_indexs[k]) {
-        ++ i;
-        ++ k;
+  void DeleteDatas(const std::vector<Slice>& deleted_datas) {
+    for (size_t i = 0; i < deleted_datas.size(); ++ i) {
+      bool found = false;
+      for (size_t j = 0; j < size_; ++ j) {
+        if (data_[j].compare(deleted_datas[i]) == 0)
+          found = true;
+        if (found && j < size_ - 1)
+          data_[j] = Slice(data_[j + 1].data(), data_[j + 1].size());
       }
-      data_[j] = Slice(data_[i].data(), data_[i].size());
-      ++ j;
-      ++ i;
+      assert(found);
+      size_ = size_ - 1;
     }
-    size_ = size_ - deleted_indexs.size();
   }
 
   std::string ToString() {
@@ -174,14 +175,12 @@ public:
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       Slice* data_ = array_[i].GetData();
       size_t size_ = array_[i].GetSize();
-      std::vector<size_t> deleted_indexs;
+      std::vector<Slice> deleted_datas;
       for (size_t j = 0; j < size_; ++ j) {
-        if (cuckoofilter->FindFingerPrint(data_[j], i)) {
-          // std::cout << "delete " << data_[j].ToString() << std::endl;
-          deleted_indexs.push_back(j);
-        }
+        if (cuckoofilter->FindFingerPrint(data_[j], i))
+          deleted_datas.push_back(data_[j]);
       }
-      array_[i].DeleteIndexs(deleted_indexs);
+      array_[i].DeleteDatas(deleted_datas);
     }
   }
 
@@ -219,7 +218,7 @@ private:
   const size_t MAXKICK = 500;
 
   Slice GetFingerPrint(const Slice key) {
-    size_t f = Hash(key.data(), key.size(), FPSEED) % 255 + 1;
+    size_t f = Hash(key.data(), key.size(), FPSEED);
     std::string f_str = Util::IntToString(f);
     // std::cout << "Key:" << key.ToString() << "\tFP:" << f << std::endl;
     return Slice(f_str.data(), f_str.size());
@@ -227,14 +226,18 @@ private:
 
   Info GetInfo(const Slice key) {
     Slice fp_ = GetFingerPrint(key);
+    // std::cout << "Key:" << key.ToString() << "\tFP:" << fp_.ToString() << std::endl;
     size_t p1 = Hash(key.data(), key.size(), Config::FilterConfig::SEED) % Config::FilterConfig::CUCKOOFILTER_SIZE;
     size_t p2 = GetAlternatePos(fp_, p1);
-    return Info(fp_, p1, p2);  
+    assert(p1 != p2);
+    return Info(fp_, p1, p2);
   }
 
   size_t GetAlternatePos(const Slice fp, const size_t p) {
     size_t hash = Hash(fp.data(), fp.size(), Config::FilterConfig::SEED);
-    return (p ^ hash) % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    size_t alt_pos = (p ^ hash) % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    // std::cout << "FP:" << fp.ToString() << "\tPOS:" << p << "\tALTER POS:" << alt_pos << "\t" << ((alt_pos ^ hash) % Config::FilterConfig::CUCKOOFILTER_SIZE) << std::endl;
+    return alt_pos;
   }
 
   void InsertAndKick(const Slice fp, const size_t pos) {
@@ -250,10 +253,8 @@ private:
   }
 
   void Add(const Slice key) {
-    // std::cout << "Add " << key.ToString() << std::endl;
     Info info = GetInfo(key);
-    // std::cout << "Info" << std::endl;
-    // std::cout << "FP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
+    // std::cout << "Add " << key.ToString() << "\tFP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
     data_size_ = data_size_ + 1;
     if (array_[info.pos1].Insert(info.fp_) || array_[info.pos2].Insert(info.fp_))
       return ;
