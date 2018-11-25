@@ -392,15 +392,17 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
 int main() {
   size_t seed = 1000000007;
   srand(seed);
-  std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
+  // std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 10000; ++ i) {
+  for (size_t i = 1; i <= 20000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
     bilsmtree::KV kv = bilsmtree::KV(key, value);
+    // std::cout << kv.key_.ToString() << std::endl;
     small_data.push_back(kv);
   }
+  std::cout << "GENERATE SUCCESS" << std::endl;
 
   // TestFlash(data);
   // TestFileSystem(data);

@@ -31,8 +31,29 @@ public:
     data_[size_] = '\0';
   }
 
+  Slice(const Slice& s) {
+    size_ = s.size();
+    data_ = new char[size_ + 1];
+    const char *d = s.data();
+    for (size_t i = 0; i < size_; ++ i)
+      data_[i] = d[i];
+    data_[size_] = '\0';    
+  }
+
   ~Slice() {
     delete[] data_;
+  }
+
+  Slice& operator=(const Slice& s) {
+    size_ = s.size();
+    if (data_ != NULL)
+      delete[] data_;
+    data_ = new char[size_ + 1];
+    const char *d = s.data();
+    for (size_t i = 0; i < size_; ++ i)
+      data_[i] = d[i];
+    data_[size_] = '\0';
+    return *this;
   }
 
   const char* data() const { return data_; }
