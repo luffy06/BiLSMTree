@@ -81,6 +81,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
 }
 
 TableIterator::~TableIterator() {
+  kvs_.clear();
 }
 
 void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {

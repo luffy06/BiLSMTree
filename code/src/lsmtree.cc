@@ -126,6 +126,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
+  delete table_;
   std::string algo = Util::GetAlgorithm();
   if (algo == std::string("BiLSMTree")) {
     int deleted = recent_files_->Append(sequence_number_);

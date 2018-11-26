@@ -25,6 +25,7 @@ void DB::Put(const std::string key, const std::string value) {
     kvserver_->MinorCompact(sl);
     if (Config::TRACE_LOG)
       std::cout << "Minor Compaction Success" << std::endl;
+    delete sl;
   }
 }
 
