@@ -17,7 +17,8 @@ public:
   }
  
   ~Bucket() {
-    delete[] data_;
+    for (size_t i = 0; i < Config::CuckooFilterConfig::MAXBUCKETSIZE; ++ i)
+      delete data_[i];
   }
 
   bool Insert(const Slice fp) {
@@ -160,7 +161,8 @@ public:
   }
 
   ~CuckooFilter() {
-    delete[] array_;
+    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i)
+      delete[] array_[];
   }
 
   virtual bool KeyMatch(const Slice key) {

@@ -356,6 +356,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
       lsmtreeresult_->Read();
       CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
       filter->Diff(to_filter);
+      delete to_filter;
       filesystem_->Close(to_file_number_);
       // std::cout << "FilterDataSize:" << filter->ToString().size() << std::endl;
     }
@@ -368,6 +369,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
   // std::cout << "ReWrite File Footer: " << meta.sequence_number_ << "\t" << file_size_minus_ << std::endl;
   assert(file_size_minus_ >= 0);
   filter_data_ = filter->ToString();
+  delete filter;
   filesystem_->Write(file_number_, filter_data_.data(), filter_data_.size());
   filesystem_->Write(file_number_, footer_data_.data(), footer_data_.size());
   filesystem_->SetFileSize(file_number_, meta.file_size_ - file_size_minus_);
