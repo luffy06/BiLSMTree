@@ -22,8 +22,8 @@ struct Meta {
   }
 
   void Copy(const Meta meta) {
-    largest_ = Slice(meta.largest_.data(), meta.largest_.size());
-    smallest_ = Slice(meta.smallest_.data(), meta.smallest_.size());
+    largest_ = meta.largest_;
+    smallest_ = meta.smallest_;
     sequence_number_ = meta.sequence_number_;
     level_ = meta.level_;
     file_size_ = meta.file_size_;

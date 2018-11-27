@@ -34,7 +34,7 @@ bool SkipList::Find(const Slice key, Slice& value) {
   }
   p = p->forward_[0];
   if (p != NULL && p->kv_.key_.compare(key) == 0) {
-    value = Slice(p->kv_.value_.data(), p->kv_.value_.size());
+    value = p->kv_.value_;
     // std::cout << "SkipList::Find True" << std::endl;
     return true;
   }
@@ -58,13 +58,13 @@ void SkipList::Insert(const KV kv) {
   p = p->forward_[0];
   // std::cout << "In Bottom" << std::endl;
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
-    p->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
+    p->kv_.value_ = kv.value_;
   }
   else {
     assert(!IsFull());
     ListNode* q = new ListNode();
-    q->kv_.key_ = Slice(kv.key_.data(), kv.key_.size());
-    q->kv_.value_ = Slice(kv.value_.data(), kv.value_.size());
+    q->kv_.key_ = kv.key_;
+    q->kv_.value_ = kv.value_;
     q->level_ = GenerateLevel();
     q->forward_ = new ListNode*[q->level_];
     if (q->level_ > head_->level_) {

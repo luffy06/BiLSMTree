@@ -22,12 +22,12 @@ public:
 
   bool Insert(const Slice fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
-      data_[size_] = Slice(fp.data(), fp.size());
+      data_[size_] = fp;
       size_t i = size_;
       while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
-        Slice temp = Slice(data_[i].data(), data_[i].size());
-        data_[i] = Slice(data_[i - 1].data(), data_[i - 1].size());
-        data_[i - 1] = Slice(temp.data(), temp.size());
+        Slice temp = data_[i];
+        data_[i] = data_[i - 1];
+        data_[i - 1] = temp;
         -- i;
       }
       size_ = size_ + 1;
@@ -38,22 +38,22 @@ public:
 
   Slice Kick(const Slice fp) {
     size_t p = rand() % size_;
-    Slice res = Slice(data_[p].data(), data_[p].size());
-    data_[p] = Slice(fp.data(), fp.size());
+    Slice res = data_[p];
+    data_[p] = fp;
     size_t i = p;
     if (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
       while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
-        Slice temp = Slice(data_[i].data(), data_[i].size());
-        data_[i] = Slice(data_[i - 1].data(), data_[i - 1].size());
-        data_[i - 1] = Slice(temp.data(), temp.size());
+        Slice temp = data_[i];
+        data_[i] = data_[i - 1];
+        data_[i - 1] = temp;
         -- i;
       }
     }
     else if (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
       while (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
-        Slice temp = Slice(data_[i].data(), data_[i].size());
-        data_[i] = Slice(data_[i + 1].data(), data_[i + 1].size());
-        data_[i + 1] = Slice(temp.data(), temp.size());
+        Slice temp = data_[i];
+        data_[i] = data_[i + 1];
+        data_[i + 1] = temp;
         ++ i;
       }      
     }
@@ -103,7 +103,7 @@ public:
         if (data_[j].compare(deleted_datas[i]) == 0)
           found = true;
         if (found && j < size_ - 1)
-          data_[j] = Slice(data_[j + 1].data(), data_[j + 1].size());
+          data_[j] = data_[j + 1];
       }
       assert(found);
       size_ = size_ - 1;
@@ -241,7 +241,7 @@ private:
   }
 
   void InsertAndKick(const Slice fp, const size_t pos) {
-    Slice fp_ = Slice(fp.data(), fp.size());
+    Slice fp_ = fp;
     size_t pos_ = pos;
     for (size_t i = 0; i < MAXKICK; ++ i) {
       fp_ = array_[pos_].Kick(fp_);

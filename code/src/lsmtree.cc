@@ -14,16 +14,16 @@ LSMTree::~LSMTree() {
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
-  // std::cout << "LSMTree Get:" << key.ToString() << std::endl;
-  // for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
-  //   std::cout << "Level:" << i << std::endl;
-  //   std::cout << "file_: " << file_[i].size() << std::endl;
-  //   std::cout << "list_: " << list_[i].size() << std::endl;    
-  //   for (size_t j = 0; j < file_[i].size(); ++ j)
-  //     std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << std::endl;
-  //   for (size_t j = 0; j < list_[i].size(); ++ j)
-  //     std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << std::endl;
-  // }
+  std::cout << "LSMTree Get:" << key.ToString() << std::endl;
+  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+    std::cout << "Level:" << i << std::endl;
+    std::cout << "file_: " << file_[i].size() << std::endl;
+    std::cout << "list_: " << list_[i].size() << std::endl;    
+    for (size_t j = 0; j < file_[i].size(); ++ j)
+      std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << "\tFre:" << frequency_[file_[i][j].sequence_number_] << std::endl;
+    for (size_t j = 0; j < list_[i].size(); ++ j)
+      std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << "\tFre:" << frequency_[list_[i][j].sequence_number_] << std::endl;
+  }
   std::string algo = Util::GetAlgorithm();
   size_t checked = 0;
   for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
@@ -89,13 +89,13 @@ bool LSMTree::Get(const Slice key, Slice& value) {
           if (deleted != -1) frequency_[deleted] --;
           // TODO: RUN BY ALPHA
           if (i > 0) {
-            size_t high_fre = frequency_[file_[i - 1][0].sequence_number_];
+            size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
             for (size_t k = 1; k < file_[i - 1].size(); ++ k) {
-              if (frequency_[file_[i - 1][k].sequence_number_] > high_fre)
-                high_fre = frequency_[file_[i - 1][k].sequence_number_];
+              if (frequency_[file_[i - 1][k].sequence_number_] < min_fre)
+                min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
-            std::cout << "ROLLBACK:" << frequency_[meta.sequence_number_] << "\t" << high_fre << std::endl;
-            if (frequency_[meta.sequence_number_] >= high_fre * (1. + Config::LSMTreeConfig::ALPHA))
+            std::cout << "ROLLBACK:" << frequency_[meta.sequence_number_] << "\t" << min_fre << std::endl;
+            if (frequency_[meta.sequence_number_] >= min_fre * (1. + Config::LSMTreeConfig::ALPHA))
               RollBack(i, meta, p);
           }
         }
@@ -527,9 +527,9 @@ void LSMTree::MajorCompaction(size_t level) {
   Meta meta = metas[0];
   for (size_t i = 1; i < metas.size(); ++ i) {
     if (metas[i].smallest_.compare(meta.smallest_) < 0)
-      meta.smallest_ = Slice(metas[i].smallest_.data(), metas[i].smallest_.size());
+      meta.smallest_ = metas[i].smallest_;
     if (metas[i].largest_.compare(meta.largest_) > 0)
-      meta.largest_ = Slice(metas[i].largest_.data(), metas[i].largest_.size());
+      meta.largest_ = metas[i].largest_;
   }
   if (algo == std::string("BiLSMTree")) {
     // select from list_
@@ -546,9 +546,9 @@ void LSMTree::MajorCompaction(size_t level) {
   meta = metas[0];
   for (size_t i = 1; i < metas.size(); ++ i) {
     if (metas[i].smallest_.compare(meta.smallest_) < 0)
-      meta.smallest_ = Slice(metas[i].smallest_.data(), metas[i].smallest_.size());
+      meta.smallest_ = metas[i].smallest_;
     if (metas[i].largest_.compare(meta.largest_) > 0)
-      meta.largest_ = Slice(metas[i].largest_.data(), metas[i].largest_.size());
+      meta.largest_ = metas[i].largest_;
   }
   // select from file_
   for (size_t i = 0; i < file_[level + 1].size(); ) {

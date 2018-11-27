@@ -96,8 +96,8 @@ struct KV {
   }
 
   KV(const Slice key, const Slice value) {
-    key_ = Slice(key.data(), key.size());
-    value_ = Slice(value.data(), value.size());
+    key_ = key;
+    value_ = value;
   }
 
   size_t size() const { return key_.size() + value_.size(); }

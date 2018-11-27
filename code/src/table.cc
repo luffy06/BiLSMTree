@@ -33,7 +33,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     // std::cout << "Iterate: " << kv_.key_.ToString() << std::endl;
-    keys_for_filter_.push_back(Slice(kv_.key_.data(), kv_.key_.size()));
+    keys_for_filter_.push_back(kv_.key_);
     size_t key_size_ = kv_.key_.size(); 
     size_t value_size_ = kv_.value_.size();
     size_t add_ = kv_.size() + Util::IntToString(key_size_).size() + Util::IntToString(value_size_).size() + 4;
@@ -52,7 +52,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
       // a data block finish
       buffers_.push_back(ss.str());
       // record index for data block
-      last_keys_.push_back(Slice(kvs[i].key_.data(), kvs[i].key_.size()));
+      last_keys_.push_back(kvs[i].key_);
       // create a new block
       size_ = 0;
       ss.str("");
@@ -60,7 +60,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   }
   if (size_ > 0) {
     buffers_.push_back(ss.str());
-    last_keys_.push_back(Slice(kvs[kvs.size() - 1].key_.data(), kvs[kvs.size() - 1].key_.size()));
+    last_keys_.push_back(kvs[kvs.size() - 1].key_);
   }
   
   ss.str("");
@@ -114,8 +114,8 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
   footer_data_ = ss.str();
 
   meta_ = Meta();
-  meta_.smallest_ = Slice(kvs[0].key_.data(), kvs[0].key_.size());
-  meta_.largest_ = Slice(kvs[kvs.size() - 1].key_.data(), kvs[kvs.size() - 1].key_.size());
+  meta_.smallest_ = kvs[0].key_;
+  meta_.largest_ = kvs[kvs.size() - 1].key_;
   meta_.level_ = 0;
   meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
   meta_.footer_size_ = footer_data_.size();

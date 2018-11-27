@@ -365,8 +365,6 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
     std::cout << "Put " << i << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
-  size_t t;
-  std::cin >> t;
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
@@ -405,8 +403,6 @@ int main() {
     small_data.push_back(kv);
   }
   std::cout << "GENERATE SUCCESS" << std::endl;
-  size_t k;
-  std::cin >> k;
   // TestFlash(data);
   // TestFileSystem(data);
   // TestBiList(data);
