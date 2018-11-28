@@ -117,16 +117,6 @@ private:
     return std::string(Config::FlashConfig::BASE_PATH) + block_name;
   }
 
-  inline void WriteLog(const char *l) {
-    WriteLog(std::string(l));
-  }
-
-  inline void WriteLog(const std::string l) {
-    std::fstream f(Config::FlashConfig::LOG_PATH, std::ios::app | std::ios::out);
-    f << time(0) << "\t" << l;
-    f.close();
-  }
-
   std::pair<size_t, char*> ReadByPageNum(const size_t block_num, const size_t page_num);
 
   void WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char* data);

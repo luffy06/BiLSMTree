@@ -146,7 +146,7 @@ size_t LSMTree::GetSequenceNumber() {
 
 std::string LSMTree::GetFilename(size_t sequence_number_) {
   char filename[100];
-  sprintf(filename, "%s%s_%zu.bdb", Config::TableConfig::TABLEPATH, Config::TableConfig::TABLENAME, sequence_number_);
+  sprintf(filename, "sstable_%zu.bdb", sequence_number_);
   return std::string(filename);
 }
 

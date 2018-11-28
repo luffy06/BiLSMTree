@@ -10,9 +10,6 @@ Flash::Flash(FlashResult *flashresult) {
     std::fstream f(block_path, std::ios::app | std::ios::out);
     f.close();
   }
-  // create flash logs
-  std::fstream f(Config::FlashConfig::LOG_PATH, std::ios::app | std::ios::out);
-  f.close();
   
   block_info_ = new BlockInfo[Config::FlashConfig::BLOCK_NUMS];
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i)

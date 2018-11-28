@@ -45,7 +45,7 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "../logs/";
-    static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
+    // static constexpr const char* LOG_PATH = "../logs/flashlog.txt";
     static const size_t BLOCK_NUMS = 4096;
     static const size_t PAGE_NUMS = 256;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
@@ -59,7 +59,7 @@ public:
     static const size_t READ_OPTION = 1;
     static const size_t WRITE_OPTION = 1 << 1;
     static const size_t APPEND_OPTION = 1 << 2;
-    static const size_t MAX_FILE_OPEN = 1000;
+    static const size_t MAX_FILE_OPEN = 10;
     static const size_t BLOCK_SIZE = FlashConfig::PAGE_SIZE;
     static const size_t MAX_BLOCK_NUMS = FlashConfig::LBA_NUMS;
   };
@@ -89,7 +89,7 @@ public:
   };
 
   struct LogManagerConfig {
-    static constexpr const char* LOG_PATH = "../logs/VLOG";
+    static constexpr const char* LOG_PATH = "VLOG";
     static const size_t GARBARGE_THRESOLD = 20;
   };
 
@@ -103,13 +103,11 @@ public:
   struct TableConfig {
     static const size_t BLOCKSIZE = 512;    // 4KB
     static const size_t TABLESIZE = 50;
-    static constexpr const char* TABLEPATH = "../logs/leveldb/";
-    static constexpr const char* TABLENAME = "sstable";
   };
 
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
-    static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
+    static constexpr const char* FREQUENCYPATH = "frequency.log";
   };
 
   struct CuckooFilterConfig {
