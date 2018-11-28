@@ -126,6 +126,15 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
+  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+    std::cout << "Level:" << i << std::endl;
+    std::cout << "file_: " << file_[i].size() << std::endl;
+    std::cout << "list_: " << list_[i].size() << std::endl;    
+    for (size_t j = 0; j < file_[i].size(); ++ j)
+      std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << "\tFre:" << frequency_[file_[i][j].sequence_number_] << std::endl;
+    for (size_t j = 0; j < list_[i].size(); ++ j)
+      std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << "\tFre:" << frequency_[list_[i][j].sequence_number_] << std::endl;
+  }
   delete table_;
   std::string algo = Util::GetAlgorithm();
   if (algo == std::string("BiLSMTree")) {
@@ -146,7 +155,7 @@ size_t LSMTree::GetSequenceNumber() {
 
 std::string LSMTree::GetFilename(size_t sequence_number_) {
   char filename[100];
-  sprintf(filename, "sstable_%zu.bdb", sequence_number_);
+  sprintf(filename, "../logs/sstables/sstable_%zu.bdb", sequence_number_);
   return std::string(filename);
 }
 
@@ -155,11 +164,11 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string filename = GetFilename(meta.sequence_number_);
   std::stringstream ss;
   // std::cout << "SEQ:" << meta.sequence_number_ << "\tfile size:" << meta.file_size_ << std::endl;
-  size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
+  filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   if (Config::SEEK_LOG)
     std::cout << "Seek Footer" << std::endl;
-  filesystem_->Seek(file_number_, meta.file_size_ - meta.footer_size_);
-  std::string offset_data_ = filesystem_->Read(file_number_, meta.footer_size_);
+  filesystem_->Seek(filename, meta.file_size_ - meta.footer_size_);
+  std::string offset_data_ = filesystem_->Read(filename, meta.footer_size_);
   ss.str(offset_data_);
   lsmtreeresult_->Read();
   size_t index_offset_ = 0;
@@ -172,8 +181,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   // READ FILTER
   if (Config::SEEK_LOG)
     std::cout << "Seek Filter" << std::endl;
-  filesystem_->Seek(file_number_, filter_offset_);
-  std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
+  filesystem_->Seek(filename, filter_offset_);
+  std::string filter_data_ = filesystem_->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   lsmtreeresult_->Read();
   Filter* filter;
   std::string algo = Util::GetAlgorithm();
@@ -191,14 +200,14 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   if (!filter->KeyMatch(key)) {
     // std::cout << filter_data_ << std::endl;
     // std::cout << "Filter Doesn't Exist" << std::endl;
-    filesystem_->Close(file_number_);
+    filesystem_->Close(filename);
     return false;
   }
   // READ INDEX BLOCK
   if (Config::SEEK_LOG)
     std::cout << "Seek Index" << std::endl;
-  filesystem_->Seek(file_number_, index_offset_);
-  std::string index_data_ = filesystem_->Read(file_number_, filter_offset_ - index_offset_);
+  filesystem_->Seek(filename, index_offset_);
+  std::string index_data_ = filesystem_->Read(filename, filter_offset_ - index_offset_);
   // std::cout << "Index Data:" << index_data_ << std::endl;
   lsmtreeresult_->Read();
   ss.str(index_data_);
@@ -222,17 +231,17 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     }
   }
   if (!found) {
-    filesystem_->Close(file_number_);
+    filesystem_->Close(filename);
     return false;
   }
   // READ DATA BLOCK
   if (Config::SEEK_LOG)
     std::cout << "Seek Data" << std::endl;
-  filesystem_->Seek(file_number_, offset_);
-  std::string data_ = filesystem_->Read(file_number_, data_block_size_);
+  filesystem_->Seek(filename, offset_);
+  std::string data_ = filesystem_->Read(filename, data_block_size_);
   // std::cout << "Find Data Block:" << data_ << std::endl;
   lsmtreeresult_->Read();
-  filesystem_->Close(file_number_);
+  filesystem_->Close(filename);
   ss.str(data_);
   while (true) {
     size_t key_size_ = 0;
@@ -298,11 +307,11 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
   }
   std::stringstream ss;
   std::string filename = GetFilename(meta.sequence_number_);
-  size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION | Config::FileSystemConfig::WRITE_OPTION);
+  filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION | Config::FileSystemConfig::WRITE_OPTION);
   if (Config::SEEK_LOG)
     std::cout << "Seek Footer in RollBack" << std::endl;
-  filesystem_->Seek(file_number_, meta.file_size_ - meta.footer_size_);
-  std::string footer_data_ = filesystem_->Read(file_number_, meta.footer_size_);
+  filesystem_->Seek(filename, meta.file_size_ - meta.footer_size_);
+  std::string footer_data_ = filesystem_->Read(filename, meta.footer_size_);
   // std::cout << "Footer:" << footer_data_ << std::endl;
   ss.str(footer_data_);
   lsmtreeresult_->Read();
@@ -316,8 +325,8 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
   // MEGER FILTER
   if (Config::SEEK_LOG)
     std::cout << "Seek Fitler in RollBack" << std::endl;
-  filesystem_->Seek(file_number_, filter_offset_);
-  std::string filter_data_ = filesystem_->Read(file_number_, meta.file_size_ - filter_offset_ - meta.footer_size_);
+  filesystem_->Seek(filename, filter_offset_);
+  std::string filter_data_ = filesystem_->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   lsmtreeresult_->Read();
   std::string algorithm = Util::GetAlgorithm();
   assert(algorithm == std::string("BiLSMTree"));
@@ -335,11 +344,11 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
       Meta to_meta = file_[i][j];
       std::string to_filename = GetFilename(to_meta.sequence_number_);
       // std::cout << "SEQ:" << to_meta.sequence_number_ << std::endl;
-      size_t to_file_number_ = filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
+      filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
       if (Config::SEEK_LOG)
         std::cout << "Seek ToFile Footer in RollBack" << std::endl;
-      filesystem_->Seek(to_file_number_, to_meta.file_size_ - to_meta.footer_size_);
-      std::string to_offset_data_ = filesystem_->Read(to_file_number_, to_meta.footer_size_);
+      filesystem_->Seek(to_filename, to_meta.file_size_ - to_meta.footer_size_);
+      std::string to_offset_data_ = filesystem_->Read(to_filename, to_meta.footer_size_);
       ss.str("");
       ss.str(to_offset_data_);
       lsmtreeresult_->Read();
@@ -351,30 +360,30 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta, const size_t pos
       // std::cout << "ToFileSize:" << to_meta.file_size_ << "\tToFooterSize:" << to_meta.footer_size_ << std::endl;
       if (Config::SEEK_LOG)
         std::cout << "Seek ToFile Footer in RollBack" << std::endl;
-      filesystem_->Seek(to_file_number_, to_filter_offset_);
-      std::string to_filter_data_ = filesystem_->Read(to_file_number_, to_meta.file_size_ - to_filter_offset_ - to_meta.footer_size_);
+      filesystem_->Seek(to_filename, to_filter_offset_);
+      std::string to_filter_data_ = filesystem_->Read(to_filename, to_meta.file_size_ - to_filter_offset_ - to_meta.footer_size_);
       lsmtreeresult_->Read();
       CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
       filter->Diff(to_filter);
       delete to_filter;
-      filesystem_->Close(to_file_number_);
+      filesystem_->Close(to_filename);
       // std::cout << "FilterDataSize:" << filter->ToString().size() << std::endl;
     }
   }
   if (Config::SEEK_LOG)
     std::cout << "Seek Filter for Write in RollBack" << std::endl;
-  filesystem_->Seek(file_number_, filter_offset_);
+  filesystem_->Seek(filename, filter_offset_);
   int file_size_minus_ = filter_data_.size() - filter->ToString().size();
   // std::cout << "Final FilterDataSize:" << filter->ToString().size() << "\t" << filter_data_.size() << std::endl;
   // std::cout << "ReWrite File Footer: " << meta.sequence_number_ << "\t" << file_size_minus_ << std::endl;
   assert(file_size_minus_ >= 0);
   filter_data_ = filter->ToString();
   delete filter;
-  filesystem_->Write(file_number_, filter_data_.data(), filter_data_.size());
-  filesystem_->Write(file_number_, footer_data_.data(), footer_data_.size());
-  filesystem_->SetFileSize(file_number_, meta.file_size_ - file_size_minus_);
+  filesystem_->Write(filename, filter_data_.data(), filter_data_.size());
+  filesystem_->Write(filename, footer_data_.data(), footer_data_.size());
+  filesystem_->SetFileSize(filename, meta.file_size_ - file_size_minus_);
   lsmtreeresult_->Write();  
-  filesystem_->Close(file_number_);
+  filesystem_->Close(filename);
 
   Meta new_meta;
   new_meta.Copy(meta);

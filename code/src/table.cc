@@ -142,22 +142,22 @@ Meta Table::GetMeta() {
 void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult) {
   // std::cout << "DumpToFile " << filename << std::endl;
   filesystem_->Create(filename);
-  size_t file_number_ = filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   for (size_t i = 0; i < data_block_number_; ++ i) {
     // std::cout << "Write Data Block " << i << std::endl;
-    filesystem_->Write(file_number_, data_blocks_[i]->data(), data_blocks_[i]->size());
+    filesystem_->Write(filename, data_blocks_[i]->data(), data_blocks_[i]->size());
     lsmtreeresult->Write();
   }
   // std::cout << "Write Index Block " << std::endl;
-  filesystem_->Write(file_number_, index_block_->data(), index_block_->size());
+  filesystem_->Write(filename, index_block_->data(), index_block_->size());
   lsmtreeresult->Write();
   std::string filter_data = filter_->ToString();
   // std::cout << "Write Filter Block " << std::endl;
-  filesystem_->Write(file_number_, filter_data.data(), filter_data.size());
+  filesystem_->Write(filename, filter_data.data(), filter_data.size());
   lsmtreeresult->Write();
   // std::cout << "Write Footer Block " << footer_data_ << std::endl;
-  filesystem_->Write(file_number_, footer_data_.data(), footer_data_.size());
-  filesystem_->Close(file_number_);
+  filesystem_->Write(filename, footer_data_.data(), footer_data_.size());
+  filesystem_->Close(filename);
 }
 
 }

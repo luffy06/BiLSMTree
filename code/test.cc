@@ -86,34 +86,24 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
   std::string msg = "SUCCESS";
   bilsmtree::FlashResult *flashresult = new bilsmtree::FlashResult();
   bilsmtree::FileSystem *filesystem = new bilsmtree::FileSystem(flashresult);
-  std::vector<size_t> file_numbers;
   std::cout << "TEST Write" << std::endl;
-  for (size_t i = 0; i < data.size(); ++ i) {
-    std::string filename = "test_" + bilsmtree::Util::IntToString(i);
-    size_t file_number = filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::APPEND_OPTION);
-    file_numbers.push_back(file_number);
-    for (size_t j = 0; j < 3; ++ j) {
-      filesystem->Write(file_number, data[i].value_.ToString().data(), data[i].value_.size());
-    }
-    filesystem->Seek(file_number, 0);
-    for (size_t j = 0; j < 3; ++ j) {
-      filesystem->Write(file_number, data[i].key_.ToString().data(), data[i].key_.size());
-    }
-    filesystem->Close(file_number);
-  }
+  std::string filename = "../logs/test/test.txt";
+  filesystem->Create(filename);
+  filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::APPEND_OPTION);
+  for (size_t j = 0; j < 3; ++ j)
+    filesystem->Write(filename, data[0].value_.ToString().data(), data[0].value_.size());
+  filesystem->Seek(filename, 0);
+  for (size_t j = 0; j < 3; ++ j)
+    filesystem->Write(filename, data[0].key_.ToString().data(), data[0].key_.size());
+  filesystem->Close(filename);
+  
   std::cout << "TEST Read" << std::endl;
-  for (size_t i = 0; i < data.size(); ++ i) {
-    std::string filename = "test_" + bilsmtree::Util::IntToString(i);
-    size_t file_number = filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::READ_OPTION);
-    std::string fdata = filesystem->Read(file_number, data[i].key_.size());
-    if (fdata != data[i].key_.ToString())
-      msg = "Read error! Data doesn't match";
-    filesystem->Close(file_number);
+  filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::READ_OPTION);
+  std::string fdata = filesystem->Read(filename, data[0].key_.size());
+  if (fdata != data[0].key_.ToString()) {
+    msg = "Read error! Data doesn't match";
   }
-  for (size_t i = 0; i < data.size(); ++ i) {
-    std::string filename = "test_" + bilsmtree::Util::IntToString(i);
-    filesystem->Delete(filename);
-  }
+  filesystem->Close(filename);
   delete filesystem;
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
@@ -394,7 +384,7 @@ int main() {
   srand(seed);
   // std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 20000; ++ i) {
+  for (size_t i = 1; i <= 2000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
@@ -404,7 +394,7 @@ int main() {
   }
   std::cout << "GENERATE SUCCESS" << std::endl;
   // TestFlash(data);
-  // TestFileSystem(data);
+  // TestFileSystem(small_data);
   // TestBiList(data);
   // TestSkipList(small_data);
   // TestLRU2Q(data);

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <fstream>
 
-#include "filesystem.h"
+#include "flash.h"
 
 /* FORMAT
 * FILENAME  CREATE
@@ -23,29 +23,55 @@
 
 namespace bilsmtree {
 
-class VirtualFileSystem : public FileSystem {
-public:
-  VirtualFileSystem();
+// opened file meta
+struct FileStatus {
+  std::string filename_;
+  size_t mode_;
+  size_t offset_;
+  size_t filesize_;
+  
+  FileStatus(std::string filename, size_t mode) {
+    filename_ = filename;
+    mode_ = mode;
+    std::fstream f;
+    f.open(filename, std::ios::in | std::ios::out);
+    f.seekg(0, f.end);
+    if (f.tellg() == -1)
+      filesize_ = 0;
+    else
+      filesize_ = f.tellg();
+    std::cout << "FILESIZE:" << filesize_ << std::endl;
+    f.close();
+    offset_ = 0;
+  }
+};
 
-  ~VirtualFileSystem();
+
+class FileSystem {
+public:
+  FileSystem(FlashResult *flashresult);
+
+  ~FileSystem();
+
+  void Open(const std::string filename, const size_t mode);
 
   void Create(const std::string filename);
 
-  size_t Open(const std::string filename, const size_t mode);
+  void Seek(const std::string filename, const size_t offset);
 
-  void Seek(const size_t file_number, const size_t offset);
+  void SetFileSize(const std::string filename, const size_t file_size);
 
-  void SetFileSize(const size_t file_number, const size_t file_size);
+  std::string Read(const std::string filename, const size_t read_size);
 
-  std::string Read(const size_t file_number, const size_t read_size);
-
-  void Write(const size_t file_number, const char* data, const size_t write_size);
-
+  void Write(const std::string filename, const char* data, const size_t write_size);
+    
   void Delete(const std::string filename);
 
-  void Close(const size_t file_number);
+  void Close(const std::string filename);
 private:
   std::vector<FileStatus> file_buffer_;     // opened files
+
+  int SearchInBuffer(const std::string filename);
 };
 
 }

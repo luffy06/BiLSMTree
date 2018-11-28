@@ -36,7 +36,7 @@ public:
   static constexpr const char* ALGO_PATH = "../config.in";
   static const char DATA_SEG = '\t';
   static const bool SEEK_LOG = false;
-  static const bool FILESYSTEM_LOG = false;
+  static const bool FILESYSTEM_LOG = true;
   static const bool TRACE_LOG = true;
 
   struct FlashConfig {
@@ -89,7 +89,7 @@ public:
   };
 
   struct LogManagerConfig {
-    static constexpr const char* LOG_PATH = "VLOG";
+    static constexpr const char* LOG_PATH = "../logs/VLOG";
     static const size_t GARBARGE_THRESOLD = 20;
   };
 
@@ -107,7 +107,7 @@ public:
 
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
-    static constexpr const char* FREQUENCYPATH = "frequency.log";
+    static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
   };
 
   struct CuckooFilterConfig {

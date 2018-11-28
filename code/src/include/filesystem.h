@@ -14,15 +14,13 @@ namespace bilsmtree {
 
 // file meta
 struct FCB {
-  std::string filename_;
   size_t block_start_;      // the start of block
   size_t filesize_;         // the number of blocks
 
   FCB() {
   }
 
-  FCB(const std::string a, size_t b, size_t c) {
-    filename_ = a;
+  FCB(size_t b, size_t c) {
     block_start_ = b;
     filesize_ = c;
   }
@@ -30,13 +28,13 @@ struct FCB {
 
 // opened file meta
 struct FileStatus {
-  size_t file_number_;
+  std::string filename_;
   size_t lba_;              // current block number
   size_t offset_;           // current block offset
   size_t mode_;
   
-  FileStatus() {
-    file_number_ = 0;
+  FileStatus(std::string filename) {
+    filename_ = filename;
     lba_ = 0;
     offset_ = 0;
     mode_ = 0;
@@ -49,27 +47,25 @@ public:
   
   ~FileSystem();
 
-  size_t Open(const std::string filename, const size_t mode);
+  void Open(const std::string filename, const size_t mode);
 
   void Create(const std::string filename);
 
-  void Seek(const size_t file_number, const size_t offset);
+  void Seek(const std::string filename, const size_t offset);
 
-  void SetFileSize(const size_t file_number, const size_t file_size);
+  void SetFileSize(const std::string filename, const size_t file_size);
 
-  std::string Read(const size_t file_number, const size_t read_size);
+  std::string Read(const std::string filename, const size_t read_size);
 
-  void Write(const size_t file_number, const char* data, const size_t write_size);
+  void Write(const std::string filename, const char* data, const size_t write_size);
 
   void Delete(const std::string filename);
 
-  void Close(const size_t file_number);  
+  void Close(const std::string filename);
 private:
   std::vector<FileStatus> file_buffer_;     // opened files
-  std::map<size_t, FCB> fcbs_;              // all files
+  std::map<std::string, FCB> fcbs_;              // all files
   size_t *fat_;
-  size_t total_file_number_;
-  size_t open_number_;
   Flash *flash_;
   std::queue<size_t> free_blocks_;
 
@@ -77,7 +73,7 @@ private:
 
   void FreeBlock(const size_t lba);
 
-  int BinarySearchInBuffer(const size_t file_number);
+  int SearchInBuffer(const std::string filename);
 };
 }
 

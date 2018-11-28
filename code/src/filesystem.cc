@@ -11,8 +11,7 @@ FileSystem::FileSystem(FlashResult *flashresult) {
     free_blocks_.push(i);
   
   flash_ = new Flash(flashresult);
-  open_number_ = 0;
-  total_file_number_ = 0;
+  std::cout << "Constructor in FileSystem" << std::endl;
 }
 
 FileSystem::~FileSystem() {
@@ -20,71 +19,52 @@ FileSystem::~FileSystem() {
   delete flash_;
 }
 
-size_t FileSystem::Open(const std::string filename, const size_t mode) {
+void FileSystem::Create(const std::string filename) {
+  if (Config::FILESYSTEM_LOG)
+    std::cout << "Create File:" << filename << std::endl;
+
+  if (fcbs_.find(filename) != fcbs_.end()) {
+    std::cout << "File:" << filename << " exists" << std::endl;
+    assert(false);
+  }
+  FCB fcb = FCB(AssignFreeBlocks(), static_cast<size_t>(0));
+  fcbs_.insert(std::make_pair(filename, fcb));
+}
+
+void FileSystem::Open(const std::string filename, const size_t mode) {
   if (Config::FILESYSTEM_LOG)
     std::cout << "Open File:" << filename << std::endl;
-  if (open_number_ >= Config::FileSystemConfig::MAX_FILE_OPEN) {
+  if (file_buffer_.size() >= Config::FileSystemConfig::MAX_FILE_OPEN) {
     std::cout << "FILE OPEN MAX" << std::endl;
     assert(false);
   }
 
-  size_t file_number_ = 0;
-  bool found = false;
-  for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
-    if (filename == it->second.filename_) {
-      file_number_ = it->first;
-      found = true;
-    }
+  if (fcbs_.find(filename) == fcbs_.end()) {
+    std::cout << "File:" << filename << " doesn't exist" << std::endl;
+    assert(false);
   }
 
-  if (!found) 
-    std::cout << "File:" << filename << " doesn't exist" << std::endl;
-  assert(found);
-
-  int index = BinarySearchInBuffer(file_number_);
+  int index = SearchInBuffer(filename);
   if (index != -1) {
     std::cout << "FILE \'" << filename << "\' IS OPEN" << std::endl;
     assert(false); 
   }
 
-  FileStatus fs;
-  fs.file_number_ = file_number_;
-  fs.lba_ = fcbs_[file_number_].block_start_;
+  FileStatus fs = FileStatus(filename);
+  fs.lba_ = fcbs_[filename].block_start_;
   fs.offset_ = 0;
   fs.mode_ = mode;
 
   file_buffer_.push_back(fs);
-  open_number_ ++;
-  std::sort(file_buffer_.begin(), file_buffer_.end(), [](const FileStatus& fs1, const FileStatus& fs2)->bool { 
-    return fs1.file_number_ < fs2.file_number_;
-  });
 
   if (fs.mode_ & Config::FileSystemConfig::APPEND_OPTION)
-    Seek(file_number_, fcbs_[file_number_].filesize_);
-
-  return file_number_;
+    Seek(filename, fcbs_[filename].filesize_);
 }
 
-void FileSystem::Create(const std::string filename) {
-  if (Config::FILESYSTEM_LOG)
-    std::cout << "Create File:" << filename << std::endl;
-  bool found = false;
-  for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
-    if (filename == it->second.filename_)
-      found = true;
-  }
-  if (found) {
-    std::cout << "File:" << filename << " exists" << std::endl;
-  }
-  assert(!found);
-  size_t file_number_ = total_file_number_ ++;
-  fcbs_[file_number_] = FCB(filename, AssignFreeBlocks(), static_cast<size_t>(0));
-}
-
-void FileSystem::Seek(const size_t file_number, const size_t offset) {
+void FileSystem::Seek(const std::string filename, const size_t offset) {
   if (Config::SEEK_LOG)
-    std::cout << "Seek:" << fcbs_[file_number].filename_ << std::endl;
-  size_t lba_ = fcbs_[file_number].block_start_;
+    std::cout << "Seek:" << filename << std::endl;
+  size_t lba_ = fcbs_[filename].block_start_;
   size_t offset_ = offset;
   while (offset_ >= Config::FileSystemConfig::BLOCK_SIZE) {
     offset_ = offset_ - Config::FileSystemConfig::BLOCK_SIZE;
@@ -92,25 +72,24 @@ void FileSystem::Seek(const size_t file_number, const size_t offset) {
     lba_ = fat_[lba_];
   }
   assert(offset_ < Config::FileSystemConfig::BLOCK_SIZE);
-  int index = BinarySearchInBuffer(file_number);
+  int index = SearchInBuffer(filename);
   if (index == -1) {
-    std::cout << "FILE " << fcbs_[file_number].filename_ << " IS NOT OPEN" << std::endl;
+    std::cout << "FILE " << filename << " IS NOT OPEN" << std::endl;
     assert(false);
   }
   FileStatus& fs = file_buffer_[index];
   fs.lba_ = lba_;
   fs.offset_ = offset_;
-  // std::cout << "FILE offset_:" << offset_ << std::endl;
 }
 
-void FileSystem::SetFileSize(const size_t file_number, const size_t file_size) {
-  fcbs_[file_number].filesize_ = file_size;
+void FileSystem::SetFileSize(const std::string filename, const size_t file_size) {
+  fcbs_[filename].filesize_ = file_size;
 }
 
-std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
+std::string FileSystem::Read(const std::string filename, const size_t read_size) {
   // if (Config::FILESYSTEM_LOG)
-  //   std::cout << "Read File:" << fcbs_[file_number].filename_ << std::endl;
-  int index = BinarySearchInBuffer(file_number);
+  //   std::cout << "Read File:" << filename << std::endl;
+  int index = SearchInBuffer(filename);
   size_t read_size_ = read_size;
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
@@ -168,11 +147,11 @@ std::string FileSystem::Read(const size_t file_number, const size_t read_size) {
 }
 
 // TODO: Using substr() is LOW EFFICIENCY
-void FileSystem::Write(const size_t file_number, const char* data, const size_t write_size) {
+void FileSystem::Write(const std::string filename, const char* data, const size_t write_size) {
   // if (Config::FILESYSTEM_LOG)
-  //   std::cout << "Write File:" << fcbs_[file_number].filename_ << std::endl;
+  //   std::cout << "Write File:" << filename << std::endl;
   std::string data_(data, write_size);
-  int index = BinarySearchInBuffer(file_number);
+  int index = SearchInBuffer(filename);
   if (index == -1) {
     std::cout << "FILE IS NOT OPEN" << std::endl;
     assert(false);
@@ -228,28 +207,20 @@ void FileSystem::Write(const size_t file_number, const char* data, const size_t 
     flash_->Write(fs.lba_, data_.substr(size_, write_size).c_str());
     fs.offset_ = write_size - size_;
   }
-  fcbs_[file_number].filesize_ = fcbs_[file_number].filesize_ + write_size;
+  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
 }
 
 void FileSystem::Delete(const std::string filename) {
   if (Config::FILESYSTEM_LOG)
     std::cout << "Delete File:" << filename << std::endl;
-  size_t file_number_ = 0;
-  bool found = false;
-  for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
-    if (filename == it->second.filename_) {
-      file_number_ = it->first;
-      found = true;
-    }
-  }
 
-  if (found) {
-    int index = BinarySearchInBuffer(file_number_);
+  if (fcbs_.find(filename) != fcbs_.end()) {
+    int index = SearchInBuffer(filename);
     if (index != -1) {
       file_buffer_.erase(file_buffer_.begin() + index);
     }
 
-    size_t lba_ = fcbs_[file_number_].block_start_;
+    size_t lba_ = fcbs_[filename].block_start_;
     while (fat_[lba_] != lba_) {
       free_blocks_.push(lba_);
       size_t old_lba_ = lba_;
@@ -257,48 +228,26 @@ void FileSystem::Delete(const std::string filename) {
       fat_[old_lba_] = old_lba_;
     }
     free_blocks_.push(lba_);
-    fcbs_.erase(file_number_);
+    fcbs_.erase(filename);
   }
 }
 
-void FileSystem::Close(const size_t file_number) {
-  int index = BinarySearchInBuffer(file_number);
+void FileSystem::Close(const std::string filename) {
+  int index = SearchInBuffer(filename);
   if (index == -1)
     return ;
-  open_number_ --;
   file_buffer_.erase(file_buffer_.begin() + index); // TODO: LOW EFFCIENCY
 }
 
-int FileSystem::BinarySearchInBuffer(const size_t file_number) {
-  if (file_buffer_.size() == 0)
-    return -1;
-  size_t l = 0;
-  size_t r = file_buffer_.size() - 1;
-  if (file_number < file_buffer_[l].file_number_)
-    return -1;
-  else if (file_number > file_buffer_[r].file_number_)
-    return -1;
-  else if (file_number == file_buffer_[r].file_number_)
-    return r;
-  while (r - l > 1) {
-    size_t m = (l + r) / 2;
-    if (file_buffer_[m].file_number_ <= file_number)
-      l = m;
-    else
-      r = m;
+int FileSystem::SearchInBuffer(const std::string filename) {
+  for (size_t i = 0; i < file_buffer_.size(); ++ i) {
+    if (file_buffer_[i].filename_ == filename)
+      return i;
   }
-  if (file_buffer_[l].file_number_ == file_number)
-    return l;
   return -1;
 }
 
 size_t FileSystem::AssignFreeBlocks() {
-  if (free_blocks_.empty()) {
-    for (std::map<size_t, FCB>::iterator it = fcbs_.begin(); it != fcbs_.end(); ++ it) {
-      FCB fcb = (*it).second;
-      std::cout << "File Name:" << fcb.filename_ << "\tFile Size:" << fcb.filesize_ << std::endl;
-    }
-  }
   assert(!free_blocks_.empty());
   size_t new_block = free_blocks_.front();
   free_blocks_.pop();

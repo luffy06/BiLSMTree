@@ -35,10 +35,10 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     total_data_ = total_data_ + data;
     record_count_ = record_count_ + 1;
   }
-  size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
-  filesystem_->Write(file_number_, total_data_.data(), total_data_.size());
+  filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
+  filesystem_->Write(Config::LogManagerConfig::LOG_PATH, total_data_.data(), total_data_.size());
+  filesystem_->Close(Config::LogManagerConfig::LOG_PATH);
   tail_ = tail_ + total_data_.size();
-  filesystem_->Close(file_number_);
   return res;
 }
 
@@ -64,19 +64,18 @@ size_t LogManager::WriteKV(const KV kv) {
   ss << Config::DATA_SEG;
   std::string log_data_ = ss.str();
   // std::cout << "Write Log Data:" << log_data_ << std::endl;
-  size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
-  filesystem_->Write(file_number_, log_data_.data(), log_data_.size());
+  filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
+  filesystem_->Write(Config::LogManagerConfig::LOG_PATH, log_data_.data(), log_data_.size());
+  filesystem_->Close(Config::LogManagerConfig::LOG_PATH);
   tail_ = tail_ + log_data_.size();
-  filesystem_->Close(file_number_);
   return log_data_.size();
 }
 
-KV LogManager::ReadKV(const size_t location, const size_t size_) {
-  size_t file_number_ = filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
-  filesystem_->Seek(file_number_, location);
-  std::string log_data_ = filesystem_->Read(file_number_, size_);
-  // std::cout << "Log Data:" << log_data_ << std::endl;
-  filesystem_->Close(file_number_);
+KV LogManager::ReadKV(const size_t location, const size_t size) {
+  filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::READ_OPTION);
+  filesystem_->Seek(Config::LogManagerConfig::LOG_PATH, location);
+  std::string log_data_ = filesystem_->Read(Config::LogManagerConfig::LOG_PATH, size);
+  filesystem_->Close(Config::LogManagerConfig::LOG_PATH);
   std::stringstream ss;
   ss.str(log_data_);
   std::string key_;

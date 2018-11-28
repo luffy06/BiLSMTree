@@ -3,7 +3,7 @@
 
 #include <queue>
 
-#include "filesystem.h"
+#include "virtualfilesystem.h"
 
 namespace bilsmtree {
 

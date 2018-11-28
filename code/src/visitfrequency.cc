@@ -62,26 +62,24 @@ int VisitFrequency::Append(size_t file_number) {
 
 void VisitFrequency::Dump() {
   assert(false);
-  size_t file_number_ = filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, 
-        Config::FileSystemConfig::WRITE_OPTION | Config::FileSystemConfig::APPEND_OPTION);
+  filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, Config::FileSystemConfig::WRITE_OPTION | Config::FileSystemConfig::APPEND_OPTION);
   while (!visit_[1].empty()) {
     size_t d = visit_[1].front();
     visit_[1].pop();
     std::string data = Util::IntToString(d);
-    filesystem_->Write(file_number_, data.data(), data.size());    
+    filesystem_->Write(Config::VisitFrequencyConfig::FREQUENCYPATH, data.data(), data.size());    
   }
-  filesystem_->Close(file_number_);
+  filesystem_->Close(Config::VisitFrequencyConfig::FREQUENCYPATH);
 }
 
 void VisitFrequency::Load() {
   assert(false);
-  size_t file_number_ = filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, 
-        Config::FileSystemConfig::READ_OPTION);
+  filesystem_->Open(Config::VisitFrequencyConfig::FREQUENCYPATH, Config::FileSystemConfig::READ_OPTION);
   for (size_t i = 0; i < Config::VisitFrequencyConfig::MAXQUEUESIZE; ++ i) {
-    std::string data = filesystem_->Read(file_number_, sizeof(size_t));
+    std::string data = filesystem_->Read(Config::VisitFrequencyConfig::FREQUENCYPATH, sizeof(size_t));
     visit_[0].push(static_cast<size_t>(Util::StringToInt(data)));
   }
-  filesystem_->Close(file_number_);
+  filesystem_->Close(Config::VisitFrequencyConfig::FREQUENCYPATH);
 }
 
 }
