@@ -7,7 +7,7 @@ BiList::BiList(size_t size) {
   tail_ = 0;
   data_size_ = 0;
   max_size_ = size;
-  data_ = new ListNode[size + 1];
+  data_.resize(size + 1);
   data_[0].next_ = 0;
   data_[0].prev_ = 0;
   for (size_t i = 1; i <= size; ++ i)
@@ -17,7 +17,7 @@ BiList::BiList(size_t size) {
 BiList::~BiList() {
   head_ = 0;
   tail_ = 0;
-  delete[] data_;
+  data_.clear();
 }
 
 void BiList::Set(size_t pos, const KV kv) {

@@ -74,6 +74,7 @@ std::string FileSystem::Read(const std::string filename, const size_t read_size)
   f.close();
   fs.offset_ = fs.offset_ + read_size;
   std::string data = std::string(temp, read_size);
+  delete[] temp;
   return data;
 }
 

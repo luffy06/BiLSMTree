@@ -78,7 +78,7 @@ private:
   size_t max_size_;
   size_t data_size_;
   std::queue<size_t> free_;
-  ListNode *data_;
+  std::vector<ListNode> data_;
 };
 
 }

@@ -101,12 +101,12 @@ private:
     }
   };
 
-  std::map<size_t, PBA> page_table_;  // mapping relation of LBA(logical block address) and PBA(physical block address)
-  PageInfo **page_info_;              // page infomation: LBA and page status
-  BlockInfo *block_info_;             // block infomation: block status, corresponding block, block offset(invalid for replacement block)
+  std::map<size_t, PBA> page_table_;              // mapping relation of LBA(logical block address) and PBA(physical block address)
+  std::vector<std::vector<PageInfo>> page_info_;  // page infomation: LBA and page status
+  std::vector<BlockInfo> block_info_;             // block infomation: block status, corresponding block, block offset(invalid for replacement block)
   
   std::queue<size_t> free_blocks_;    // free blocks queue
-  bool *free_block_tag_;              // free tag of block
+  std::vector<bool> free_block_tag_;  // free tag of block
   size_t free_blocks_num_;            // free blocks number
 
   FlashResult *flashresult_;

@@ -11,12 +11,12 @@ Flash::Flash(FlashResult *flashresult) {
     f.close();
   }
   
-  block_info_ = new BlockInfo[Config::FlashConfig::BLOCK_NUMS];
+  block_info_.resize(Config::FlashConfig::BLOCK_NUMS);
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i)
     block_info_[i] = BlockInfo(i);
-  page_info_ = new PageInfo*[Config::FlashConfig::BLOCK_NUMS];
+  page_info_.resize(Config::FlashConfig::BLOCK_NUMS);
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i)
-    page_info_[i] = new PageInfo[Config::FlashConfig::PAGE_NUMS];
+    page_info_[i].resize(Config::FlashConfig::PAGE_NUMS);
   
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     for (size_t j = 0; j < Config::FlashConfig::PAGE_NUMS; ++ j)
@@ -24,7 +24,7 @@ Flash::Flash(FlashResult *flashresult) {
   }
 
   free_blocks_num_ = Config::FlashConfig::BLOCK_NUMS;
-  free_block_tag_ = new bool[Config::FlashConfig::BLOCK_NUMS];
+  free_block_tag_.resize(Config::FlashConfig::BLOCK_NUMS);
   while (!free_blocks_.empty()) free_blocks_.pop();
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     free_blocks_.push(i);
@@ -36,12 +36,6 @@ Flash::Flash(FlashResult *flashresult) {
 }
   
 Flash::~Flash() {
-  // destory page_info_
-  for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i)
-    delete[] page_info_[i];
-  delete[] page_info_;
-  delete[] free_block_tag_;
-  delete[] block_info_;
   delete flashresult_;
 }
 

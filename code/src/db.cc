@@ -13,6 +13,7 @@ DB::~DB() {
   delete cacheserver_;
   delete kvserver_;
   delete filesystem_;
+  delete result_;
 }
 
 void DB::Put(const std::string key, const std::string value) {

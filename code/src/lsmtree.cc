@@ -94,9 +94,11 @@ bool LSMTree::Get(const Slice key, Slice& value) {
               if (frequency_[file_[i - 1][k].sequence_number_] < min_fre)
                 min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
-            std::cout << "ROLLBACK:" << frequency_[meta.sequence_number_] << "\t" << min_fre << std::endl;
-            if (frequency_[meta.sequence_number_] >= min_fre * (1. + Config::LSMTreeConfig::ALPHA))
+            // std::cout << "ROLLBACK:" << frequency_[meta.sequence_number_] << "\t" << min_fre << std::endl;
+            if (frequency_[meta.sequence_number_] >= min_fre * (1. + Config::LSMTreeConfig::ALPHA)) {
+              std::cout << "Ready RollBack:" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << std::endl;
               RollBack(i, meta, p);
+            }
           }
         }
         lsmtreeresult_->Check(checked);
@@ -213,11 +215,15 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.read(key_, sizeof(char) * key_size_);
     key_[key_size_] = '\0';
     ss >> offset_ >> data_block_size_;
-    if (ss.tellg() == -1)
+
+    if (ss.tellg() == -1) {
+      delete[] key_;
       break;
+    }
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) <= 0) {
       found = true;
+      delete[] key_;
       break;
     }
   }
@@ -249,13 +255,18 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     ss.read(value_, sizeof(char) * value_size_);
     value_[value_size_] = '\0';
 
-    if (ss.tellg() == -1)
+    if (ss.tellg() == -1) {
+      delete[] key_;
+      delete[] value_;
       break;
+    }
 
     // std::cout << "Key:" << key_ << "\tValue:" << value_ << std::endl;
     if (key.compare(Slice(key_, key_size_)) == 0) {
       // std::cout << "Find!!" << value_ << std::endl;
       value = Slice(value_, value_size_);
+      delete[] key_;
+      delete[] value_;
       return true;
     }
   }

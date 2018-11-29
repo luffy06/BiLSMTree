@@ -37,6 +37,8 @@ private:
     KV kv_;
     size_t level_;
     ListNode **forward_;
+
+    ~ListNode() { delete[] forward_; }
   };
 
   size_t data_size_;
