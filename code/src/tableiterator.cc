@@ -14,8 +14,6 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
-  if (Config::SEEK_LOG)
-    std::cout << "Seek Footer in TableIterator" << std::endl;
   filesystem->Seek(filename, meta.file_size_ - meta.footer_size_);
   std::string offset_data_ = filesystem->Read(filename, meta.footer_size_);
   // std::cout << "Offset In TableIterator:" << offset_data_ << std::endl;
@@ -46,8 +44,6 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   }
 
   // std::cout << "Load Index Data" << std::endl;
-  if (Config::SEEK_LOG)
-    std::cout << "Seek Index in TableIterator" << std::endl;
   filesystem->Seek(filename, index_offset_);
   std::string index_data_ = filesystem->Read(filename, filter_offset_ - index_offset_);
   lsmtreeresult_->Read();
@@ -67,8 +63,6 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     if (ss.tellg() == -1)
       break;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
-    if (Config::SEEK_LOG)
-      std::cout << "Seek Data in TableIterator" << std::endl;
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, data_block_size_);
     lsmtreeresult_->Read();

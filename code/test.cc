@@ -381,7 +381,7 @@ int main() {
   srand(seed);
   // std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 20000; ++ i) {
+  for (size_t i = 1; i <= 2000; ++ i) {
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
     bilsmtree::KV kv = bilsmtree::KV(key, value);

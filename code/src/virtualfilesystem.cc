@@ -38,8 +38,6 @@ void FileSystem::Open(const std::string filename, const size_t mode) {
 }
 
 void FileSystem::Seek(const std::string filename, const size_t offset) {
-  if (Config::SEEK_LOG)
-    std::cout << "Seek In FileSystem:" << filename << std::endl;
   int index = SearchInBuffer(filename);
   if (index == -1) {
     std::cout << "FILE " << filename << " IS NOT OPEN" << std::endl;

@@ -41,9 +41,9 @@ public:
 
   static constexpr const char* ALGO_PATH = "../config.in";
   static const char DATA_SEG = '\t';
-  static const bool SEEK_LOG = false;
   static const bool FILESYSTEM_LOG = false;
   static const bool TRACE_LOG = true;
+  static const bool TRACE_READ_LOG = true;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -100,7 +100,7 @@ public:
   };
 
   struct LSMTreeConfig {
-    static const size_t LEVEL = 4;
+    static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 100;

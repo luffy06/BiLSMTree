@@ -22,23 +22,31 @@ public:
 
   void AddTableToL0(const std::vector<KV>& kvs);
 
-  size_t GetSequenceNumber();
 private:
-  std::vector<Meta> file_[Config::LSMTreeConfig::LEVEL];
-  std::vector<Meta> list_[Config::LSMTreeConfig::LEVEL];
+  std::vector<Meta> file_[Config::LSMTreeConfig::MAX_LEVEL];
+  std::vector<Meta> buffer_[Config::LSMTreeConfig::MAX_LEVEL];
+  std::vector<size_t> max_size_;
   VisitFrequency *recent_files_;
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
   FileSystem *filesystem_;
   LSMTreeResult *lsmtreeresult_;
 
+  size_t GetSequenceNumber();
+
   std::string GetFilename(size_t sequence_number_);
+
+  int BinarySearch(size_t level, const Slice key);
+
+  std::vector<size_t> GetCheckFiles(std::string algo, size_t level, const Slice key);
+
+  void GetOverlaps(std::vector<Meta>& src, std::vector<Meta>& des);
 
   bool GetValueFromFile(const Meta meta, const Slice key, Slice& value);
 
   size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
-  void RollBack(const size_t now_level, const Meta meta, const size_t pos);
+  void RollBack(const size_t now_level, const Meta meta);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator>& tables);
 
@@ -48,7 +56,7 @@ private:
 
   bool CheckFileList(size_t level);
 
-  void ShowFileList(size_t level, bool show_list);
+  void ShowMetas(size_t level, bool show_buffer);
 };
 }
 

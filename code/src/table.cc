@@ -3,37 +3,34 @@
 namespace bilsmtree {
 
 Table::Table() {
-  data_blocks_ = NULL;
-  index_block_ = NULL;
-  filter_ = NULL;
-  data_block_number_ = 0;
-  filesystem_ = NULL;
 }
 
 /*
 * DATA BLOCK: key,\t,value,\t
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
-Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
-  // std::cout << "Create Table" << std::endl;
-  // for (size_t i = 0; i < kvs.size(); ++ i)
-  //   std::cout << kvs[i].key_.ToString() << "\t";
-  // std::cout << std::endl;
+Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
+  if (Config::TRACE_LOG)
+    std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
-  filesystem_ = filesystem;
   // for data blocks
-  std::vector<std::string> buffers_;
+  std::vector<std::string> datas_;
   // for index block
   std::vector<Slice> last_keys_;
+  std::string index_block_;
   // for filter block
   std::vector<Slice> keys_for_filter_;
+  std::string filter_block_;
+  // for footer block
+  std::string footer_block_;
 
   size_t size_ = 0;
   std::stringstream ss;
+  // write data blocks
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
-    // std::cout << "Iterate: " << kv_.key_.ToString() << std::endl;
     keys_for_filter_.push_back(kv_.key_);
+    
     size_t key_size_ = kv_.key_.size(); 
     size_t value_size_ = kv_.value_.size();
     size_t add_ = kv_.size() + Util::IntToString(key_size_).size() + Util::IntToString(value_size_).size() + 4;
@@ -50,7 +47,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
 
     if (size_ >= Config::TableConfig::BLOCKSIZE) {
       // a data block finish
-      buffers_.push_back(ss.str());
+      datas_.push_back(ss.str());
       // record index for data block
       last_keys_.push_back(kvs[i].key_);
       // create a new block
@@ -59,24 +56,18 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     }
   }
   if (size_ > 0) {
-    buffers_.push_back(ss.str());
+    datas_.push_back(ss.str());
     last_keys_.push_back(kvs[kvs.size() - 1].key_);
   }
   
+  // write index block
   ss.str("");
-  // std::cout << "buffers_: " << buffers_.size() << std::endl;
-  // std::cout << "last_keys_: " << last_keys_.size() << std::endl;
-  // std::cout << "keys_for_filter_: " << keys_for_filter_.size() << std::endl;
-  // write into block
-  data_block_number_ = buffers_.size();
-  data_blocks_ = new Block*[data_block_number_];
   size_t data_size_ = 0;
   size_t last_offset = 0;
-  for (size_t i = 0; i < data_block_number_; ++ i) {
-    data_blocks_[i] = new Block(buffers_[i].data(), buffers_[i].size());
-    // std::cout << "Data Block:" << i << std::endl << buffers_[i] << std::endl;
-    size_t data_block_size_ = buffers_[i].size();
-    data_size_ = data_size_ + buffers_[i].size();
+  for (size_t i = 0; i < datas_.size(); ++ i) {
+    size_t data_block_size_ = datas_[i].size();
+    data_size_ = data_size_ + datas_[i].size();
+
     ss << last_keys_[i].size();
     ss << Config::DATA_SEG;
     ss.write(last_keys_[i].data(), last_keys_[i].size());
@@ -87,11 +78,11 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     ss << Config::DATA_SEG;
     last_offset = data_size_;
   }
-  std::string buffer_ = ss.str();
-  index_block_ = new Block(buffer_.data(), sizeof(char) * buffer_.size());
-  // std::cout << "Index Block:" << buffer_ << std::endl;
+  index_block_ = ss.str();
 
+  // write filter block
   std::string algorithm = Util::GetAlgorithm();
+  Filter *filter_ = NULL;
   if (algorithm == std::string("LevelDB") || algorithm == std::string("LevelDB-KV")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
@@ -102,87 +93,54 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
     filter_ = NULL;
     assert(false);
   }
-  // std::cout << "Filter Block In Table:" << filter_->ToString() << std::endl;
+  filter_block_ = filter_->ToString();
+  delete filter_;
 
+  // write footer block
   ss.str("");
   size_t index_offset_ = data_size_;
-  size_t filter_offset_ = data_size_ + index_block_->size();
+  size_t filter_offset_ = data_size_ + index_block_.size();
   ss << index_offset_;
   ss << Config::DATA_SEG;
   ss << filter_offset_;
   ss << Config::DATA_SEG;
-  footer_data_ = ss.str();
+  footer_block_ = ss.str();
 
+  // create meta
   meta_ = Meta();
   meta_.smallest_ = kvs[0].key_;
   meta_.largest_ = kvs[kvs.size() - 1].key_;
+  meta_.sequence_number_ = sequence_number;
   meta_.level_ = 0;
-  meta_.file_size_ = data_size_ + index_block_->size() + filter_->ToString().size() + footer_data_.size();
-  meta_.footer_size_ = footer_data_.size();
-  // std::cout << "file size in table:" << meta_.file_size_ << std::endl;
-  // std::cout << "[" << meta_.smallest_.ToString() << "\t" << meta_.largest_.ToString() << "]" << std::endl;
-  // std::cout << "DataSize:" << data_size_ << std::endl;
-  // std::cout << "IndexSize:" << index_block_->size() << std::endl;
-  // std::cout << "FilterSize:" << filter_->ToString().size() << std::endl;
-  // std::cout << "FooterSize:" << footer_data_.size() << std::endl;
-  // std::cout << "Create Table Success" << std::endl;
+  meta_.file_size_ = data_size_ + index_block_.size() + filter_block_.size() + footer_block_.size();
+  meta_.footer_size_ = footer_block_.size();
+
+  // write into files
+  datas_.push_back(index_block_);
+  datas_.push_back(filter_block_);
+  datas_.push_back(footer_block_);
+
+  filesystem->Create(filename);
+  filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  ss.str("");
+  for (size_t i = 0; i < datas_.size(); ++ i) {
+    ss << datas_[i];
+    if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
+      std::string buffer = ss.str();
+      ss.str("");
+      filesystem->Write(filename, buffer.data(), buffer.size());
+    }
+    lsmtreeresult->Write(); 
+  }
+  filesystem->Close(filename);
+  if (Config::TRACE_LOG)
+    std::cout << "Create Table Success! Range:[" << meta_.smallest_.ToString() << ",\t" << meta_.largest_.ToString() << "]" << std::endl;
 }
 
 Table::~Table() {
-  delete filter_;
-  delete index_block_;
-  delete[] data_blocks_;
 }
 
 Meta Table::GetMeta() {
   return meta_;
 }
-
-void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult) {
-  // std::cout << "DumpToFile " << filename << std::endl;
-  filesystem_->Create(filename);
-  filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
-  size_t wt = 0;
-  std::stringstream ss;
-  for (size_t i = 0; i < data_block_number_; ++ i) {
-    ss << std::string(data_blocks_[i]->data(), data_blocks_[i]->size());
-    if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
-      std::string buffer = ss.str();
-      ss.str("");
-      wt ++;
-      filesystem_->Write(filename, buffer.data(), buffer.size());
-    }
-    lsmtreeresult->Write();
-  }
-  // std::cout << "Write Index Block " << std::endl;
-  ss << std::string(index_block_->data(), index_block_->size());
-  if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
-    std::string buffer = ss.str();
-    ss.str("");
-    wt ++;
-    filesystem_->Write(filename, buffer.data(), buffer.size());
-  }
-  lsmtreeresult->Write();
-  std::string filter_data = filter_->ToString();
-  // std::cout << "Write Filter Block " << std::endl;
-  ss << filter_data;
-  if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
-    std::string buffer = ss.str();
-    ss.str("");
-    wt ++;
-    filesystem_->Write(filename, buffer.data(), buffer.size());
-  }
-  lsmtreeresult->Write();
-  // std::cout << "Write Footer Block " << footer_data_ << std::endl;
-  ss << footer_data_;
-  if (ss.str().size() >= 0) {
-    std::string buffer = ss.str();
-    ss.str("");
-    wt ++;
-    filesystem_->Write(filename, buffer.data(), buffer.size());
-  }
-  filesystem_->Close(filename);
-  // std::cout << "DumpToFile " << wt << " Times Write" << std::endl;
-}
-
 }

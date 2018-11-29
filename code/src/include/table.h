@@ -48,62 +48,24 @@ struct Meta {
   }
 
   friend bool operator<(const Meta& a, const Meta& b) {
-    // std::cout << "Compare a:" << a.largest_.size() << std::endl;
-    // std::cout << a.largest_.ToString() << std::endl;
-    // std::cout << "Compare b:" << b.largest_.size() << std::endl;
-    // std::cout << b.largest_.ToString() << std::endl;
-    // std::cout << "SEQ:" << a.sequence_number_ << "\t" << b.sequence_number_ << std::endl;
     if (a.largest_.compare(b.largest_) != 0)
       return a.largest_.compare(b.largest_) <= 0;
     return a.smallest_.compare(b.smallest_) <= 0;
   }
 };
 
-class Block {
-public:
-  Block() {
-    data_ = NULL;
-    size_ = 0;
-  }
-
-  Block(const char* data, const size_t size) : size_(size) {
-    data_ = new char[size_ + 1];
-    for (size_t i = 0; i < size_; ++ i)
-      data_[i] = data[i];
-    data_[size_] = '\0';
-  }
-  
-  ~Block() {
-    delete[] data_;
-  }
-
-  const char* data() { return data_; }
-
-  size_t size() { return size_; }
-private:
-  char *data_;
-  size_t size_;
-};
-
 class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs, FileSystem* filesystem);
+  Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
   
   ~Table();
 
   Meta GetMeta();
 
-  void DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult);
 private:
-  Block **data_blocks_;
-  Block *index_block_;
-  Filter *filter_;
-  size_t data_block_number_;
-  std::string footer_data_;
   Meta meta_;
-  FileSystem* filesystem_;
 };
 
 
