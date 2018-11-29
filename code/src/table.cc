@@ -142,21 +142,47 @@ void Table::DumpToFile(const std::string filename, LSMTreeResult* lsmtreeresult)
   // std::cout << "DumpToFile " << filename << std::endl;
   filesystem_->Create(filename);
   filesystem_->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  size_t wt = 0;
+  std::stringstream ss;
   for (size_t i = 0; i < data_block_number_; ++ i) {
-    // std::cout << "Write Data Block " << i << std::endl;
-    filesystem_->Write(filename, data_blocks_[i]->data(), data_blocks_[i]->size());
+    ss << std::string(data_blocks_[i]->data(), data_blocks_[i]->size());
+    if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
+      std::string buffer = ss.str();
+      ss.str("");
+      wt ++;
+      filesystem_->Write(filename, buffer.data(), buffer.size());
+    }
     lsmtreeresult->Write();
   }
   // std::cout << "Write Index Block " << std::endl;
-  filesystem_->Write(filename, index_block_->data(), index_block_->size());
+  ss << std::string(index_block_->data(), index_block_->size());
+  if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
+    std::string buffer = ss.str();
+    ss.str("");
+    wt ++;
+    filesystem_->Write(filename, buffer.data(), buffer.size());
+  }
   lsmtreeresult->Write();
   std::string filter_data = filter_->ToString();
   // std::cout << "Write Filter Block " << std::endl;
-  filesystem_->Write(filename, filter_data.data(), filter_data.size());
+  ss << filter_data;
+  if (ss.str().size() >= Config::TableConfig::BUFFER_SIZE) {
+    std::string buffer = ss.str();
+    ss.str("");
+    wt ++;
+    filesystem_->Write(filename, buffer.data(), buffer.size());
+  }
   lsmtreeresult->Write();
   // std::cout << "Write Footer Block " << footer_data_ << std::endl;
-  filesystem_->Write(filename, footer_data_.data(), footer_data_.size());
+  ss << footer_data_;
+  if (ss.str().size() >= 0) {
+    std::string buffer = ss.str();
+    ss.str("");
+    wt ++;
+    filesystem_->Write(filename, buffer.data(), buffer.size());
+  }
   filesystem_->Close(filename);
+  // std::cout << "DumpToFile " << wt << " Times Write" << std::endl;
 }
 
 }

@@ -26,8 +26,9 @@ public:
 
   static std::string GetAlgorithm();
 
-  static void Test() {
-    size_t k;
+  static void Test(std::string msg) {
+    std::string k;
+    std::cout << msg << ":";
     std::cin >> k;
   }
 };
@@ -70,7 +71,7 @@ public:
   };
 
   struct SkipListConfig {
-    static constexpr const double PROB = 0.5;
+    static constexpr const double PROB = 1.;
     static const size_t MAXLEVEL = 4096;
   };
 
@@ -106,6 +107,7 @@ public:
   };
 
   struct TableConfig {
+    static const size_t BUFFER_SIZE = 50000000;
     static const size_t BLOCKSIZE = 512;    // 4KB
     static const size_t TABLESIZE = 50;
   };

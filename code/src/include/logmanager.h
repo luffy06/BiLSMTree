@@ -4,7 +4,7 @@
 #include <string>
 
 #include "slice.h"
-#include "virtualfilesystem.h"
+#include "filesystem.h"
 
 namespace bilsmtree {
 

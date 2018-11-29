@@ -12,12 +12,11 @@ namespace bilsmtree {
 class Bucket{
 public:
   Bucket() {
-    data_ = new Slice[Config::CuckooFilterConfig::MAXBUCKETSIZE];
+    data_.resize(Config::CuckooFilterConfig::MAXBUCKETSIZE);
     size_ = 0;
   }
  
   ~Bucket() {
-    delete[] data_;
   }
 
   bool Insert(const Slice fp) {
@@ -81,7 +80,7 @@ public:
     if (size > Config::CuckooFilterConfig::MAXBUCKETSIZE)
       std::cout << "Error Size:" << size << std::endl;
     assert(size <= Config::CuckooFilterConfig::MAXBUCKETSIZE);
-    data_ = new Slice[Config::CuckooFilterConfig::MAXBUCKETSIZE];
+    data_.resize(Config::CuckooFilterConfig::MAXBUCKETSIZE);
     std::stringstream ss;
     ss.str(data);
     size_ = size;
@@ -92,7 +91,7 @@ public:
     }
   }
 
-  Slice* GetData() {
+  std::vector<Slice> GetData() {
     return data_;
   }
 
@@ -121,7 +120,7 @@ public:
     return ss.str();
   }
 private:
-  Slice* data_;
+  std::vector<Slice> data_;
   size_t size_;
 };
 
@@ -130,7 +129,7 @@ public:
   CuckooFilter() { }
 
   CuckooFilter(const std::vector<Slice>& keys) {
-    array_ = new Bucket[Config::FilterConfig::CUCKOOFILTER_SIZE];
+    array_.resize(Config::FilterConfig::CUCKOOFILTER_SIZE);
     data_size_ = 0;
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
@@ -141,7 +140,7 @@ public:
     std::stringstream ss;
     ss.str(data);
     ss >> data_size_;
-    array_ = new Bucket[Config::FilterConfig::CUCKOOFILTER_SIZE];
+    array_.resize(Config::FilterConfig::CUCKOOFILTER_SIZE);
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
       size_t array_size_ = 0;
       ss >> array_size_;
@@ -160,7 +159,6 @@ public:
   }
 
   ~CuckooFilter() {
-    delete[] array_;
   }
 
   virtual bool KeyMatch(const Slice key) {
@@ -173,7 +171,7 @@ public:
   // this - cuckoofilter
   void Diff(CuckooFilter* cuckoofilter) {
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
-      Slice* data_ = array_[i].GetData();
+      std::vector<Slice> data_ = array_[i].GetData();
       size_t size_ = array_[i].GetSize();
       std::vector<Slice> deleted_datas;
       for (size_t j = 0; j < size_; ++ j) {
@@ -210,7 +208,7 @@ private:
     Info(Slice a, size_t b, size_t c) { fp_ = a; pos1 = b; pos2 = c;}
   };
 
-  Bucket *array_;
+  std::vector<Bucket> array_;
   // size_t capacity_;
   size_t data_size_;
 

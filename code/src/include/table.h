@@ -6,7 +6,7 @@
 
 #include "bloomfilter.h"
 #include "cuckoofilter.h"
-#include "virtualfilesystem.h"
+#include "filesystem.h"
 
 namespace bilsmtree {
 
