@@ -9,7 +9,7 @@ TableIterator::TableIterator() {
 }
 
 TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
-  std::cout << "Read:" << filename << std::endl;
+  // std::cout << "Read:" << filename << std::endl;
   // meta.Show();
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
@@ -51,7 +51,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   filesystem->Seek(filename, index_offset_);
   std::string index_data_ = filesystem->Read(filename, filter_offset_ - index_offset_);
   lsmtreeresult_->Read();
-  std::cout << "Index Data:" << index_data_ << std::endl;
+  // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
   while (true) {

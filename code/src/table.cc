@@ -131,8 +131,7 @@ Table::Table(const std::vector<KV>& kvs, FileSystem* filesystem) {
 Table::~Table() {
   delete filter_;
   delete index_block_;
-  for (size_t i = 0; i < data_block_number_; ++ i)
-    delete data_blocks_[i];
+  delete[] data_blocks_;
 }
 
 Meta Table::GetMeta() {

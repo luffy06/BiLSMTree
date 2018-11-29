@@ -12,7 +12,7 @@ FileSystem::~FileSystem() {
 void FileSystem::Create(const std::string filename) {
   if (Config::FILESYSTEM_LOG)
     std::cout << "Create File In FileSystem:" << filename << std::endl;
-  std::fstream f(filename, std::ios::ate | std::ios::out);
+  std::fstream f(filename, std::ios::out | std::ios::trunc);
   f.close();
 }
 
@@ -66,9 +66,11 @@ std::string FileSystem::Read(const std::string filename, const size_t read_size)
     assert(false);
   }
   char *temp = new char[read_size + 1];
-  std::fstream f(filename, std::ios::in);
+
+  std::fstream f(filename, std::ios::binary | std::ios::in);
   f.seekg(fs.offset_);
-  f.read(temp, read_size);
+  f.read(temp, read_size * sizeof(char));
+  temp[read_size] = '\0';
   f.close();
   fs.offset_ = fs.offset_ + read_size;
   std::string data = std::string(temp, read_size);
@@ -93,16 +95,19 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     assert(false);
   }
 
-  std::fstream f(filename, std::ios::out);
+  std::fstream f(filename, std::ios::binary | std::ios::out | std::ios::in);
   f.seekp(fs.offset_);
-  f.write(data, write_size);
+  f.write(data, write_size * sizeof(char));
   f.close();
   fs.offset_ = fs.offset_ + write_size;
   fs.filesize_ = fs.filesize_ + write_size;
 }
 
 void FileSystem::SetFileSize(const std::string filename, const size_t file_size) {
-  
+  int index = SearchInBuffer(filename);
+  if (index == -1)
+    return ;
+  file_buffer_[index].filesize_ = file_size;
 }
 
 void FileSystem::Delete(const std::string filename) {

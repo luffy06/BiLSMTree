@@ -40,7 +40,6 @@ struct FileStatus {
       filesize_ = 0;
     else
       filesize_ = f.tellg();
-    std::cout << "FILESIZE:" << filesize_ << std::endl;
     f.close();
     offset_ = 0;
   }

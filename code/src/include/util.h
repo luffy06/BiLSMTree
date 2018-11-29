@@ -25,6 +25,11 @@ public:
   static bool ExistFile(const std::string filename);
 
   static std::string GetAlgorithm();
+
+  static void Test() {
+    size_t k;
+    std::cin >> k;
+  }
 };
 
 class Config {
@@ -36,7 +41,7 @@ public:
   static constexpr const char* ALGO_PATH = "../config.in";
   static const char DATA_SEG = '\t';
   static const bool SEEK_LOG = false;
-  static const bool FILESYSTEM_LOG = true;
+  static const bool FILESYSTEM_LOG = false;
   static const bool TRACE_LOG = true;
 
   struct FlashConfig {

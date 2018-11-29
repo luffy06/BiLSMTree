@@ -87,22 +87,18 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::FlashResult *flashresult = new bilsmtree::FlashResult();
   bilsmtree::FileSystem *filesystem = new bilsmtree::FileSystem(flashresult);
   std::cout << "TEST Write" << std::endl;
-  std::string filename = "../logs/test/test.txt";
+  std::string filename = "../logs/test/test.bdb";
   filesystem->Create(filename);
   filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::APPEND_OPTION);
-  for (size_t j = 0; j < 3; ++ j)
-    filesystem->Write(filename, data[0].value_.ToString().data(), data[0].value_.size());
-  filesystem->Seek(filename, 0);
-  for (size_t j = 0; j < 3; ++ j)
-    filesystem->Write(filename, data[0].key_.ToString().data(), data[0].key_.size());
+  filesystem->Write(filename, data[0].key_.ToString().data(), data[0].key_.size());
   filesystem->Close(filename);
   
   std::cout << "TEST Read" << std::endl;
   filesystem->Open(filename, bilsmtree::Config::FileSystemConfig::READ_OPTION);
   std::string fdata = filesystem->Read(filename, data[0].key_.size());
-  if (fdata != data[0].key_.ToString()) {
+  std::cout << "Compare:" << fdata << "\t" << data[0].key_.ToString() << std::endl; 
+  if (fdata != data[0].key_.ToString())
     msg = "Read error! Data doesn't match";
-  }
   filesystem->Close(filename);
   delete filesystem;
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
@@ -352,14 +348,15 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    std::cout << "Put " << i << std::endl;
+    std::cout << "Put " << i + 1 << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
     size_t r = rand() % 2;
-    std::cout << "RUN " << i << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
+    r = 1;
+    std::cout << "RUN " << i + 1 << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
     if (r == 0) {
       db->Put(data[i].key_.ToString(), data[i].value_.ToString());
     }
@@ -384,7 +381,7 @@ int main() {
   srand(seed);
   // std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 2000; ++ i) {
+  for (size_t i = 1; i <= 20000; ++ i) {
     // std::string key = std::string(i, '@');
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');

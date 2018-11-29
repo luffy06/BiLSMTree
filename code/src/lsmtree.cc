@@ -14,16 +14,16 @@ LSMTree::~LSMTree() {
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
-  std::cout << "LSMTree Get:" << key.ToString() << std::endl;
-  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
-    std::cout << "Level:" << i << std::endl;
-    std::cout << "file_: " << file_[i].size() << std::endl;
-    std::cout << "list_: " << list_[i].size() << std::endl;    
-    for (size_t j = 0; j < file_[i].size(); ++ j)
-      std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << "\tFre:" << frequency_[file_[i][j].sequence_number_] << std::endl;
-    for (size_t j = 0; j < list_[i].size(); ++ j)
-      std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << "\tFre:" << frequency_[list_[i][j].sequence_number_] << std::endl;
-  }
+  // std::cout << "LSMTree Get:" << key.ToString() << std::endl;
+  // for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
+  //   std::cout << "Level:" << i << std::endl;
+  //   std::cout << "file_: " << file_[i].size() << std::endl;
+  //   std::cout << "list_: " << list_[i].size() << std::endl;    
+  //   for (size_t j = 0; j < file_[i].size(); ++ j)
+  //     std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << "\tFre:" << frequency_[file_[i][j].sequence_number_] << std::endl;
+  //   for (size_t j = 0; j < list_[i].size(); ++ j)
+  //     std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << "\tFre:" << frequency_[list_[i][j].sequence_number_] << std::endl;
+  // }
   std::string algo = Util::GetAlgorithm();
   size_t checked = 0;
   for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
@@ -122,19 +122,10 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   table_->DumpToFile(filename, lsmtreeresult_);
   Meta meta = table_->GetMeta();
   if (Config::TRACE_LOG)
-    std::cout << "DUMP L0:" << filename << std::endl;
+    std::cout << "DUMP L0:" << filename << "\tRange:[" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << "]" << std::endl;
   meta.sequence_number_ = sequence_number_;
   file_[0].insert(file_[0].begin(), meta);
   lsmtreeresult_->MinorCompaction();
-  for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
-    std::cout << "Level:" << i << std::endl;
-    std::cout << "file_: " << file_[i].size() << std::endl;
-    std::cout << "list_: " << list_[i].size() << std::endl;    
-    for (size_t j = 0; j < file_[i].size(); ++ j)
-      std::cout << "file_:" << file_[i][j].smallest_.ToString() << "\t" << file_[i][j].largest_.ToString() << "\tFileSize:" << file_[i][j].file_size_ << "\tFre:" << frequency_[file_[i][j].sequence_number_] << std::endl;
-    for (size_t j = 0; j < list_[i].size(); ++ j)
-      std::cout << "list_:" << list_[i][j].smallest_.ToString() << "\t" << list_[i][j].largest_.ToString() << "\tFileSize:" << list_[i][j].file_size_ << "\tFre:" << frequency_[list_[i][j].sequence_number_] << std::endl;
-  }
   delete table_;
   std::string algo = Util::GetAlgorithm();
   if (algo == std::string("BiLSMTree")) {
@@ -422,6 +413,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
       if (buffers_.size() >= Config::TableConfig::TABLESIZE) {
+        // std::cout << "Create Table:[" << (*buffers_.begin()).key_.ToString() << "\t" << (*buffers_.rbegin()).key_.ToString() << "]" << std::endl;
         Table *t = new Table(buffers_, filesystem_);
         result_.push_back(t);
         buffers_.clear();

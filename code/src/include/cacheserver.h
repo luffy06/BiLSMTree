@@ -17,14 +17,16 @@ public:
 private:
   struct ListNode {
     SkipList* imm_;
-    ListNode* next_;
-    ListNode* prev_;
+    size_t fre_;
+
+    ListNode(SkipList* mem) {
+      imm_ = mem;
+      fre_ = 0;
+    }
   };
   LRU2Q *lru_;
   SkipList *mem_;
-  size_t imm_size_;
-  ListNode *head_;
-  ListNode *tail_;
+  std::vector<ListNode> imms_;
 };
 }
 

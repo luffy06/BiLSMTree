@@ -4,24 +4,14 @@ namespace bilsmtree {
 CacheServer::CacheServer() {
   lru_ = new LRU2Q();
   mem_ = new SkipList();
-  head_ = new ListNode();
-  head_->imm_ = NULL;
-  head_->next_ = NULL;
-  head_->prev_ = NULL;
-  tail_ = NULL;
-  imm_size_ = 0;
+  imms_.clear();
 }
 
 CacheServer::~CacheServer() {
   delete lru_;
   delete mem_;
-  ListNode *p = head_;
-  while (head_ != NULL) {
-    head_ = head_->next_;
-    delete p->imm_;
-    delete p;
-    p = head_;
-  }
+  for (size_t i = 0; i < imms_.size(); ++ i)
+    delete imms_[i].imm_;
 }
 
 SkipList* CacheServer::Put(const KV kv) {
@@ -33,32 +23,25 @@ SkipList* CacheServer::Put(const KV kv) {
     if (mem_->IsFull()) {
       // std::cout << "Memtable is full Immutable Memtable Size:" << imm_size_ << std::endl;
       // immutable memtable is full
-      if (imm_size_ == Config::CacheServerConfig::MAXSIZE) {
+      if (imms_.size() == Config::CacheServerConfig::MAXSIZE) {
         // std::cout << "DUMP" << std::endl;
         // the size of immutable memtables is full
         // record tail position
-        ListNode* p = tail_;
-        // move tail pointer
-        tail_ = tail_->prev_;
-        tail_->next_ = NULL;
-        // record immutable memtable which is ready to dump
-        res = p->imm_;
-        // delete tail node
-        delete p;
-        imm_size_ = imm_size_ - 1;
+        size_t min_fre = imms_[0].fre_;
+        size_t index = 0;
+        for (size_t i = 1; i < imms_.size(); ++ i) {
+          if (imms_[i].fre_ < min_fre) {
+            min_fre = imms_[i].fre_;
+            index = i;
+          }
+        }
+        res = imms_[index].imm_;
+        imms_.erase(imms_.begin() + index);
       }
       mem_->DisableWrite();
       // create a new listnode
-      ListNode* p = new ListNode();
-      p->imm_ = mem_;
-      p->prev_ = head_;
-      p->next_ = head_->next_;
-      if (head_->next_ != NULL)
-        head_->next_->prev_ = p;
-      else
-        tail_ = p;
-      head_->next_ = p;
-      imm_size_ = imm_size_ + 1;
+      ListNode p = ListNode(mem_);
+      imms_.push_back(p);
       // create a new immutable memtable
       mem_ = new SkipList();
     }
@@ -71,29 +54,17 @@ SkipList* CacheServer::Put(const KV kv) {
 }
 
 bool CacheServer::Get(const Slice key, Slice& value) {
+  // std::cout << "Find In CacheServer Immutable List Size:" << imms_.size() << std::endl;
   // std::cout << "Ready Find in LRU2Q" << std::endl;
   if (!lru_->Get(key, value)) {
     // std::cout << "Ready Find in Memtable" << std::endl;
     bool imm_res = mem_->Find(key, value);
-    ListNode *p = head_->next_;
-    // size_t j = 0;
-    // std::cout << "Ready Find in Immutable Memtable" << std::endl;
-    while (p != NULL && !imm_res) {
-      // std::cout << "Ready Find in Immutable Memtable:" << j++ << std::endl;
-      imm_res = p->imm_->Find(key, value);
+    for (size_t i = 0; i < imms_.size(); ++ i) {
+      imm_res = imms_[i].imm_->Find(key, value);
       if (imm_res) {
-        // std::cout << "FIND IN IMMUTABLE MEMTABLE" << std::endl;
-        p->prev_->next_ = p->next_;
-        if (p->next_ != NULL)
-          p->next_->prev_ = p->prev_;
-        p->next_ = head_->next_;
-        p->prev_ = head_;
-        if (head_->next_ != NULL)
-          head_->next_->prev_ = p;
-        head_->next_ = p;
+        imms_[i].fre_ = imms_[i].fre_ + 1;
         break;
       }
-      p = p->next_;
     }
     return imm_res;
   }
