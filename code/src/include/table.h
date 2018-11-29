@@ -73,7 +73,9 @@ public:
     data_[size_] = '\0';
   }
   
-  ~Block() { }
+  ~Block() {
+    delete[] data_;
+  }
 
   const char* data() { return data_; }
 

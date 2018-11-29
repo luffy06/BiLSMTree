@@ -42,7 +42,7 @@ public:
   }
   
   ~BloomFilter() {
-    delete array_;
+    delete[] array_;
   }
 
   virtual bool KeyMatch(const Slice key) {
