@@ -42,7 +42,7 @@ public:
   static constexpr const char* ALGO_PATH = "../config.in";
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
-  static const bool TRACE_LOG = true;
+  static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
 
   struct FlashConfig {
