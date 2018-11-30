@@ -103,7 +103,7 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.5;
-    static const size_t LISTSIZE = 100;
+    static const size_t LISTSIZE = 10;
   };
 
   struct TableConfig {

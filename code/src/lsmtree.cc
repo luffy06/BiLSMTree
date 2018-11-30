@@ -23,8 +23,8 @@ LSMTree::~LSMTree() {
 
 bool LSMTree::Get(const Slice key, Slice& value) {
   // std::cout << "LSMTree Get:" << key.ToString() << std::endl;
-  // for (size_t i = 0; i < Config::LSMTreeConfig::LEVEL; ++ i) {
-  //   std::cout << "Level:" << i << std::endl;
+  // for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
+  //   std::cout << "Level:" << i << " Size:" << max_size_[i] << std::endl;
   //   std::cout << "File Size:" << file_[i].size() << std::endl;
   //   std::cout << "Buffer Size:" << buffer_[i].size() << std::endl;
   //   ShowMetas(i, true);
@@ -58,11 +58,11 @@ bool LSMTree::Get(const Slice key, Slice& value) {
                 min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
             if (frequency_[meta.sequence_number_] >= min_fre * (1. + Config::LSMTreeConfig::ALPHA)) {
-              RollBack(i, meta);
               if (p < file_[i].size())
                 file_[i].erase(file_[i].begin() + p);
               else
                 buffer_[i].erase(buffer_[i].begin() + p - file_[i].size());
+              RollBack(i, meta);
             }
           }
         }
@@ -506,6 +506,7 @@ void LSMTree::CompactList(size_t level) {
       if (meta.largest_.compare(file_[level][j].smallest_) <= 0) {
         file_[level].insert(file_[level].begin() + j, meta);
         inserted = true;
+        break;
       }
     }
     if (!inserted)
@@ -529,7 +530,6 @@ void LSMTree::MajorCompaction(size_t level) {
     std::cout << "MajorCompaction On Level:" << level << std::endl;
   lsmtreeresult_->MajorCompaction();
   size_t select_numb_Li = file_[level].size() - max_size_[level];
-  // std::cout << "SELECT NUMB:" << select_numb_Li << std::endl;
   max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;

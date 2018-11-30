@@ -59,11 +59,13 @@ bool CacheServer::Get(const Slice key, Slice& value) {
   if (!lru_->Get(key, value)) {
     // std::cout << "Ready Find in Memtable" << std::endl;
     bool imm_res = mem_->Find(key, value);
-    for (size_t i = 0; i < imms_.size(); ++ i) {
-      imm_res = imms_[i].imm_->Find(key, value);
-      if (imm_res) {
-        imms_[i].fre_ = imms_[i].fre_ + 1;
-        break;
+    if (!imm_res) {
+      for (size_t i = 0; i < imms_.size(); ++ i) {
+        imm_res = imms_[i].imm_->Find(key, value);
+        if (imm_res) {
+          imms_[i].fre_ = imms_[i].fre_ + 1;
+          break;
+        }
       }
     }
     return imm_res;
