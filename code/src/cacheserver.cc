@@ -57,7 +57,7 @@ SkipList* CacheServer::Put(const KV kv) {
       imms_.push_back(ListNode(mem_));
       mem_ = new SkipList();
     }
-    mem_->Insert(pop_kv);
+    mem_->Insert(kv);
   }
   else {
     std::cout << "Algorithm Error" << std::endl;
