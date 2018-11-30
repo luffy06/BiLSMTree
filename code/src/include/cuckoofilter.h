@@ -22,7 +22,7 @@ public:
   bool Insert(const Slice fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
       data_[size_] = fp;
-      size_t i = size_;
+      int i = size_;
       while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
         Slice temp = data_[i];
         data_[i] = data_[i - 1];
@@ -39,7 +39,7 @@ public:
     size_t p = rand() % size_;
     Slice res = data_[p];
     data_[p] = fp;
-    size_t i = p;
+    int i = p;
     if (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
       while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
         Slice temp = data_[i];
@@ -61,7 +61,6 @@ public:
 
   bool Find(const Slice fp) {
     for (size_t i = 0; i < size_; ++ i) {
-      // std::cout << "In Bucket:" << data_[i].ToString() << std::endl;
       if (data_[i].compare(fp) == 0)
         return true;
     }
@@ -163,8 +162,6 @@ public:
 
   virtual bool KeyMatch(const Slice key) {
     Info info = GetInfo(key);
-    // std::cout << "Info of Key:" << key.ToString() << std::endl;
-    // std::cout << "FP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
     return array_[info.pos1].Find(info.fp_) || array_[info.pos2].Find(info.fp_);  
   }
 

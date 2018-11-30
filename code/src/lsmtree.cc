@@ -8,9 +8,13 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   total_sequence_number_ = 0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
   max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
+  min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   max_size_[0] = Config::LSMTreeConfig::L0SIZE;
-  for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
+  min_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     max_size_[i] = static_cast<size_t>(pow(10, i));
+    min_size_[i] = static_cast<size_t>(pow(10, i));
+  }
 }
 
 LSMTree::~LSMTree() {
@@ -87,11 +91,14 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
     int deleted = recent_files_->Append(sequence_number_);
     frequency_[sequence_number_] ++;
     if (deleted != -1) frequency_[deleted] --;
+    if (buffer_[0].size() > min_size_[0])
+      CompactList(0);
   }
   else {
     file_[0].insert(file_[0].begin(), meta);
+    if (file_[0].size() > max_size_[0])
+      MajorCompaction(0);
   }
-  CompactList(0);
   if (Config::TRACE_LOG)
     std::cout << "DUMP Success" << std::endl;
 }
@@ -209,6 +216,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   lsmtreeresult_->Read();
   Filter* filter = NULL;
   std::string algo = Util::GetAlgorithm();
+  if (Config::TRACE_READ_LOG)
+    std::cout << "Create Filter" << std::endl;
   if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
     filter = new BloomFilter(filter_data_);
   }
@@ -219,6 +228,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     filter = NULL;
     assert(false);
   }
+  if (Config::TRACE_READ_LOG)
+    std::cout << "Filter Block KeyMatch" << std::endl;
   if (!filter->KeyMatch(key)) {
     filesystem_->Close(filename);
     if (Config::TRACE_READ_LOG)
@@ -420,7 +431,10 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
 
   // add to buffer_
   buffer_[to_level].push_back(new_meta);
-  CompactList(to_level);
+  if (buffer_[to_level].size() > Config::LSMTreeConfig::LISTSIZE) {
+    CompactList(to_level);
+    max_size_[to_level] = max_size_[to_level] + Config::LSMTreeConfig::LISTSIZE;
+  }
   if (Config::TRACE_LOG)
     std::cout << "RollBack Success" << std::endl;
 }
@@ -469,8 +483,6 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
 }
 
 void LSMTree::CompactList(size_t level) {
-  if (buffer_[level].size() <= Config::LSMTreeConfig::LISTSIZE)
-    return ;
   if (Config::TRACE_LOG)
     std::cout << "CompactList On Level:" << level << std::endl;
   std::vector<Meta> wait_queue_;
@@ -499,6 +511,7 @@ void LSMTree::CompactList(size_t level) {
     if (!inserted)
       file_[level].insert(file_[level].end(), meta);
   }
+
   if (file_[level].size() > max_size_[level])
     MajorCompaction(level);
   if (Config::TRACE_LOG)
@@ -517,7 +530,7 @@ void LSMTree::MajorCompaction(size_t level) {
   lsmtreeresult_->MajorCompaction();
   size_t select_numb_Li = file_[level].size() - max_size_[level];
   // std::cout << "SELECT NUMB:" << select_numb_Li << std::endl;
-  
+  max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;
   std::vector<size_t> select_indexs;

@@ -43,7 +43,7 @@ public:
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
   static const bool TRACE_LOG = true;
-  static const bool TRACE_READ_LOG = true;
+  static const bool TRACE_READ_LOG = false;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
