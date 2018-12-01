@@ -1,31 +1,31 @@
 import os
 from functools import reduce
 
-workload_num = 12
+distribution_attr = ['readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
+distribution = [(0.48, 0.03, 0.47, 0.02), 
+                (0.05, 0.03, 0.90, 0.02), 
+                (0.90, 0.03, 0.05, 0.02), 
+                (0.25, 0.05, 0.25, 0.45), 
+                (0.05, 0.05, 0.45, 0.45), 
+                (0.45, 0.05, 0.05, 0.45), 
+                (0.25, 0.45, 0.25, 0.05), 
+                (0.05, 0.45, 0.45, 0.05), 
+                (0.45, 0.45, 0.05, 0.05), 
+                (0.03, 0.05, 0.02, 0.90), 
+                (0.03, 0.90, 0.02, 0.05), 
+                (0.03, 0.48, 0.02, 0.47)]
+
+attributes = {
+  'recordcount': 20000,
+  'operationcount': 20000,
+  'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
+  'readallfields': 'true',
+  'requestdistribution': 'zipfian' # latest, uniform
+}
+workload_num = len(distribution)
 value_max_len = 100
 
 def generate_workload(project_path):
-  distribution_attr = ['readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
-  distribution = [(0.48, 0.03, 0.47, 0.02), 
-                  (0.05, 0.03, 0.90, 0.02), 
-                  (0.90, 0.03, 0.05, 0.02), 
-                  (0.25, 0.05, 0.25, 0.45), 
-                  (0.05, 0.05, 0.45, 0.45), 
-                  (0.45, 0.05, 0.05, 0.45), 
-                  (0.25, 0.45, 0.25, 0.05), 
-                  (0.05, 0.45, 0.45, 0.05), 
-                  (0.45, 0.45, 0.05, 0.05), 
-                  (0.03, 0.05, 0.02, 0.90), 
-                  (0.03, 0.90, 0.02, 0.05), 
-                  (0.03, 0.48, 0.02, 0.47)]
-
-  attributes = {
-    'recordcount': 20000,
-    'operationcount': 20000,
-    'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
-    'readallfields': 'true',
-    'requestdistribution': 'zipfian' # latest, uniform
-  }
   for i in range(workload_num):
     dist = distribution[i]
     filename = project_path + 'workloads/workload' + str(i)
@@ -73,14 +73,24 @@ def read(in_filename, out_filename):
   for i, l in enumerate(lines):
     if l.startswith('INSERT') or l.startswith('UPDATE') or l.startswith('SCAN') or l.startswith('READ'):
       ls = l.split()
-      nls = [ls[0], ls[2][:value_max_len]]
+      op = ls[0]
+      key = ls[2][4:]
+      nls = [op, key]
+      if op == 'SCAN':
+        st = 4
+      else:
+        st = 3
       value = ''
-      for j in range(3, len(ls)):
+      for j in range(st, len(ls)):
         value = value + ls[j] + ' '
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      value = value[:value_max_len]
+      if op == 'SCAN':
+        suffix = ls[3]
+        value = key[:len(key) - len(suffix)]
+        for s in suffix:
+          value = value + s
       nls.append(value)
       result.append(nls)
   f = open(out_filename, 'a')
