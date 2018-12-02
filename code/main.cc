@@ -40,7 +40,7 @@ int main() {
   std::string op, key, value, db_value;
   size_t j = 0;
   while (std::cin >> op >> key >> value) {
-    std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    // std::cout << "RUN " << j << "\tOp:" << op << std::endl;
     if (op == "INSERT" || op == "UPDATE") {
       db->Put(key, value);
     }
@@ -50,7 +50,7 @@ int main() {
     else if (op == "SCAN") {
       std::string st_key = key;
       std::string ed_key = StringAddOne(value);
-      std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
+      // std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
       for (std::string key = st_key; key != ed_key; key = StringAddOne(key)) {
         db->Get(key, db_value);
       }

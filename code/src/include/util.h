@@ -39,7 +39,7 @@ public:
 
   ~Config() { }
 
-  static constexpr const char* ALGO_PATH = "../config.in";
+  static constexpr const char* ALGO_PATH = "config.in";
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
   static const bool TRACE_LOG = false;
@@ -50,7 +50,7 @@ public:
     static const size_t WRITE_LATENCY = 200;          // 200us
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
-    static constexpr const char* BASE_PATH = "../logs/";
+    static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 2048;
     static const size_t PAGE_NUMS = 16;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
