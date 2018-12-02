@@ -115,6 +115,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   meta_.file_size_ = data_size_ + index_block_.size() + filter_block_.size() + footer_block_.size();
   meta_.footer_size_ = footer_block_.size();
 
+  // for (size_t i = 0; i < datas_.size(); ++ i)
+  //   std::cout << "DATA BLOCK SIZE:" << datas_[i].size() << std::endl;
+  // std::cout << "INDEX BLOCK SIZE:" << index_block_.size() << std::endl;
+  // std::cout << "FILTER BLOCK SIZE:" << filter_block_.size() << std::endl;
+  // std::cout << "FOOTER BLOCK SIZE:" << footer_block_.size() << std::endl;
+
   // write into files
   datas_.push_back(index_block_);
   datas_.push_back(filter_block_);

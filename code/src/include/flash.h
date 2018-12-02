@@ -123,7 +123,7 @@ private:
 
   void Erase(const size_t block_num);
 
-  std::pair<size_t, size_t> MinorCollectGarbage(const size_t block_num);
+  void MinorCollectGarbage(const size_t block_num);
 
   void MajorCollectGarbage();
 

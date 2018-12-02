@@ -552,7 +552,6 @@ void LSMTree::MajorCompaction(size_t level) {
     file_[level].erase(file_[level].begin() + p - i);
   }
 
-
   // select overlap files from Li+1
   if (algo == std::string("BiLSMTree"))
     GetOverlaps(buffer_[level + 1], wait_queue_);

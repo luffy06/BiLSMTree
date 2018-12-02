@@ -32,6 +32,7 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     std::string value = ss.str();
     res.push_back(KV(kv.key_.ToString(), value));
     pos = pos + data.size();
+    // std::cout << "DATA IN LOGMANAGER:" << data.size() << std::endl;
     total_data_ = total_data_ + data;
     record_count_ = record_count_ + 1;
   }

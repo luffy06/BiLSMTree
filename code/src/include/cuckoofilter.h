@@ -19,12 +19,12 @@ public:
   ~Bucket() {
   }
 
-  bool Insert(const Slice fp) {
+  bool Insert(size_t fp) {
     if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
       data_[size_] = fp;
       int i = size_;
-      while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
-        Slice temp = data_[i];
+      while (i > 0 && data_[i] < data_[i - 1]) {
+        size_t temp = data_[i];
         data_[i] = data_[i - 1];
         data_[i - 1] = temp;
         -- i;
@@ -35,22 +35,22 @@ public:
     return false;
   }
 
-  Slice Kick(const Slice fp) {
+  size_t Kick(const size_t fp) {
     size_t p = rand() % size_;
-    Slice res = data_[p];
+    size_t res = data_[p];
     data_[p] = fp;
     int i = p;
-    if (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
-      while (i > 0 && data_[i].compare(data_[i - 1]) < 0) {
-        Slice temp = data_[i];
+    if (i > 0 && data_[i] < data_[i - 1]) {
+      while (i > 0 && data_[i] < data_[i - 1]) {
+        size_t temp = data_[i];
         data_[i] = data_[i - 1];
         data_[i - 1] = temp;
         -- i;
       }
     }
-    else if (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
-      while (i < size_ - 1 && data_[i].compare(data_[i + 1]) > 0) {
-        Slice temp = data_[i];
+    else if (i < size_ - 1 && data_[i] > data_[i + 1]) {
+      while (i < size_ - 1 && data_[i] > data_[i + 1]) {
+        size_t temp = data_[i];
         data_[i] = data_[i + 1];
         data_[i + 1] = temp;
         ++ i;
@@ -59,9 +59,9 @@ public:
     return res;
   }
 
-  bool Find(const Slice fp) {
+  bool Find(size_t fp) {
     for (size_t i = 0; i < size_; ++ i) {
-      if (data_[i].compare(fp) == 0)
+      if (data_[i] == fp)
         return true;
     }
     return false;
@@ -83,22 +83,19 @@ public:
     std::stringstream ss;
     ss.str(data);
     size_ = size;
-    for (size_t i = 0; i < size_; ++ i) {
-      std::string d;
-      ss >> d;
-      data_[i] = Slice(d.data(), d.size());
-    }
+    for (size_t i = 0; i < size_; ++ i)
+      ss >> data_[i];
   }
 
-  std::vector<Slice> GetData() {
+  std::vector<size_t> GetData() {
     return data_;
   }
 
-  void DeleteDatas(const std::vector<Slice>& deleted_datas) {
+  void DeleteDatas(const std::vector<size_t>& deleted_datas) {
     for (size_t i = 0; i < deleted_datas.size(); ++ i) {
       bool found = false;
       for (size_t j = 0; j < size_; ++ j) {
-        if (data_[j].compare(deleted_datas[i]) == 0)
+        if (data_[j] == deleted_datas[i])
           found = true;
         if (found && j < size_ - 1)
           data_[j] = data_[j + 1];
@@ -113,13 +110,13 @@ public:
     ss << size_;
     ss << Config::DATA_SEG;
     for (size_t i = 0; i < size_; ++ i) {
-      ss << data_[i].ToString();
+      ss << data_[i];
       ss << Config::DATA_SEG;
     }
     return ss.str();
   }
 private:
-  std::vector<Slice> data_;
+  std::vector<size_t> data_;
   size_t size_;
 };
 
@@ -168,9 +165,9 @@ public:
   // this - cuckoofilter
   void Diff(CuckooFilter* cuckoofilter) {
     for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
-      std::vector<Slice> data_ = array_[i].GetData();
+      std::vector<size_t> data_ = array_[i].GetData();
       size_t size_ = array_[i].GetSize();
-      std::vector<Slice> deleted_datas;
+      std::vector<size_t> deleted_datas;
       for (size_t j = 0; j < size_; ++ j) {
         if (cuckoofilter->FindFingerPrint(data_[j], i))
           deleted_datas.push_back(data_[j]);
@@ -179,7 +176,7 @@ public:
     }
   }
 
-  bool FindFingerPrint(const Slice fp, const size_t pos) {
+  bool FindFingerPrint(const size_t fp, const size_t pos) {
     if (array_[pos].Find(fp))
       return true;
     size_t alt_pos = GetAlternatePos(fp, pos);
@@ -197,12 +194,12 @@ public:
 
 private:
   struct Info {
-    Slice fp_;
+    size_t fp_;
     size_t pos1, pos2;
 
     Info() { }
 
-    Info(Slice a, size_t b, size_t c) { fp_ = a; pos1 = b; pos2 = c;}
+    Info(size_t a, size_t b, size_t c) { fp_ = a; pos1 = b; pos2 = c;}
   };
 
   std::vector<Bucket> array_;
@@ -212,36 +209,34 @@ private:
   const size_t FPSEED = 0xc6a4a793;
   const size_t MAXKICK = 500;
 
-  Slice GetFingerPrint(const Slice key) {
+  size_t GetFingerPrint(const Slice key) {
     size_t f = Hash(key.data(), key.size(), FPSEED);
-    std::string f_str = Util::IntToString(f);
-    // std::cout << "Key:" << key.ToString() << "\tFP:" << f << std::endl;
-    return Slice(f_str.data(), f_str.size());
+    return f;
   }
 
   Info GetInfo(const Slice key) {
-    Slice fp_ = GetFingerPrint(key);
-    // std::cout << "Key:" << key.ToString() << "\tFP:" << fp_.ToString() << std::endl;
-    size_t p1 = Hash(key.data(), key.size(), Config::FilterConfig::SEED) % Config::FilterConfig::CUCKOOFILTER_SIZE;
-    size_t p2 = GetAlternatePos(fp_, p1);
+    size_t fp = GetFingerPrint(key);
+    size_t p1 = fp % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    size_t p2 = (fp + Config::FilterConfig::PADDING) % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    if (p1 == p2)
+      std::cout << fp << "\t" << p1 << "\t" << p2 << std::endl;
     assert(p1 != p2);
-    return Info(fp_, p1, p2);
+    return Info(fp, p1, p2);
   }
 
-  size_t GetAlternatePos(const Slice fp, const size_t p) {
-    size_t hash = Hash(fp.data(), fp.size(), Config::FilterConfig::SEED);
-    size_t alt_pos = (p ^ hash) % Config::FilterConfig::CUCKOOFILTER_SIZE;
-    // std::cout << "FP:" << fp.ToString() << "\tPOS:" << p << "\tALTER POS:" << alt_pos << "\t" << ((alt_pos ^ hash) % Config::FilterConfig::CUCKOOFILTER_SIZE) << std::endl;
-    return alt_pos;
+  size_t GetAlternatePos(size_t fp, size_t p) {
+    size_t p1 = fp % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    size_t p2 = (fp + Config::FilterConfig::PADDING) % Config::FilterConfig::CUCKOOFILTER_SIZE;    
+    if (p == p1)
+      return p2;
+    return p1;
   }
 
-  void InsertAndKick(const Slice fp, const size_t pos) {
-    Slice fp_ = fp;
-    size_t pos_ = pos;
+  void InsertAndKick(size_t fp, size_t pos) {
     for (size_t i = 0; i < MAXKICK; ++ i) {
-      fp_ = array_[pos_].Kick(fp_);
-      pos_ = GetAlternatePos(fp_, pos_);
-      if (array_[pos_].Insert(fp_))
+      fp = array_[pos].Kick(fp);
+      pos = GetAlternatePos(fp, pos);
+      if (array_[pos].Insert(fp))
         return ;
     }
     assert(false);

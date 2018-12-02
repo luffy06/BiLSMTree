@@ -11,7 +11,6 @@ FileSystem::FileSystem(FlashResult *flashresult) {
     free_blocks_.push(i);
   
   flash_ = new Flash(flashresult);
-  std::cout << "Constructor in FileSystem" << std::endl;
 }
 
 FileSystem::~FileSystem() {
