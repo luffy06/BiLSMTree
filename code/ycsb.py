@@ -75,7 +75,6 @@ def read(in_filename, out_filename):
       ls = l.split()
       op = ls[0]
       key = ls[2][4:]
-      nls = [op, key]
       if op == 'SCAN':
         st = 4
       else:
@@ -91,8 +90,11 @@ def read(in_filename, out_filename):
         value = key[:len(key) - len(suffix)]
         for s in suffix:
           value = value + s
-      nls.append(value)
-      result.append(nls)
+        if int(key) > int(value):
+          t = key
+          key = value
+          value = t
+      result.append([op, key, value])
   f = open(out_filename, 'a')
   for i, l in enumerate(result):
     line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
