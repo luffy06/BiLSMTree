@@ -355,7 +355,6 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
     size_t r = rand() % 2;
-    r = 1;
     std::cout << "RUN " << i + 1 << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
     if (r == 0) {
       db->Put(data[i].key_.ToString(), data[i].value_.ToString());
@@ -372,6 +371,7 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
       }
     }
   }
+  db->ShowResult();
   delete db;
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }

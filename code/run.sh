@@ -2,7 +2,7 @@
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'LevelDB-KV')
+algos=('LevelDB' 'LevelDB-KV' 'BiLSMTree')
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
     rm 'config.in'
