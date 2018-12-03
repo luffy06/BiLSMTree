@@ -1,29 +1,26 @@
 import os
 from functools import reduce
 
-distribution_attr = ['readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
-distribution = [(0.48, 0.03, 0.47, 0.02), 
-                (0.05, 0.03, 0.90, 0.02), 
-                (0.90, 0.03, 0.05, 0.02), 
-                (0.25, 0.05, 0.25, 0.45), 
-                (0.05, 0.05, 0.45, 0.45), 
-                (0.45, 0.05, 0.05, 0.45), 
-                (0.25, 0.45, 0.25, 0.05), 
-                (0.05, 0.45, 0.45, 0.05), 
-                (0.45, 0.45, 0.05, 0.05), 
-                (0.03, 0.05, 0.02, 0.90), 
-                (0.03, 0.90, 0.02, 0.05), 
-                (0.03, 0.48, 0.02, 0.47)]
+distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
+distribution = [(30000, 1.00, 0.00, 0.00, 0.00), # 随机读
+                (100, 0.00, 0.00, 0.00, 1.00), # 顺序读
+                (30000, 0.00, 1.00, 0.00, 0.00), # 随机写
+                (30000, 0.00, 0.00, 1.00, 0.00), # 顺序写
+                (30000, 0.95, 0.00, 0.00, 0.05), # 50% 随机读 50% 顺序读
+                (30000, 0.50, 0.50, 0.00, 0.00), # 50% 随机读 50% 随机写
+                (30000, 0.50, 0.00, 0.50, 0.00), # 50% 随机读 50% 顺序写
+                (30000, 0.00, 0.50, 0.00, 0.50), # 50% 顺序读 50% 随机写
+                (30000, 0.00, 0.00, 0.95, 0.05), # 50% 顺序读 50% 顺序写
+                (30000, 0.65, 0.33, 0.00, 0.02), # 40% 随机读 40% 顺序读 20% 随机写
+                (30000, 0.65, 0.00, 0.33, 0.02)] # 40% 随机读 40% 顺序读 20% 顺序写
 
 attributes = {
-  'recordcount': 20000,
-  'operationcount': 20000,
+  'recordcount': 30000,
   'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
   'readallfields': 'true',
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-value_max_len = 100
 
 def generate_workload(project_path):
   for i in range(workload_num):
