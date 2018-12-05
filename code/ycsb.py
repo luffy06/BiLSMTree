@@ -4,8 +4,8 @@ from functools import reduce
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
 distribution = [(30000, 1.00, 0.00, 0.00, 0.00), # 随机读
                 (100, 0.00, 0.00, 0.00, 1.00), # 顺序读
-                (30000, 0.00, 1.00, 0.00, 0.00), # 随机写
-                (30000, 0.00, 0.00, 1.00, 0.00), # 顺序写
+                (20000, 0.00, 1.00, 0.00, 0.00), # 随机写
+                (20000, 0.00, 0.00, 1.00, 0.00), # 顺序写
                 (30000, 0.95, 0.00, 0.00, 0.05), # 50% 随机读 50% 顺序读
                 (30000, 0.50, 0.50, 0.00, 0.00), # 50% 随机读 50% 随机写
                 (30000, 0.50, 0.00, 0.50, 0.00), # 50% 随机读 50% 顺序写
@@ -21,6 +21,7 @@ attributes = {
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
+value_len_max = 1000
 
 def generate_workload(project_path):
   for i in range(workload_num):
@@ -82,6 +83,7 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
+      value = value[:value_len_max]
       if op == 'SCAN':
         suffix = ls[3]
         value = key[:len(key) - len(suffix)]
