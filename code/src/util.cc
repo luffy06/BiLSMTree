@@ -33,10 +33,20 @@ bool Util::ExistFile(const std::string filename) {
 
 std::string Util::GetAlgorithm() {
   std::fstream f(Config::ALGO_PATH, std::ios::in);
-  std::string algorithm;
+  std::string algorithm = "";
   f >> algorithm;
   f.close();
   return algorithm;
+}
+
+size_t Util::GetTableSize() {
+  std::string algo = Util::GetAlgorithm();
+  size_t table_size_ = Config::ImmutableMemTableConfig::MAXSIZE;
+  if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
+    table_size_ = Config::ImmutableMemTableConfig::MAXSIZE * (Config::CacheServerConfig::MAXSIZE + 1) + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
+    table_size_ = table_size_ / 2;
+  }
+  return table_size_;
 }
 
 }

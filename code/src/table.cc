@@ -139,8 +139,9 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     lsmtreeresult->Write(); 
   }
   filesystem->Close(filename);
-  if (Config::TRACE_LOG)
-    std::cout << "Create Table Success! Range:[" << meta_.smallest_.ToString() << ",\t" << meta_.largest_.ToString() << "]" << std::endl;
+  if (Config::TRACE_LOG) {
+    std::cout << "Create Table Success! File Size:" << meta_.file_size_ << std::endl;
+  }
 }
 
 Table::~Table() {

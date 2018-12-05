@@ -26,6 +26,8 @@ public:
 
   static std::string GetAlgorithm();
 
+  static size_t GetTableSize();
+
   static void Test(std::string msg) {
     std::string k;
     std::cout << msg << ":";
@@ -42,6 +44,7 @@ public:
   static constexpr const char* ALGO_PATH = "config.in";
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
+  static const bool FLASH_LOG = false;
   static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
 
@@ -52,7 +55,7 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 2048;
-    static const size_t PAGE_NUMS = 16;
+    static const size_t PAGE_NUMS = 32;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
@@ -75,16 +78,16 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 3;        // max size of immutable memtables
+    static const size_t MAXSIZE = 5;        // max size of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 500;      // the number of <key, value> stored in immutable memetable
+    static const size_t MAXSIZE = 512;      // the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 500;           // size of lru
-    static const size_t M2 = 500;           // size of fifo
+    static const size_t M1 = 512;           // size of lru
+    static const size_t M2 = 512;           // size of fifo
   };
 
   struct FilterConfig {
@@ -109,7 +112,6 @@ public:
   struct TableConfig {
     static const size_t BUFFER_SIZE = 50000000;
     static const size_t BLOCKSIZE = 4 * 1024;    // 4KB
-    static const size_t TABLESIZE = 250;
   };
 
   struct VisitFrequencyConfig {
@@ -213,6 +215,8 @@ public:
     double sum = 0;
     for (size_t i = 0; i < check_times_.size(); ++ i)
       sum = sum + check_times_[i];
+    if (check_times_.size() == 0)
+      return 0;
     return (sum / check_times_.size());
   }
 private:

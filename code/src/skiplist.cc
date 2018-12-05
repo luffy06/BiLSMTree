@@ -21,11 +21,8 @@ SkipList::~SkipList() {
 }
 
 bool SkipList::IsFull() {
-  std::string algo = Util::GetAlgorithm();
-  if (algo == std::string("BiLSMTree"))
-    return data_size_ >= Config::ImmutableMemTableConfig::MAXSIZE;
-  size_t total_ = Config::ImmutableMemTableConfig::MAXSIZE * Config::CacheServerConfig::MAXSIZE + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
-  return data_size_ >= (total_ / 2);
+  size_t table_size_ = Util::GetTableSize();
+  return data_size_ >= table_size_;
 }
 
 bool SkipList::Find(const Slice key, Slice& value) {

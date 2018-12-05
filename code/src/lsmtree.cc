@@ -450,10 +450,12 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
   for (size_t i = 0; i < tables.size(); ++ i) {
     TableIterator ti = tables[i];
     ti.SetId(i);
+    // std::cout << "Ready Merge Table " << i << " Size:" << ti.DataSize() << std::endl;
     if (ti.HasNext())
       q.push(ti);
   }
 
+  size_t table_size_ = Util::GetTableSize();
   while (!q.empty()) {
     TableIterator ti = q.top();
     q.pop();
@@ -461,7 +463,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     if (ti.HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
-      if (buffers_.size() >= Config::TableConfig::TABLESIZE) {
+      if (buffers_.size() >= table_size_) {
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
         Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
@@ -530,6 +532,7 @@ void LSMTree::MajorCompaction(size_t level) {
     std::cout << "MajorCompaction On Level:" << level << std::endl;
   lsmtreeresult_->MajorCompaction();
   size_t select_numb_Li = file_[level].size() - max_size_[level];
+  // std::cout << "SELECT " << select_numb_Li << std::endl;
   max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;
