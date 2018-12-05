@@ -1,8 +1,12 @@
 #!/bin/bash
+
+set -v  # print commands as they're executed
+set -e  # fail and exit on any command erroring
+
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'LevelDB-KV' 'BiLSMTree')
+algos=('BiLSMTree' 'LevelDB-KV' 'LevelDB')
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
     rm 'config.in'
