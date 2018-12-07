@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -v  # print commands as they're executed
 set -e  # fail and exit on any command erroring
 
 datafolder="data"
@@ -19,7 +18,7 @@ for algo in ${algos[*]}; do
   echo 'Running '${algo} 
   for file in ${datafolder}/*${suffix}; do
     filename=`basename $file`
-    echo 'DATA '${filename}
+    echo 'RUNNING '${filename}
     echo 'RUNNING '${filename} >> ${resultname}
     echo `build/main < $datafolder/$filename` >> ${resultname}
   done
