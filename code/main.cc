@@ -39,25 +39,39 @@ int main() {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::string op, key, value, db_value;
   size_t j = 0;
+  size_t random_read = 0;
+  size_t random_write = 0;
+  size_t sequence_write = 0;
+  size_t sequence_read = 0;
+  size_t scan = 0;
   while (std::cin >> op >> key >> value) {
     // std::cout << "RUN " << j << "\tOp:" << op << std::endl;
-    if (op == "INSERT" || op == "UPDATE") {
+    if (op == "INSERT") {
+      sequence_write ++;
+      db->Put(key, value);
+    }
+    else if (op == "UPDATE") {
+      random_write ++;
       db->Put(key, value);
     }
     else if (op == "READ") {
+      random_read ++;
       db->Get(key, db_value);
     }
     else if (op == "SCAN") {
       std::string st_key = key;
       std::string ed_key = StringAddOne(value);
       // std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
-      for (std::string key = st_key; key != ed_key; key = StringAddOne(key)) {
+      scan ++;
+      size_t i = 0;
+      for (std::string key = st_key; key != ed_key && i < bilsmtree::Config::MAX_SCAN_NUMB; key = StringAddOne(key), ++ i) {
+        sequence_read ++;
         db->Get(key, db_value);
       }
     }
     ++ j;
   }
-  std::cout << "Run Success" << std::endl;
+  std::cout << "READ:" << random_read << "\tUPDATE:" << random_write << "\tINSERT:" << sequence_write << "\tSCAN:" << scan << "\tSCAN_READ:" << sequence_read << std::endl;
   db->ShowResult();
   delete db;
   return 0;
