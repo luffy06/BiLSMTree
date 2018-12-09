@@ -88,6 +88,8 @@ void Flash::Write(const size_t lba, const char* data) {
     }
     size_t replace_block_num_ = block_info_[block_num_].next_;
     if (block_info_[replace_block_num_].offset_ >= Config::FlashConfig::PAGE_NUMS) {
+      // std::cout << block_info_[replace_block_num_].offset_ << std::endl;
+      // std::cout << "LBA:" << lba << std::endl;
       MinorCollectGarbage(block_num_);
       block_info_[block_num_].status_ = PrimaryBlock;
     }
@@ -108,6 +110,16 @@ void Flash::Write(const size_t lba, const char* data) {
   // check whether start garbage collection
   if (free_blocks_num_ < Config::FlashConfig::BLOCK_COLLECTION_TRIGGER)
     MajorCollectGarbage();
+}
+
+void Flash::Invalidate(const size_t lba) {
+  if (page_table_.find(lba) != page_table_.end()) {
+    size_t old_block_num_ = page_table_[lba].block_num_;
+    size_t old_page_num_ = page_table_[lba].page_num_;
+    page_info_[old_block_num_][old_page_num_].status_ = PageInvalid;
+    block_info_[old_block_num_].valid_nums_ = block_info_[old_block_num_].valid_nums_ - 1;
+    block_info_[old_block_num_].invalid_nums_ = block_info_[old_block_num_].invalid_nums_ + 1;
+  }
 }
 
 std::pair<size_t, char*> Flash::ReadByPageNum(const size_t block_num, const size_t page_num) {
@@ -164,6 +176,8 @@ void Flash::WriteByPageNum(const size_t block_num, const size_t page_num, const 
 }
 
 void Flash::Erase(const size_t block_num) {
+  if (Config::FLASH_LOG)
+    std::cout << "ERASE " << block_num << std::endl;
   // erase block data in file
   std::fstream f(GetBlockPath(block_num), std::ios::ate | std::ios:: out);
   f.close();
@@ -180,8 +194,10 @@ void Flash::Erase(const size_t block_num) {
 }
 
 void Flash::MinorCollectGarbage(const size_t block_num) {
-  // std::cout << "MinorCollectGarbage:" << block_num << std::endl;
-  // std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
+  if (Config::FLASH_LOG) {
+    std::cout << "MinorCollectGarbage:" << block_num << std::endl;
+    std::cout << "Before Free Block Number:" << free_blocks_num_ << std::endl;
+  }
   assert(block_info_[block_num].status_ == PrimaryBlock);
   size_t block_num_ = block_num;
   std::vector<size_t> erase_list_;
@@ -243,8 +259,10 @@ void Flash::MinorCollectGarbage(const size_t block_num) {
     }
     Erase(erase_block_num_);
   }
-  // std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
-  // std::cout << "MinorCollectGarbage Success" << std::endl;
+  if (Config::FLASH_LOG) {
+    std::cout << "After Free Block Number:" << free_blocks_num_ << std::endl;
+    std::cout << "MinorCollectGarbage Success" << std::endl;
+  }
 }
 
 void Flash::MajorCollectGarbage() {

@@ -26,6 +26,8 @@ public:
 
   void Write(const size_t lba, const char* data);
 
+  void Invalidate(const size_t lba);
+
   void ShowInfo();
 private:  
   enum PageStatus {

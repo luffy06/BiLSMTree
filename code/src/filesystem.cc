@@ -220,11 +220,15 @@ void FileSystem::Delete(const std::string filename) {
     size_t lba_ = fcbs_[filename].block_start_;
     while (fat_[lba_] != lba_) {
       free_blocks_.push(lba_);
+      flash_->Invalidate(lba_);
+      // std::cout << "Free LBA:" << lba_ << std::endl;
       size_t old_lba_ = lba_;
       lba_ = fat_[lba_];
       fat_[old_lba_] = old_lba_;
     }
+    // std::cout << "Free LBA:" << lba_ << std::endl;
     free_blocks_.push(lba_);
+    flash_->Invalidate(lba_);
     fcbs_.erase(filename);
   }
 }
@@ -248,6 +252,7 @@ size_t FileSystem::AssignFreeBlocks() {
   assert(!free_blocks_.empty());
   size_t new_block = free_blocks_.front();
   free_blocks_.pop();
+  // std::cout << "Allocate LBA:" << new_block << std::endl;
   return new_block;
 }
 
