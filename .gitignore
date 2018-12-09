@@ -1,6 +1,7 @@
 /doc/pic/*.vsdx
-/code/flashblocks
 /code/lib
 /code/logs
 /code/build
 /code/data
+/code/result
+/code/config.in
