@@ -28,6 +28,7 @@ private:
   std::vector<size_t> max_size_;
   std::vector<size_t> min_size_;
   VisitFrequency *recent_files_;
+  DataManager *datamanager_;
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
   FileSystem *filesystem_;

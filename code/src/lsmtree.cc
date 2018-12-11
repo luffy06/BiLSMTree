@@ -7,6 +7,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   lsmtreeresult_ = lsmtreeresult;
   total_sequence_number_ = 0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
+  datamanager_ = new DataManager(filesystem)
   max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   max_size_[0] = Config::LSMTreeConfig::L0SIZE;
@@ -19,6 +20,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
 
 LSMTree::~LSMTree() {
   delete recent_files_;
+  delete datamanager_;
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {

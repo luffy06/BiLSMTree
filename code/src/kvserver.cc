@@ -14,7 +14,7 @@ KVServer::~KVServer() {
 
 bool KVServer::Get(const Slice key, Slice& value) {
   std::string algo = Util::GetAlgorithm();
-  if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV")) {
+  if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV") || algo == std::string("LevelDB-Sep")) {
     Slice location_;
     if (lsmtree_->Get(key, location_)) {
       // std::cout << "Get Location " << location_.ToString() << std::endl;
@@ -35,7 +35,7 @@ void KVServer::MinorCompact(const SkipList* sl) {
   if (Config::TRACE_LOG)
     std::cout << "Get All data in Immutable Memtable:" << data_.size() << std::endl;
   // TODO: RESIZE BEFORE PUSH_BACK
-  if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV")) {
+  if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV") || algo == std::string("LevelDB-Sep")) {
     std::vector<KV> kvs_ = logmanager_->Append(data_);
     if (Config::TRACE_LOG)
       std::cout << "Get Locations From LogManager" << std::endl;
