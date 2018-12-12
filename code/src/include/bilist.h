@@ -13,9 +13,11 @@ namespace bilsmtree {
 */
 class BiList {
 public:
-  BiList(size_t size);
+  BiList(size_t size, size_t numb);
   
   ~BiList();
+
+  bool IsFull();
   
   void Set(size_t pos, const KV kv);
 
@@ -77,6 +79,8 @@ private:
   size_t tail_;        // refer to last data's position
   size_t max_size_;
   size_t data_size_;
+  size_t max_numb_;
+  size_t data_numb_;
   std::queue<size_t> free_;
   std::vector<ListNode> data_;
 };

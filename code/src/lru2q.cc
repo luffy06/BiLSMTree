@@ -4,8 +4,8 @@ namespace bilsmtree {
 
 LRU2Q::LRU2Q() {
   map_.clear();
-  lru_ = new BiList(Config::LRU2QConfig::M1);
-  fifo_ = new BiList(Config::LRU2QConfig::M2);
+  lru_ = new BiList(Config::LRU2QConfig::M1, Config::LRU2QConfig::M1_NUMB);
+  fifo_ = new BiList(Config::LRU2QConfig::M2, Config::LRU2QConfig::M2_NUMB);
 }
 
 LRU2Q::~LRU2Q() {

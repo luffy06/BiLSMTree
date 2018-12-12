@@ -85,12 +85,14 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 2 * 1024 * 1024;     // 2MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 32 * 1024;           // 32KB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 1024 * 1024;               // 1MB size of lru
-    static const size_t M2 = 1024 * 1024;               // 1MB size of fifo
+    static const size_t M1 = 32 * 1024;                 // 32KB size of lru
+    static const size_t M2 = 32 * 1024;                 // 32KB size of fifo
+    static const size_t M1_NUMB = 50;                   // max number of lru
+    static const size_t M2_NUMB = 50;                   // max number of fifo    
   };
 
   struct FilterConfig {
@@ -110,7 +112,7 @@ public:
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = 2 * 1024 * 1024;   // 2MB
+    static const size_t TABLE_SIZE = 32 * 1024;         // 32KB
   };
 
   struct TableConfig {
@@ -179,20 +181,24 @@ public:
 
   }
 
-  void Read() {
+  void Read(size_t size) {
     read_files_ = read_files_ + 1;
+    read_size_ = read_size_ + size;
   }
 
-  void Write() {
+  void Write(size_t size) {
     write_files_ = write_files_ + 1;
+    write_size_ = write_size_ + size;
   }
 
-  void MinorCompaction() {
+  void MinorCompaction(size_t file_size) {
     minor_compaction_times_ = minor_compaction_times_ + 1;
+    minor_compaction_size_ = minor_compaction_size_ + file_size;
   }
 
-  void MajorCompaction() {
+  void MajorCompaction(size_t file_size) {
     major_compaction_times_ = major_compaction_times_ + 1;
+    major_compaction_size_ = major_compaction_size_ + file_size;
   }
 
   void Check(size_t times) {
@@ -215,6 +221,22 @@ public:
     return major_compaction_times_;
   }
 
+  size_t GetReadSize() {
+    return read_size_;
+  }
+
+  size_t GetWriteSize() {
+    return write_size_;
+  }
+
+  size_t GetMinorCompactionSize() {
+    return minor_compaction_size_;
+  }
+
+  size_t GetMajorCompactionSize() {
+    return major_compaction_size_;
+  }
+
   double GetCheckTimesAvg() {
     double sum = 0;
     for (size_t i = 0; i < check_times_.size(); ++ i)
@@ -225,9 +247,13 @@ public:
   }
 private:
   double write_files_;
+  double write_size_;
   double read_files_;
+  double read_size_;
   size_t minor_compaction_times_;
+  size_t minor_compaction_size_;
   size_t major_compaction_times_;
+  size_t major_compaction_size_;
   std::vector<size_t> check_times_;
 };
 

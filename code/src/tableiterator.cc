@@ -18,7 +18,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::string offset_data_ = filesystem->Read(filename, meta.footer_size_);
   // std::cout << "Offset In TableIterator:" << offset_data_ << std::endl;
   ss.str(offset_data_);
-  lsmtreeresult_->Read();
+  lsmtreeresult_->Read(offset_data_.size());
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss >> index_offset_;
@@ -30,7 +30,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   filesystem->Seek(filename, filter_offset_);
   std::string filter_data_ = filesystem->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
-  lsmtreeresult_->Read();
+  lsmtreeresult_->Read(filter_data_.size());
   Filter *filter_ = NULL;
   if (algo == std::string("BiLSMTree")) {
     filter_ = new CuckooFilter(filter_data_);
@@ -46,7 +46,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << "Load Index Data" << std::endl;
   filesystem->Seek(filename, index_offset_);
   std::string index_data_ = filesystem->Read(filename, filter_offset_ - index_offset_);
-  lsmtreeresult_->Read();
+  lsmtreeresult_->Read(index_data_.size());
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
@@ -65,7 +65,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, data_block_size_);
-    lsmtreeresult_->Read();
+    lsmtreeresult_->Read(block_data.size());
     ParseBlock(block_data, filter_);
   }
   filesystem->Close(filename);

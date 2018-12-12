@@ -136,7 +136,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
       ss.str("");
       filesystem->Write(filename, buffer.data(), buffer.size());
     }
-    lsmtreeresult->Write(); 
+    lsmtreeresult->Write(datas_[i].size()); 
   }
   filesystem->Close(filename);
   if (Config::TRACE_LOG) {

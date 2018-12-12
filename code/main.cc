@@ -45,7 +45,8 @@ int main() {
   size_t sequence_read = 0;
   size_t scan = 0;
   while (std::cin >> op >> key >> value) {
-    // std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    if (bilsmtree::Config::TRACE_LOG)
+      std::cout << "RUN " << j << "\tOp:" << op << std::endl;
     if (op == "INSERT") {
       sequence_write ++;
       db->Put(key, value);

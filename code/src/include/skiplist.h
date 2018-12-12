@@ -23,7 +23,7 @@ public:
   std::vector<KV> GetAll() const {
     std::vector<KV> res_;
     ListNode *p = head_;
-    for (size_t i = 0; i < data_size_; ++ i) {
+    for (size_t i = 0; i < data_numb_; ++ i) {
       KV kv = p->forward_[0]->kv_;
       res_.push_back(kv);
       p = p->forward_[0];
