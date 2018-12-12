@@ -83,7 +83,7 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      value = value[:value_len_max]
+      # value = value[:value_len_max]
       if op == 'SCAN':
         suffix = ls[3]
         value = key[:len(key) - len(suffix)]
