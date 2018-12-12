@@ -486,6 +486,124 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
   return result_;
 }
 
+std::vector<IndexTable*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterator>& tables) {
+  if (Config::TRACE_LOG)
+    std::cout << "MergeIndexTables Start:" << tables.size() << std::endl;
+  
+  std::vector<KV> kv_buffers_;
+  std::vector<BlockMeta> index_buffers_;
+  std::vector<IndexTable*> result_;
+  std::priority_queue<IndexTableIterator> q;
+  std::vector<std::pair<size_t, BlockMeta>> overlaps;
+  size_t data_size_ = 0;
+  bool first = true;
+  Slice largest_;
+  
+  for (size_t i = 0; i < tables.size(); ++ i) {
+    IndexTableIterator ti = tables[i];
+    ti.SetId(i);
+    // std::cout << "Ready Merge IndexTable " << i << " Size:" << ti.DataSize() << std::endl;
+    if (ti.HasNext())
+      q.push(ti);
+  }
+
+  size_t table_size_ = Util::GetSSTableSize();
+  while (!q.empty() || overlaps.size() > 0) {
+    if (!q.empty()) {
+      IndexTableIterator ti = q.top();
+      q.pop();
+      BlockMeta bm = ti.Next();
+      if (first) {
+        largest_ = bm.largest_;
+        first = false;
+      }
+      else if (largest_.compare(bm.largest_) < 0) {
+        largest_ = bm.largest_;
+      }
+      if (ti.HasNext())
+        q.push(ti);
+      overlaps.push_back(std::make_pair(ti.Id(), bm));
+      if (!q.empty() && largest_.compare(q.top().Current().smallest_) >= 0)
+        continue ;
+    }
+
+    first = true;
+    // merge all overlaped files
+    if (overlaps.size() == 1) {
+      if (kv_buffers_.size() != 0) {
+        BlockMeta nbm = datamanager_->Append(kv_buffers_);
+        kv_buffers_.clear();
+        index_buffers_.push_back(nbm);
+        data_size_ = data_size_ + nbm.size_;
+      }
+      index_buffers_.push_back(overlaps[0].second);
+      data_size_ = data_size_ + overlaps[0].second.size_;
+      if (data_size_ >= table_size_) {
+        size_t sequence_number_ = GetSequenceNumber();
+        std::string filename = GetFilename(sequence_number_);
+        IndexTable *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+        result_.push_back(t);
+        index_buffers_.clear();
+      }
+    }
+    else {
+      std::vector<BlockIterator> bis;
+      for (size_t i = 0; i < overlaps.size(); ++ i) {
+        BlockIterator bi = BlockIterator(overlaps[i].first, overlaps[i].second);
+        bis.push_back(bi);
+      }
+      std::vector<BlockMeta> bms = MergeBlocks(bis, kv_buffers_);
+      for (size_t i = 0; i < overlaps.size(); ++ i)
+        datamanager_->Invalidate(overlaps[i].second);
+      for (size_t i = 0; i < bms.size(); ++ i) {
+        index_buffers_.push_back(bms[i]);
+        data_size_ = data_size_ + bms[i].size_;
+        if (data_size_ >= table_size_) {
+          size_t sequence_number_ = GetSequenceNumber();
+          std::string filename = GetFilename(sequence_number_);
+          IndexTable *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+          result_.push_back(t);
+          index_buffers_.clear();
+        }
+      }
+    }
+  }
+  if (Config::TRACE_LOG)
+    std::cout << "MergeTables End:" << result_.size() << std::endl;
+  return result_;
+}
+
+std::vector<BlockMeta> LSMTree::MergeBlocks(const std::vector<BlockIterator>& bis, std::vector<KV>& kv_buffers) {
+  std::vector<BlockMeta> result_;
+  std::priority_queue<BlockIterator> q;
+  for (size_t i = 0; i < bis.size(); ++ i) {
+    if (bis[i].HasNext())
+      q.push(bis[i]);
+  }
+  size_t block_size_ = ;
+  size_t buffer_size_ = 0;
+  for (size_t i = 0; i < kv_buffers_.size(); ++ i)
+    buffer_size_ = buffer_size_ + kv_buffers_[i].size();
+  while (!q.empty()) {
+    BlockIterator bi = q.top();
+    q.pop();
+    KV kv = bi.Next();
+    if (bi.HasNext())
+      q.push(bi);
+    if (kv_buffers_.size() == 0 || kv.key_.compare(kv_buffers_[kv_buffers_.size() - 1].key_) > 0) {
+      kv_buffers_.push_back(kv);
+      buffer_size_ = buffer_size_ + kv.size();
+      if (buffer_size_ >= block_size_) {
+        BlockMeta bm = datamanager_->Append(kv_buffers_);
+        result_.push_back(bm);
+        kv_buffers_.clear();
+        buffer_size_ = 0;
+      }
+    }
+  }
+  return result_;
+}
+
 void LSMTree::CompactList(size_t level) {
   if (Config::TRACE_LOG)
     std::cout << "CompactList On Level:" << level << std::endl;
