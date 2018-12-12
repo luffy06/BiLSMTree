@@ -26,7 +26,9 @@ public:
 
   static std::string GetAlgorithm();
 
-  static size_t GetTableSize();
+  static size_t GetMemTableSize();
+
+  static size_t GetSSTableSize();
 
   static void Test(std::string msg) {
     std::string k;
@@ -79,16 +81,16 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 5;        // max size of immutable memtables
+    static const size_t MAXSIZE = 5;                    // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MAXSIZE = 512;      // the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 2 * 1024 * 1024;     // 2MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 512;           // size of lru
-    static const size_t M2 = 512;           // size of fifo
+    static const size_t M1 = 1024 * 1024;               // 1MB size of lru
+    static const size_t M2 = 1024 * 1024;               // 1MB size of fifo
   };
 
   struct FilterConfig {
@@ -108,11 +110,12 @@ public:
     static const size_t L0SIZE = 4;
     static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 10;
+    static const size_t TABLE_SIZE = 2 * 1024 * 1024;   // 2MB
   };
 
   struct TableConfig {
     static const size_t BUFFER_SIZE = 50000000;
-    static const size_t BLOCKSIZE = 4 * 1024;    // 4KB
+    static const size_t BLOCKSIZE = 4 * 1024;           // 4KB
   };
 
   struct VisitFrequencyConfig {

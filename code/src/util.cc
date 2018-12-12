@@ -39,13 +39,21 @@ std::string Util::GetAlgorithm() {
   return algorithm;
 }
 
-size_t Util::GetTableSize() {
+size_t Util::GetMemTableSize() {
   std::string algo = Util::GetAlgorithm();
-  size_t table_size_ = Config::ImmutableMemTableConfig::MAXSIZE;
+  size_t table_size_ = Config::ImmutableMemTableConfig::MEM_SIZE;
   if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
-    table_size_ = Config::ImmutableMemTableConfig::MAXSIZE * (Config::CacheServerConfig::MAXSIZE + 1) + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
+    table_size_ = Config::ImmutableMemTableConfig::MEM_SIZE * (Config::CacheServerConfig::MAXSIZE + 1) + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
     table_size_ = table_size_ / 2;
   }
+  return table_size_;
+}
+
+size_t Util::GetSSTableSize() {
+  std::string algo = Util::GetAlgorithm();
+  size_t table_size_ = Config::LSMTreeConfig::TABLE_SIZE;
+  if (algo == std::string("BiLSMTree"))
+    table_size_ = table_size_ / 2;
   return table_size_;
 }
 

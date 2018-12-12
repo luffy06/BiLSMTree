@@ -42,6 +42,7 @@ private:
   };
 
   size_t data_size_;
+  size_t data_numb_;
   ListNode *head_;
   bool writable_;
 

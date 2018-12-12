@@ -444,6 +444,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     std::cout << "MergeTables Start:" << tables.size() << std::endl;
   
   std::vector<KV> buffers_;
+  size_t buffer_size_ = 0;
   std::vector<Table*> result_;
   std::priority_queue<TableIterator> q;
   
@@ -455,7 +456,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
       q.push(ti);
   }
 
-  size_t table_size_ = Util::GetTableSize();
+  size_t table_size_ = Util::GetSSTableSize();
   while (!q.empty()) {
     TableIterator ti = q.top();
     q.pop();
@@ -463,7 +464,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
     if (ti.HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
-      if (buffers_.size() >= table_size_) {
+      if (buffer_size_ >= table_size_) {
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
         Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
@@ -471,9 +472,10 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
         buffers_.clear();
       }
       buffers_.push_back(kv);
+      buffer_size_ = buffer_size_ + kv.size();
     }
   }
-  if (buffers_.size() > 0) {
+  if (buffer_size_ > 0) {
     size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
     Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
