@@ -85,12 +85,12 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 32 * 1024;           // 32KB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 1024 * 1024;         // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 32 * 1024;                 // 32KB size of lru
-    static const size_t M2 = 32 * 1024;                 // 32KB size of fifo
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
     static const size_t M1_NUMB = 50;                   // max number of lru
     static const size_t M2_NUMB = 50;                   // max number of fifo    
   };
@@ -110,14 +110,15 @@ public:
   struct LSMTreeConfig {
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
+    static const size_t LIBASE = 10;
     static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = 32 * 1024;         // 32KB
+    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 256;
   };
 
   struct TableConfig {
     static const size_t BUFFER_SIZE = 50000000;
-    static const size_t BLOCKSIZE = 4 * 1024;           // 4KB
+    static const size_t BLOCKSIZE = LSMTreeConfig::TABLE_SIZE / 16;
   };
 
   struct VisitFrequencyConfig {

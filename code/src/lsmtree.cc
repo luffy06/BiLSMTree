@@ -12,8 +12,8 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   max_size_[0] = Config::LSMTreeConfig::L0SIZE;
   min_size_[0] = Config::LSMTreeConfig::L0SIZE;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
-    max_size_[i] = static_cast<size_t>(pow(10, i));
-    min_size_[i] = static_cast<size_t>(pow(10, i));
+    max_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
+    min_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
   }
 }
 
@@ -457,6 +457,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
   }
 
   size_t table_size_ = Util::GetSSTableSize();
+
   while (!q.empty()) {
     TableIterator ti = q.top();
     q.pop();
@@ -470,6 +471,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& table
         Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
         result_.push_back(t);
         buffers_.clear();
+        buffer_size_ = 0;
       }
       buffers_.push_back(kv);
       buffer_size_ = buffer_size_ + kv.size();

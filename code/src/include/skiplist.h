@@ -32,6 +32,8 @@ public:
   }
 
   void DisableWrite();
+
+  size_t data_size() { return data_size_; }
 private:
   struct ListNode {
     KV kv_;

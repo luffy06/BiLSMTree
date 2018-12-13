@@ -52,8 +52,6 @@ size_t Util::GetMemTableSize() {
 size_t Util::GetSSTableSize() {
   std::string algo = Util::GetAlgorithm();
   size_t table_size_ = Config::LSMTreeConfig::TABLE_SIZE;
-  if (algo == std::string("BiLSMTree"))
-    table_size_ = table_size_ / 2;
   return table_size_;
 }
 

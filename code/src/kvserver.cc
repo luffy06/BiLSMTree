@@ -34,7 +34,6 @@ void KVServer::MinorCompact(const SkipList* sl) {
   std::string algo = Util::GetAlgorithm();
   if (Config::TRACE_LOG)
     std::cout << "Get All data in Immutable Memtable:" << data_.size() << std::endl;
-  // TODO: RESIZE BEFORE PUSH_BACK
   if (algo == std::string("BiLSMTree") || algo == std::string("LevelDB-KV")) {
     std::vector<KV> kvs_ = logmanager_->Append(data_);
     if (Config::TRACE_LOG)
