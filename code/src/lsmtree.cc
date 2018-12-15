@@ -218,7 +218,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string algo = Util::GetAlgorithm();
   if (Config::TRACE_READ_LOG)
     std::cout << "Create Filter" << std::endl;
-  if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
+  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filter = new BloomFilter(filter_data_);
   }
   else if (algo == std::string("BiLSMTree")) {

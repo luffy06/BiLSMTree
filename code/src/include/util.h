@@ -49,7 +49,7 @@ public:
   static const bool FLASH_LOG = false;
   static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
-  static const size_t MAX_SCAN_NUMB = 60;
+  static const size_t MAX_SCAN_NUMB = 100;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -97,8 +97,8 @@ public:
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 8192;
-    static const size_t PADDING = 2879;
+    static const size_t CUCKOOFILTER_SIZE = 2048;
+    static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
   };
 
@@ -137,6 +137,7 @@ public:
   FlashResult() {
     latency_ = 0;
     erase_times_ = 0;
+    record_ = false;
   }
 
   ~FlashResult() {
@@ -144,16 +145,20 @@ public:
   }
 
   void Read() {
-    latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
+    if (record_)
+      latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
   }
 
   void Write() {
-    latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
+    if (record_)
+      latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
   }
 
   void Erase() {
-    latency_ = latency_ + Config::FlashConfig::ERASE_LATENCY;
-    erase_times_ = erase_times_ + 1;
+    if (record_) {
+      latency_ = latency_ + Config::FlashConfig::ERASE_LATENCY;
+      erase_times_ = erase_times_ + 1;
+    }
   }
 
   size_t GetLatency() {
@@ -163,7 +168,12 @@ public:
   size_t GetEraseTimes() {
     return erase_times_;
   }
+
+  void StartRecord() {
+    record_ = true;
+  }
 private:
+  bool record_;
   size_t latency_;
   size_t erase_times_;
 };
@@ -176,6 +186,7 @@ public:
     minor_compaction_times_ = 0;
     major_compaction_times_ = 0;
     check_times_.clear();
+    record_ = false;
   }
 
   ~LSMTreeResult() {
@@ -183,27 +194,37 @@ public:
   }
 
   void Read(size_t size) {
-    read_files_ = read_files_ + 1;
-    read_size_ = read_size_ + size;
+    if (record_) {
+      read_files_ = read_files_ + 1;
+      read_size_ = read_size_ + size;
+    }
   }
 
   void Write(size_t size) {
-    write_files_ = write_files_ + 1;
-    write_size_ = write_size_ + size;
+    if (record_) {
+      write_files_ = write_files_ + 1;
+      write_size_ = write_size_ + size;
+    }
   }
 
   void MinorCompaction(size_t file_size) {
-    minor_compaction_times_ = minor_compaction_times_ + 1;
-    minor_compaction_size_ = minor_compaction_size_ + file_size;
+    if (record_) {
+      minor_compaction_times_ = minor_compaction_times_ + 1;
+      minor_compaction_size_ = minor_compaction_size_ + file_size;
+    }
   }
 
   void MajorCompaction(size_t file_size) {
-    major_compaction_times_ = major_compaction_times_ + 1;
-    major_compaction_size_ = major_compaction_size_ + file_size;
+    if (record_) {
+      major_compaction_times_ = major_compaction_times_ + 1;
+      major_compaction_size_ = major_compaction_size_ + file_size;
+    }
   }
 
   void Check(size_t times) {
-    check_times_.push_back(times);
+    if (record_) {
+      check_times_.push_back(times);
+    }
   }
 
   size_t GetReadFiles() {
@@ -246,7 +267,12 @@ public:
       return 0;
     return (sum / check_times_.size());
   }
+
+  void StartRecord() {
+    record_ = true;
+  }
 private:
+  bool record_;
   double write_files_;
   double write_size_;
   double read_files_;
@@ -263,6 +289,11 @@ public:
   Result() {
     flashresult_ = new FlashResult();
     lsmtreeresult_ = new LSMTreeResult();
+  }
+
+  void StartRecord() {
+    lsmtreeresult_->StartRecord();
+    flashresult_->StartRecord();
   }
 
   LSMTreeResult *lsmtreeresult_;

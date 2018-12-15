@@ -16,6 +16,8 @@ public:
 
   bool Get(const std::string key, std::string& value);
 
+  void StartRecord();
+
   void ShowResult() { 
     // std::cout << "ALGORITHM:" << Util::GetAlgorithm() << std::endl;
     std::cout << "LATENCY:" << result_->flashresult_->GetLatency() << std::endl;

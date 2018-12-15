@@ -47,7 +47,7 @@ SkipList* CacheServer::Put(const KV kv) {
       mem_->Insert(pop_kv);
     }
   }
-  else if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
+  else if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     if (mem_->IsFull()) {
       if (imms_.size() != 0) {
         res = imms_[0].imm_;

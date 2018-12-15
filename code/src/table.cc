@@ -83,7 +83,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   // write filter block
   std::string algorithm = Util::GetAlgorithm();
   Filter *filter_ = NULL;
-  if (algorithm == std::string("LevelDB") || algorithm == std::string("LevelDB-KV")) {
+  if (algorithm == std::string("LevelDB") || algorithm == std::string("Wisckey")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
   else if (algorithm == std::string("BiLSMTree")) {

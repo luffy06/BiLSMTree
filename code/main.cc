@@ -36,6 +36,7 @@ std::string StringAddOne(std::string a) {
 }
 
 int main() {
+  srand((unsigned int)time(NULL));
   bilsmtree::DB *db = new bilsmtree::DB();
   std::string op, key, value, db_value;
   size_t j = 0;
@@ -47,26 +48,33 @@ int main() {
   while (std::cin >> op >> key >> value) {
     if (bilsmtree::Config::TRACE_LOG)
       std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    if (j >= 30000)
+      db->StartRecord();
     if (op == "INSERT") {
-      sequence_write ++;
+      if (j >= 30000)
+        sequence_write ++;
       db->Put(key, value);
     }
     else if (op == "UPDATE") {
-      random_write ++;
+      if (j >= 30000)
+        random_write ++;
       db->Put(key, value);
     }
     else if (op == "READ") {
-      random_read ++;
+      if (j >= 30000)
+        random_read ++;
       db->Get(key, db_value);
     }
     else if (op == "SCAN") {
       std::string st_key = key;
       std::string ed_key = StringAddOne(value);
       // std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
-      scan ++;
+      if (j >= 30000)
+        scan ++;
       size_t i = 0;
       for (std::string key = st_key; key != ed_key && i < bilsmtree::Config::MAX_SCAN_NUMB; key = StringAddOne(key), ++ i) {
-        sequence_read ++;
+        if (j >= 30000)
+          sequence_read ++;
         db->Get(key, db_value);
       }
     }

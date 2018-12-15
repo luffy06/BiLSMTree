@@ -125,8 +125,11 @@ public:
   CuckooFilter() { }
 
   CuckooFilter(const std::vector<Slice>& keys) {
-    array_.resize(Config::FilterConfig::CUCKOOFILTER_SIZE);
-    data_size_ = 0;
+    data_size_ = keys.size();
+    data_size_ = std::max(data_size_, (size_t)2);
+    data_size_ = data_size_ * 2;
+    max_kick_ = keys.size();
+    array_.resize(data_size_);
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
   }
@@ -136,8 +139,9 @@ public:
     std::stringstream ss;
     ss.str(data);
     ss >> data_size_;
-    array_.resize(Config::FilterConfig::CUCKOOFILTER_SIZE);
-    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
+    max_kick_ = data_size_;
+    array_.resize(data_size_);
+    for (size_t i = 0; i < data_size_; ++ i) {
       size_t array_size_ = 0;
       ss >> array_size_;
       std::string array_data_ = "";
@@ -164,7 +168,7 @@ public:
 
   // this - cuckoofilter
   void Diff(CuckooFilter* cuckoofilter) {
-    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i) {
+    for (size_t i = 0; i < data_size_; ++ i) {
       std::vector<size_t> data_ = array_[i].GetData();
       size_t size_ = array_[i].GetSize();
       std::vector<size_t> deleted_datas;
@@ -177,6 +181,8 @@ public:
   }
 
   bool FindFingerPrint(const size_t fp, const size_t pos) {
+    if (pos >= data_size_)
+      return false;
     if (array_[pos].Find(fp))
       return true;
     size_t alt_pos = GetAlternatePos(fp, pos);
@@ -187,7 +193,7 @@ public:
     std::stringstream ss;
     ss << data_size_;
     ss << Config::DATA_SEG;
-    for (size_t i = 0; i < Config::FilterConfig::CUCKOOFILTER_SIZE; ++ i)
+    for (size_t i = 0; i < data_size_; ++ i)
       ss << array_[i].ToString();
     return ss.str();
   }
@@ -205,9 +211,9 @@ private:
   std::vector<Bucket> array_;
   // size_t capacity_;
   size_t data_size_;
+  size_t max_kick_;
 
   const size_t FPSEED = 0xc6a4a793;
-  const size_t MAXKICK = 500;
 
   size_t GetFingerPrint(const Slice key) {
     size_t f = Hash(key.data(), key.size(), FPSEED);
@@ -216,24 +222,24 @@ private:
 
   Info GetInfo(const Slice key) {
     size_t fp = GetFingerPrint(key);
-    size_t p1 = fp % Config::FilterConfig::CUCKOOFILTER_SIZE;
-    size_t p2 = (fp + Config::FilterConfig::PADDING) % Config::FilterConfig::CUCKOOFILTER_SIZE;
+    size_t p1 = fp % data_size_;
+    size_t p2 = (fp + Config::FilterConfig::PADDING) % data_size_;
     if (p1 == p2)
-      std::cout << fp << "\t" << p1 << "\t" << p2 << std::endl;
+      std::cout << fp << "\t" << p1 << "\t" << p2 << "\t" << data_size_ << std::endl;
     assert(p1 != p2);
     return Info(fp, p1, p2);
   }
 
   size_t GetAlternatePos(size_t fp, size_t p) {
-    size_t p1 = fp % Config::FilterConfig::CUCKOOFILTER_SIZE;
-    size_t p2 = (fp + Config::FilterConfig::PADDING) % Config::FilterConfig::CUCKOOFILTER_SIZE;    
+    size_t p1 = fp % data_size_;
+    size_t p2 = (fp + Config::FilterConfig::PADDING) % data_size_;    
     if (p == p1)
       return p2;
     return p1;
   }
 
   void InsertAndKick(size_t fp, size_t pos) {
-    for (size_t i = 0; i < MAXKICK; ++ i) {
+    for (size_t i = 0; i < max_kick_; ++ i) {
       fp = array_[pos].Kick(fp);
       pos = GetAlternatePos(fp, pos);
       if (array_[pos].Insert(fp))
@@ -245,7 +251,6 @@ private:
   void Add(const Slice key) {
     Info info = GetInfo(key);
     // std::cout << "Add " << key.ToString() << "\tFP:" << info.fp_.ToString() << "\tPOS1:" << info.pos1 << "\tPOS2:" << info.pos2 << std::endl;
-    data_size_ = data_size_ + 1;
     if (array_[info.pos1].Insert(info.fp_) || array_[info.pos2].Insert(info.fp_))
       return ;
     InsertAndKick(info.fp_, rand() % 2 == 0 ? info.pos1 : info.pos2);

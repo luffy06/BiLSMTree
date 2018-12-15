@@ -35,7 +35,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   if (algo == std::string("BiLSMTree")) {
     filter_ = new CuckooFilter(filter_data_);
   }
-  else if (algo == std::string("LevelDB-KV") || algo == std::string("LevelDB")) {
+  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
     filter_ = new BloomFilter(filter_data_);
   }
   else {
