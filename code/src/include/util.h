@@ -85,7 +85,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 1024 * 1024;         // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 128 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
