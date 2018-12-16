@@ -3,7 +3,7 @@ import os
 
 resultdir = 'result'
 resultexcel = 'result.xlsx'
-algorithms = [ 'BiLSMTree', 'LevelDB-KV', 'LevelDB']
+algorithms = ['BiLSMTree', 'LevelDB-KV', 'LevelDB']
 attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN', 'SCAN_READ']
 metrics = ['LATENCY', 'ERASE_TIMES', 'READ_FILES', 'READ_SIZE', 'WRITE_FILES', 
             'WRITE_SIZE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
@@ -96,8 +96,9 @@ def main():
     algo, suffix = parse_filename(f)
     if suffix != 'out':
       continue
-    print('Loading ' + algo)
-    parse_filecontent(os.path.join(resultdir, f), algo, attr, resultmap)
+    if algo in algorithms:
+      print('Loading ' + algo)
+      parse_filecontent(os.path.join(resultdir, f), algo, attr, resultmap)
 
   for m in metrics:
     for algo in algorithms:

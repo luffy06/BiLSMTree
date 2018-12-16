@@ -1,18 +1,18 @@
 import os
 from functools import reduce
 
-distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
-distribution = [(30000, 1.00, 0.00, 0.00, 0.00), # 0  随机读
-                (600, 0.00, 0.00, 0.00, 1.00),   # 1  顺序读
-                (30000, 0.00, 1.00, 0.00, 0.00), # 2  随机写
-                (20000, 0.00, 0.00, 1.00, 0.00), # 3  顺序写
-                (30000, 0.98, 0.00, 0.00, 0.02), # 4  50% 随机读 50% 顺序读
-                (30000, 0.50, 0.50, 0.00, 0.00), # 5  50% 随机读 50% 随机写
-                (30000, 0.50, 0.00, 0.50, 0.00), # 6  50% 随机读 50% 顺序写
-                (30000, 0.00, 0.98, 0.00, 0.02), # 7  50% 顺序读 50% 随机写
-                (20000, 0.00, 0.00, 0.98, 0.02), # 8  50% 顺序读 50% 顺序写
-                (30000, 0.65, 0.34, 0.00, 0.01), # 9  40% 随机读 40% 顺序读 20% 随机写
-                (30000, 0.65, 0.00, 0.34, 0.01)] # 10 40% 随机读 40% 顺序读 20% 顺序写
+distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion', 'readmodifywriteproportion']
+distribution = [(60000, 0.50, 0.50, 0.00, 0.00, 0.00), # 0 a 50% read 50% update
+                (60000, 0.95, 0.05, 0.00, 0.00, 0.00), # 1 b 95% read 5% update
+                (60000, 1.00, 0.00, 0.00, 0.00, 0.00), # 2 c 100% read
+                (60000, 0.95, 0.00, 0.00, 0.05, 0.00), # 3 d 95% read 5% insert
+                (3000, 0.00, 0.00, 0.05, 0.95, 0.00),  # 4 e 95% scan 5% insert
+                (60000, 0.50, 0.00, 0.00, 0.00, 0.50), # 5 f 50% read 50% readmodifywriteproportion
+                (6000, 0.00, 0.00, 0.00, 1.00, 0.00),  # 6   100% scan
+                (3000, 0.00, 0.05, 0.00, 0.95, 0.00),  # 7   95% scan 5% update
+                (60000, 0.00, 0.99, 0.00, 0.01, 0.00), # 8   50% scan 50% update
+                (60000, 0.99, 0.00, 0.00, 0.01, 0.00), # 9   50% scan 50% read
+                (60000, 0.00, 0.00, 0.00, 0.01, 0.99)] # 10  50% scan 50% readmodifywriteproportion
 
 attributes = {
   'recordcount': 30000,
