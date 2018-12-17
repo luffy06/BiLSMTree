@@ -116,6 +116,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   datas_.push_back(filter_block_);
   datas_.push_back(footer_block_);
 
+  if (Config::TRACE_LOG)
+    std::cout << "Start Write Into Files" << std::endl;
   filesystem->Create(filename);
   filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   ss.str("");

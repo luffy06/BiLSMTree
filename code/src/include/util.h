@@ -113,11 +113,11 @@ public:
     static const size_t LIBASE = 10;
     static constexpr const double ALPHA = 0.5;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 256;
+    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 128;
   };
 
   struct TableConfig {
-    static const size_t BUFFER_SIZE = 50000000;
+    static const size_t BUFFER_SIZE = 2000000;
     static const size_t BLOCKSIZE = LSMTreeConfig::TABLE_SIZE / 16;
   };
 

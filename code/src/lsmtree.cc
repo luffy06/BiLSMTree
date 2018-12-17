@@ -420,30 +420,29 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
     std::cout << "RollBack Success" << std::endl;
 }
 
-std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator>& tables) {
+std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tables) {
   if (Config::TRACE_LOG)
     std::cout << "MergeTables Start:" << tables.size() << std::endl;
   
   std::vector<KV> buffers_;
   size_t buffer_size_ = 0;
   std::vector<Table*> result_;
-  std::priority_queue<TableIterator> q;
+  std::priority_queue<TableIterator*, std::vector<TableIterator*>, TableComparator> q;
   
   for (size_t i = 0; i < tables.size(); ++ i) {
-    TableIterator ti = tables[i];
-    ti.SetId(i);
+    TableIterator *ti = tables[i];
+    ti->SetId(i);
     // std::cout << "Ready Merge Table " << i << " Size:" << ti.DataSize() << std::endl;
-    if (ti.HasNext())
+    if (ti->HasNext())
       q.push(ti);
   }
 
   size_t table_size_ = Util::GetSSTableSize();
-
   while (!q.empty()) {
-    TableIterator ti = q.top();
+    TableIterator *ti = q.top();
     q.pop();
-    KV kv = ti.Next();
-    if (ti.HasNext())
+    KV kv = ti->Next();
+    if (ti->HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
       if (buffer_size_ >= table_size_) {
@@ -477,10 +476,10 @@ void LSMTree::CompactList(size_t level) {
     wait_queue_.push_back(buffer_[level][i]);
   buffer_[level].clear();
   GetOverlaps(file_[level], wait_queue_);
-  std::vector<TableIterator> tables_;
+  std::vector<TableIterator*> tables_;
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
-    tables_.push_back(TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
+    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
     filesystem_->Delete(filename);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
@@ -545,12 +544,12 @@ void LSMTree::MajorCompaction(size_t level) {
   // select from file_
   GetOverlaps(file_[level + 1], wait_queue_);
 
-  std::vector<TableIterator> tables_;
+  std::vector<TableIterator*> tables_;
   size_t total_size_ = 0;
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
     total_size_ = total_size_ + wait_queue_[i].file_size_;
-    tables_.push_back(TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
+    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
     filesystem_->Delete(filename);
   }
   lsmtreeresult_->MajorCompaction(total_size_);
