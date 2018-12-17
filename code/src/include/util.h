@@ -98,6 +98,10 @@ public:
     static const size_t SEED = 0xbc91f1d34;
   };
 
+  struct DataManagerConfig {
+    static const size_t MAX_FILE_SIZE = 1024 * 1024;
+  };
+
   struct LogManagerConfig {
     static constexpr const char* LOG_PATH = "../logs/VLOG";
     static const size_t GARBARGE_THRESOLD = 20;

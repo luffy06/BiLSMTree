@@ -28,6 +28,8 @@ struct Meta {
     level_ = meta.level_;
     file_size_ = meta.file_size_;
     footer_size_ = meta.footer_size_;
+    data_numb_ = meta.data_numb_;
+    data_offset_ = meta.data_offset_;
   }
 
   bool Intersect(Meta other) const {
@@ -44,6 +46,7 @@ struct Meta {
     std::cout << "Largest Size:" << largest_.size() << std::endl;
     std::cout << "Largest:" << largest_.ToString() << std::endl;
     std::cout << "FileSize:" << file_size_ << "\tFooterSize:" << footer_size_ << std::endl;
+    std::cout << "Data Number:" << data_numb_ << "\tData Offset:" << data_offset_ << std::endl;
     std::cout << std::string(20, '*') << std::endl;
   }
 

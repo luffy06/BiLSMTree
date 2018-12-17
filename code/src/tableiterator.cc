@@ -51,20 +51,15 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
   while (true) {
-    size_t key_size_ = 0;
-    ss >> key_size_;
-    ss.get();
-    char *key_ = new char[key_size_ + 1];
-    ss.read(key_, sizeof(char) * key_size_);
-    key_[key_size_] = '\0';
+    std::string largest_str;
     size_t offset_ = 0;
-    size_t data_block_size_ = 0;
-    ss >> offset_ >> data_block_size_;
+    size_t block_size_ = 0;
+    ss >> largest_str >> offset_ >> data_block_size_;
     if (ss.tellg() == -1)
       break;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
-    std::string block_data = filesystem->Read(filename, data_block_size_);
+    std::string block_data = filesystem->Read(filename, block_size_);
     lsmtreeresult_->Read();
     ParseBlock(block_data, filter_);
   }
@@ -83,29 +78,17 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
   std::string algo = Util::GetAlgorithm();
   ss.str(block_data);
   while (true) {
-    size_t key_size_ = 0;
-    ss >> key_size_;
-    char *key_ = new char[key_size_ + 1];
-    ss.get();
-    ss.read(key_, sizeof(char) * key_size_);
-    key_[key_size_] = '\0';
-
-    size_t value_size_ = 0;
-    ss >> value_size_;
-    char *value_ = new char[value_size_ + 1];
-    ss.get();
-    ss.read(value_, sizeof(char) * value_size_);
-    value_[value_size_] = '\0';
-    
+    std::string key_str, value_str;
+    ss >> key_str >> value_str;
     if (ss.tellg() == -1)
       break;
     
     if (algo == std::string("BiLSMTree")) {
-      if (key_size_ > 0 && filter->KeyMatch(Slice(key_, key_size_)))
-        kvs_.push_back(KV(std::string(key_), std::string(value_)));
+      if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))
+        kvs_.push_back(KV(key_str, value_str));
     }
     else {
-      kvs_.push_back(KV(std::string(key_), std::string(value_)));      
+      kvs_.push_back(KV(key_str, value_str));
     }
   }
 }

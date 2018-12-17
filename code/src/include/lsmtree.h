@@ -52,6 +52,8 @@ private:
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator>& tables);
 
+  std::vector<Table*> MergeIndexTables(const std::vector<IndexTableIterator>& tables);
+
   void CompactList(size_t level);
 
   void MajorCompaction(size_t level);

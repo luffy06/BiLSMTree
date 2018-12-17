@@ -30,20 +30,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_for_filter_.push_back(kv_.key_);
-    
-    size_t key_size_ = kv_.key_.size(); 
-    size_t value_size_ = kv_.value_.size();
-    size_t add_ = kv_.size() + Util::IntToString(key_size_).size() + Util::IntToString(value_size_).size() + 4;
-    size_ = size_ + add_;
-
-    ss << key_size_;
+    size_t add_  = ss.str().size();
+    ss << kv_.key_.ToString();
     ss << Config::DATA_SEG;
-    ss.write(kv_.key_.data(), sizeof(char) * key_size_);
+    ss << kv_.value_.ToString();
     ss << Config::DATA_SEG;
-    ss << value_size_;
-    ss << Config::DATA_SEG;
-    ss.write(kv_.value_.data(), sizeof(char) * value_size_);
-    ss << Config::DATA_SEG;
+    size_ = size_ + (ss.str().size() - add_);
 
     if (size_ >= Config::TableConfig::BLOCKSIZE) {
       // a data block finish
@@ -68,9 +60,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     size_t data_block_size_ = datas_[i].size();
     data_size_ = data_size_ + datas_[i].size();
 
-    ss << last_keys_[i].size();
-    ss << Config::DATA_SEG;
-    ss.write(last_keys_[i].data(), last_keys_[i].size());
+    ss << last_keys_[i].ToString();
     ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;
