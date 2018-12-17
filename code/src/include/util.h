@@ -57,7 +57,7 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 2048;
+    static const size_t BLOCK_NUMS = 4096;
     static const size_t PAGE_NUMS = 32;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
@@ -85,7 +85,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 128 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 1024 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
