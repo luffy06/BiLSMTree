@@ -1,6 +1,7 @@
 #include <cassert>
 #include <ctime>
 
+#include <set>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -69,7 +70,8 @@ int main() {
     else if (op == "SCAN") {
       std::string st_key = key;
       std::string ed_key = StringAddOne(value);
-      // std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
+      if (bilsmtree::Config::TRACE_LOG)
+        std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
       if (j >= load_number)
         scan ++;
       size_t i = 0;
