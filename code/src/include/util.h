@@ -49,7 +49,7 @@ public:
   static const bool FLASH_LOG = false;
   static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
-  static const size_t MAX_SCAN_NUMB = 60;
+  static const size_t MAX_SCAN_NUMB = 100;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -57,7 +57,7 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 2048;
+    static const size_t BLOCK_NUMS = 4096;
     static const size_t PAGE_NUMS = 32;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
@@ -81,22 +81,23 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 5;                    // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 2 * 1024 * 1024;     // 2MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 1024 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = 1024 * 1024;               // 1MB size of lru
-    static const size_t M2 = 1024 * 1024;               // 1MB size of fifo
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
+    static const size_t M1_NUMB = 50;                   // max number of lru
+    static const size_t M2_NUMB = 50;                   // max number of fifo    
   };
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 8192;
-    static const size_t PADDING = 2879;
+    static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
   };
 
@@ -112,14 +113,15 @@ public:
   struct LSMTreeConfig {
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
-    static constexpr const double ALPHA = 0.5;
+    static const size_t LIBASE = 10;
+    static constexpr const double ALPHA = 1.;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = 2 * 1024 * 1024;   // 2MB
+    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 512;
   };
 
   struct TableConfig {
-    static const size_t BUFFER_SIZE = 50000000;
-    static const size_t BLOCKSIZE = 4 * 1024;           // 4KB
+    static const size_t BUFFER_SIZE = 2000000;
+    static const size_t BLOCKSIZE = LSMTreeConfig::TABLE_SIZE / 16;
   };
 
   struct VisitFrequencyConfig {
@@ -138,6 +140,7 @@ public:
   FlashResult() {
     latency_ = 0;
     erase_times_ = 0;
+    record_ = false;
   }
 
   ~FlashResult() {
@@ -145,16 +148,20 @@ public:
   }
 
   void Read() {
-    latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
+    if (record_)
+      latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
   }
 
   void Write() {
-    latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
+    if (record_)
+      latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
   }
 
   void Erase() {
-    latency_ = latency_ + Config::FlashConfig::ERASE_LATENCY;
-    erase_times_ = erase_times_ + 1;
+    if (record_) {
+      latency_ = latency_ + Config::FlashConfig::ERASE_LATENCY;
+      erase_times_ = erase_times_ + 1;
+    }
   }
 
   size_t GetLatency() {
@@ -164,7 +171,12 @@ public:
   size_t GetEraseTimes() {
     return erase_times_;
   }
+
+  void StartRecord() {
+    record_ = true;
+  }
 private:
+  bool record_;
   size_t latency_;
   size_t erase_times_;
 };
@@ -177,30 +189,45 @@ public:
     minor_compaction_times_ = 0;
     major_compaction_times_ = 0;
     check_times_.clear();
+    record_ = false;
   }
 
   ~LSMTreeResult() {
 
   }
 
-  void Read() {
-    read_files_ = read_files_ + 1;
+  void Read(size_t size) {
+    if (record_) {
+      read_files_ = read_files_ + 1;
+      read_size_ = read_size_ + size;
+    }
   }
 
-  void Write() {
-    write_files_ = write_files_ + 1;
+  void Write(size_t size) {
+    if (record_) {
+      write_files_ = write_files_ + 1;
+      write_size_ = write_size_ + size;
+    }
   }
 
-  void MinorCompaction() {
-    minor_compaction_times_ = minor_compaction_times_ + 1;
+  void MinorCompaction(size_t file_size) {
+    if (record_) {
+      minor_compaction_times_ = minor_compaction_times_ + 1;
+      minor_compaction_size_ = minor_compaction_size_ + file_size;
+    }
   }
 
-  void MajorCompaction() {
-    major_compaction_times_ = major_compaction_times_ + 1;
+  void MajorCompaction(size_t file_size) {
+    if (record_) {
+      major_compaction_times_ = major_compaction_times_ + 1;
+      major_compaction_size_ = major_compaction_size_ + file_size;
+    }
   }
 
   void Check(size_t times) {
-    check_times_.push_back(times);
+    if (record_) {
+      check_times_.push_back(times);
+    }
   }
 
   size_t GetReadFiles() {
@@ -219,6 +246,22 @@ public:
     return major_compaction_times_;
   }
 
+  size_t GetReadSize() {
+    return read_size_;
+  }
+
+  size_t GetWriteSize() {
+    return write_size_;
+  }
+
+  size_t GetMinorCompactionSize() {
+    return minor_compaction_size_;
+  }
+
+  size_t GetMajorCompactionSize() {
+    return major_compaction_size_;
+  }
+
   double GetCheckTimesAvg() {
     double sum = 0;
     for (size_t i = 0; i < check_times_.size(); ++ i)
@@ -227,11 +270,20 @@ public:
       return 0;
     return (sum / check_times_.size());
   }
+
+  void StartRecord() {
+    record_ = true;
+  }
 private:
+  bool record_;
   double write_files_;
+  double write_size_;
   double read_files_;
+  double read_size_;
   size_t minor_compaction_times_;
+  size_t minor_compaction_size_;
   size_t major_compaction_times_;
+  size_t major_compaction_size_;
   std::vector<size_t> check_times_;
 };
 
@@ -240,6 +292,11 @@ public:
   Result() {
     flashresult_ = new FlashResult();
     lsmtreeresult_ = new LSMTreeResult();
+  }
+
+  void StartRecord() {
+    lsmtreeresult_->StartRecord();
+    flashresult_->StartRecord();
   }
 
   LSMTreeResult *lsmtreeresult_;

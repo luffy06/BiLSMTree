@@ -5,7 +5,7 @@ set -e  # fail and exit on any command erroring
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('BiLSMTree' 'LevelDB-KV' 'LevelDB')
+algos=('BiLSMTree' 'Wisckey' 'LevelDB')
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
     rm 'config.in'
@@ -24,4 +24,4 @@ for algo in ${algos[*]}; do
   done
 done
 echo 'LOADING RESULT'
-# echo `python3 loadresult.py`
+echo `python3 loadresult.py`

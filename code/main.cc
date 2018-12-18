@@ -1,6 +1,7 @@
 #include <cassert>
 #include <ctime>
 
+#include <set>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -36,8 +37,10 @@ std::string StringAddOne(std::string a) {
 }
 
 int main() {
+  srand((unsigned int)time(NULL));
   bilsmtree::DB *db = new bilsmtree::DB();
   std::string op, key, value, db_value;
+  size_t load_number = 50000;
   size_t j = 0;
   size_t random_read = 0;
   size_t random_write = 0;
@@ -45,27 +48,36 @@ int main() {
   size_t sequence_read = 0;
   size_t scan = 0;
   while (std::cin >> op >> key >> value) {
-    // std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    if (bilsmtree::Config::TRACE_LOG)
+      std::cout << "RUN " << j << "\tOp:" << op << std::endl;
+    if (j >= load_number)
+      db->StartRecord();
     if (op == "INSERT") {
-      sequence_write ++;
+      if (j >= load_number)
+        sequence_write ++;
       db->Put(key, value);
     }
     else if (op == "UPDATE") {
-      random_write ++;
+      if (j >= load_number)
+        random_write ++;
       db->Put(key, value);
     }
     else if (op == "READ") {
-      random_read ++;
+      if (j >= load_number)
+        random_read ++;
       db->Get(key, db_value);
     }
     else if (op == "SCAN") {
       std::string st_key = key;
       std::string ed_key = StringAddOne(value);
-      // std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
-      scan ++;
+      if (bilsmtree::Config::TRACE_LOG)
+        std::cout << "SCAN FROM:" << st_key << "\tTO:" << value << std::endl;
+      if (j >= load_number)
+        scan ++;
       size_t i = 0;
       for (std::string key = st_key; key != ed_key && i < bilsmtree::Config::MAX_SCAN_NUMB; key = StringAddOne(key), ++ i) {
-        sequence_read ++;
+        if (j >= load_number)
+          sequence_read ++;
         db->Get(key, db_value);
       }
     }

@@ -30,13 +30,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_for_filter_.push_back(kv_.key_);
-    size_t add_  = ss.str().size();
+    size_t add_ = ss.str().size();
     ss << kv_.key_.ToString();
     ss << Config::DATA_SEG;
     ss << kv_.value_.ToString();
     ss << Config::DATA_SEG;
     size_ = size_ + (ss.str().size() - add_);
-
     if (size_ >= Config::TableConfig::BLOCKSIZE) {
       // a data block finish
       datas_.push_back(ss.str());
@@ -71,12 +70,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   index_block_ = ss.str();
 
   // write filter block
-  std::string algorithm = Util::GetAlgorithm();
+  std::string algo = Util::GetAlgorithm();
   Filter *filter_ = NULL;
-  if (algorithm == std::string("LevelDB") || algorithm == std::string("LevelDB-KV")) {
+  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
-  else if (algorithm == std::string("BiLSMTree")) {
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
     filter_ = new CuckooFilter(keys_for_filter_);
   }
   else {
@@ -116,6 +115,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   datas_.push_back(filter_block_);
   datas_.push_back(footer_block_);
 
+  if (Config::TRACE_LOG)
+    std::cout << "Start Write Into Files" << std::endl;
   filesystem->Create(filename);
   filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   ss.str("");
@@ -126,7 +127,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
       ss.str("");
       filesystem->Write(filename, buffer.data(), buffer.size());
     }
-    lsmtreeresult->Write(); 
+    lsmtreeresult->Write(datas_[i].size()); 
   }
   filesystem->Close(filename);
   if (Config::TRACE_LOG) {

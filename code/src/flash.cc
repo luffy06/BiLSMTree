@@ -119,6 +119,7 @@ void Flash::Invalidate(const size_t lba) {
     page_info_[old_block_num_][old_page_num_].status_ = PageInvalid;
     block_info_[old_block_num_].valid_nums_ = block_info_[old_block_num_].valid_nums_ - 1;
     block_info_[old_block_num_].invalid_nums_ = block_info_[old_block_num_].invalid_nums_ + 1;
+    page_table_.erase(lba);
   }
 }
 

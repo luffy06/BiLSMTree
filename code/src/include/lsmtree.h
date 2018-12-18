@@ -50,7 +50,7 @@ private:
 
   void RollBack(const size_t now_level, const Meta meta);
 
-  std::vector<Table*> MergeTables(const std::vector<TableIterator>& tables);
+  std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
   std::vector<Table*> MergeIndexTables(const std::vector<IndexTableIterator>& tables);
 

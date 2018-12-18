@@ -43,4 +43,8 @@ bool DB::Get(const std::string key, std::string& value) {
   return res;
 }
 
+void DB::StartRecord() {
+  result_->StartRecord();
+}
+
 }
