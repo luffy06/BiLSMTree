@@ -463,6 +463,9 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
     Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
     result_.push_back(t);
   }
+  for (size_t i = 0; i < tables.size(); ++ i) {
+    delete tables[i];
+  }
   if (Config::TRACE_LOG)
     std::cout << "MergeTables End:" << result_.size() << std::endl;
   return result_;
