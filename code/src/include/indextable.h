@@ -21,6 +21,10 @@ struct BlockMeta {
     filter_ = NULL;
   }
 
+  ~BlockMeta() {
+    delete filter_;
+  }
+
   std::string ToString() {
     std::stringstream ss;
     ss << smallest_.ToString();

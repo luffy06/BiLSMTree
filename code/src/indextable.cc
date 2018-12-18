@@ -32,7 +32,6 @@ IndexTable::IndexTable(const std::vector<KV>& kvs, size_t sequence_number, std::
   // write data blocks
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
-    keys_for_filter_.push_back(kv_.key_);
     datas_.push_back(kv_);
     size_ = size_ + kv_.size() + 2 * sizeof(Config::DATA_SEG);
 
@@ -50,11 +49,20 @@ IndexTable::IndexTable(const std::vector<KV>& kvs, size_t sequence_number, std::
   }
   
   // write index block
+  ss.str("");
+  ss << indexs_.size();
+  ss << Config::DATA_SEG;
+  ready_to_write_.push_back(ss.str());
+  index_offset_ = ss.str().size();
   for (size_t i = 0; i < indexs_.size(); ++ i) {
     BlockMeta bm = indexs_[i];
     std::string filter_data_ = bm.filter_->ToString();
-    ready_to_write_.push_back(filter_data_);
-    index_offset_ = index_offset_ + filter_data_.size();
+    ss.str("");
+    ss << filter_data_.size();
+    ss << Config::DATA_SEG;
+    ss << filter_data_;
+    ready_to_write_.push_back(ss.str());
+    index_offset_ = index_offset_ + ss.str().size();
     index_block_ = index_block_ + bm.ToString();
     delete bm.filter_;
   }

@@ -13,6 +13,8 @@ public:
 
   bool Get(const Slice key, Slice& value, size_t file_numb, size_t offset, size_t block_size);
 
+  std::string ReadBlock(BlockMeta bm);
+
   void Invalidate(BlockMeta bm);
 private:
   const size_t MAX_BLOCK_NUMB = sizeof(size_t) * 8;

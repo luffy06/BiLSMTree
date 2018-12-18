@@ -58,6 +58,17 @@ bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t of
   return false;
 }
 
+std::string DataManager::ReadBlock(BlockMeta bm) {
+  int index = FindFileMeta(bm.file_numb_);
+  assert(index == -1);
+  std::string filename = GetFilename(bm.file_numb_);
+  filesystem_->Open(filename);
+  filesystem_->Seek(bm.offset_);
+  std::string block_data_ = filesystem_->Read(filename, bm.block_size_);
+  filesystem_->Close(filename);
+  return block_data_;
+}
+
 void DataManager::Invalidate(BlockMeta bm) {
   int index = FindFileMeta(bm.file_numb_);
   assert(index != -1);

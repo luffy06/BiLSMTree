@@ -11,7 +11,7 @@ class BlockIterator {
 public:
   BlockIterator();
 
-  BlockIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
+  BlockIterator(size_t id, BlockMeta bm);
 
   ~BlockIterator();
   
@@ -34,20 +34,21 @@ public:
   void SetId(size_t id) { id_ = id; }
 
   size_t DataSize() { return kvs_.size(); }
-
-  friend bool operator<(const TableIterator& a, const TableIterator& b) {
-    KV kv_a = a.Current();
-    KV kv_b = b.Current();
-    if (kv_a.key_.compare(kv_b.key_) != 0)
-      return kv_a.key_.compare(kv_b.key_) > 0;
-    return a.Id() > b.Id();
-  }
 private:
   size_t id_;
   std::vector<KV> kvs_;
   size_t iter_;
+};
 
-  void ParseBlock(const std::string block_data, Filter *filter_);
+
+struct BlockComparator {
+  bool operator()(BlockIterator *&a, BlockIterator *&b) const {
+    KV kv_a = a->Current();
+    KV kv_b = b->Current();
+    if (kv_a.key_.compare(kv_b.key_) != 0)
+      return kv_a.key_.compare(kv_b.key_) > 0;
+    return a->Id() > b->Id();
+  }  
 };
 }
 
