@@ -5,16 +5,15 @@
 #include <string>
 #include <sstream>
 
-#include "table.h"
 namespace bilsmtree {
 
-class TableIterator {
+class BlockIterator {
 public:
-  TableIterator();
+  BlockIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
+  BlockIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
 
-  ~TableIterator();
+  ~BlockIterator();
   
   void ResetIter() { iter_ = 0; }
 

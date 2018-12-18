@@ -35,8 +35,7 @@ BlockMeta DataManager::Append(std::vector<KV> kvs) {
 
 bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t offset, size_t block_size) {
   int index = FindFileMeta(file_numb);
-  if (index == -1)
-    return false;
+  assert(index == -1);
   std::string filename = GetFilename(file_numb);
   filesystem_->Open(filename);
   filesystem_->Seek(offset);
@@ -76,6 +75,9 @@ std::string DataManager::GetFilename(size_t file_numb) {
 }
 
 size_t DataManager::GetFileNumber() {
+  filesystem_->Create(GetFilename(total_file_number_));
+  FileMeta fm = FileMeta(total_file_number_);
+  file_meta_.push_back(fm);
   return total_file_number_++;
 }
 
@@ -108,7 +110,23 @@ int DataManager::FindFileMeta(size_t file_numb) {
 // }
 
 BlockMeta DataManager::WriteBlock(std::string block_data) {
-  
+  size_t file_numb_ = 0;
+  if (total_file_number_ != 0)
+    file_numb = total_file_number_ - 1;
+  int index = FindFileMeta(file_numb_)
+  assert(index != -1);
+  if (file_meta_[index].block_numb_ >= MAX_BLOCK_NUMB) {
+    file_numb_ = GetFileNumber();
+    index = FindFileMeta(file_numb_);
+    assert(index != -1);
+  }
+  std::string filename = GetFilename(file_numb_);
+  filesystem_->Open(filename);
+  filesystem_->Seek(filename, file_meta_[index].file_size_);
+  filesystem_->Write(filename, block_data_.data(), block_data_.size());
+  filesystem_->Close(filename);
+  file_meta_[index].file_size_ = file_meta_[index].file_size_ + block_data_.size();
+  file_meta_[index].block_numb_ = file_meta_[index].block_numb_ + 1;
 }
 
 }
