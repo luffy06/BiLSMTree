@@ -9,6 +9,7 @@ SkipList::SkipList() {
   for (size_t i = 0; i < Config::SkipListConfig::MAXLEVEL; ++ i)
     head_->forward_[i] = NULL;
   data_size_ = 0;
+  data_numb_ = 0;
   writable_ = true;
 }
 
@@ -21,7 +22,7 @@ SkipList::~SkipList() {
 }
 
 bool SkipList::IsFull() {
-  size_t table_size_ = Util::GetTableSize();
+  size_t table_size_ = Util::GetMemTableSize();
   return data_size_ >= table_size_;
 }
 
@@ -59,6 +60,7 @@ void SkipList::Insert(const KV kv) {
   p = p->forward_[0];
   // std::cout << "In Bottom" << std::endl;
   if (p != NULL && p->kv_.key_.compare(kv.key_) == 0) {
+    data_size_ = data_size_ - p->kv_.value_.size() + kv.value_.size();
     p->kv_.value_ = kv.value_;
   }
   else {
@@ -77,7 +79,8 @@ void SkipList::Insert(const KV kv) {
       q->forward_[i] = update_[i]->forward_[i];
       update_[i]->forward_[i] = q;
     }
-    data_size_ = data_size_ + 1;
+    data_size_ = data_size_ + kv.size();
+    data_numb_ = data_numb_ + 1;
   }
   // std::cout << "SkipList::Insert Success" << std::endl;
 }
