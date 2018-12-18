@@ -40,7 +40,7 @@ int main() {
   srand((unsigned int)time(NULL));
   bilsmtree::DB *db = new bilsmtree::DB();
   std::string op, key, value, db_value;
-  size_t load_number = 30000;
+  size_t load_number = 50000;
   size_t j = 0;
   size_t random_read = 0;
   size_t random_write = 0;

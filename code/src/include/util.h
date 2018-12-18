@@ -81,7 +81,7 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 5;                    // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
@@ -97,7 +97,6 @@ public:
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
-    static const size_t CUCKOOFILTER_SIZE = 2048;
     static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
   };
@@ -111,9 +110,9 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static constexpr const double ALPHA = 0.5;
+    static constexpr const double ALPHA = 1.;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 128;
+    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 512;
   };
 
   struct TableConfig {
