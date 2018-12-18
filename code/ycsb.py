@@ -2,22 +2,22 @@ import os
 import numpy as np
 from functools import reduce
 
-distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion', 'readmodifywriteproportion']
-distribution = [(100000, 0.50, 0.50, 0.00, 0.00, 0.00), # 0  a 50% read 50% update
-                (60000, 0.95, 0.05, 0.00, 0.00, 0.00),  # 1  b 95% read 5% update
-                (60000, 0.95, 0.05, 0.00, 0.00, 0.00),  # 2    5% read 95% update
-                (60000, 1.00, 0.00, 0.00, 0.00, 0.00),  # 3  c 100% read
-                (60000, 0.50, 0.50, 0.00, 0.00, 0.00),  # 4    50% read 50% insert
-                (60000, 0.95, 0.00, 0.00, 0.05, 0.00),  # 5  d 95% read 5% insert
-                (60000, 0.95, 0.00, 0.00, 0.05, 0.00),  # 6  d 5% read 95% insert
-                (60000, 0.00, 0.99, 0.00, 0.01, 0.00),  # 7    50% scan 50% update
-                (3000, 0.00, 0.05, 0.00, 0.95, 0.00),   # 8    95% scan 5% update
-                (3000, 0.00, 0.05, 0.00, 0.95, 0.00),   # 9    5% scan 95% update
-                (6000, 0.00, 0.00, 0.00, 1.00, 0.00),   # 10   100% scan
-                (60000, 0.00, 0.00, 0.00, 0.01, 0.99),  # 11   50% scan 50% insert
-                (3000, 0.00, 0.00, 0.05, 0.95, 0.00),   # 12 e 95% scan 5% insert
-                (3000, 0.00, 0.00, 0.05, 0.95, 0.00),   # 13 e 5% scan 95% insert
-                (60000, 0.99, 0.00, 0.00, 0.01, 0.00)]  # 14   50% scan 50% read
+distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
+distribution = [(200000, 0.50, 0.50, 0.00, 0.00),  # 0  a 50% read 50% update
+                (200000, 0.95, 0.05, 0.00, 0.00),  # 1  b 95% read 5% update
+                (200000, 0.95, 0.05, 0.00, 0.00),  # 2    5% read 95% update
+                (200000, 1.00, 0.00, 0.00, 0.00),  # 3  c 100% read
+                (200000, 0.50, 0.50, 0.00, 0.00),  # 4    50% read 50% insert
+                (200000, 0.95, 0.00, 0.00, 0.05),  # 5  d 95% read 5% insert
+                (200000, 0.95, 0.00, 0.00, 0.05),  # 6  d 5% read 95% insert
+                (100000, 0.00, 1.00, 0.00, 0.01),  # 7    50% scan 50% update
+                (100000, 0.00, 0.50, 0.00, 0.01),  # 8    95% scan 5% update
+                (100000, 0.00, 1.90, 0.00, 0.001), # 9    5% scan 95% update
+                (1000, 0.00, 0.00, 0.00, 1.00),    # 10   100% scan
+                (100000, 0.00, 0.00, 1.00, 0.01),  # 11   50% scan 50% insert
+                (100000, 0.00, 0.00, 0.50, 0.01),  # 12 e 95% scan 5% insert
+                (100000, 0.00, 0.00, 1.90, 0.001), # 13 e 5% scan 95% insert
+                (100000, 1.00, 0.00, 0.00, 0.01)]  # 14   50% scan 50% read
 
 attributes = {
   'recordcount': 50000,
@@ -70,13 +70,12 @@ def shuffle(arr):
   np.random.shuffle(arr)
 
 def read(in_filename, out_filename):
+  print('Process ' + in_filename)
   replace_key = [':', ',', ';', '$', ' ', '\t']
   f = open(in_filename, 'r')
   lines = f.readlines()
   f.close()
-  load = []
   result = []
-  j = 0
   for i, l in enumerate(lines):
     if l.startswith('INSERT') or l.startswith('UPDATE') or l.startswith('SCAN') or l.startswith('READ'):
       ls = l.split()
@@ -102,16 +101,9 @@ def read(in_filename, out_filename):
           t = key
           key = value
           value = t
-      if j < attributes['recordcount']:
-        load.append([op, key, value])
-      else:
-        result.append([op, key, value])
-  shuffle(load)
+      result.append([op, key, value])
   shuffle(result)
   f = open(out_filename, 'a')
-  for i, l in enumerate(load):
-    line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
-    f.write(line + '\n')
   for i, l in enumerate(result):
     line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
     f.write(line + '\n')
