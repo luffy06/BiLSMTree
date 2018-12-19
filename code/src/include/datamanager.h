@@ -1,11 +1,13 @@
 #ifndef BILSMTREE_DATAMANAGER_H
 #define BILSMTREE_DATAMANAGER_H
 
+#include "indextable.h"
+
 namespace bilsmtree {
 
 class DataManager {
 public:
-  DataManager();
+  DataManager(FileSystem *filesystem);
 
   ~DataManager();
   
@@ -17,7 +19,7 @@ public:
 
   void Invalidate(BlockMeta bm);
 private:
-  const size_t MAX_BLOCK_NUMB = sizeof(size_t) * 8;
+  const static size_t MAX_BLOCK_NUMB = sizeof(size_t) * 8;
   struct FileMeta {
     size_t file_numb_;
     size_t block_status_; // 1 valid 0 invalid

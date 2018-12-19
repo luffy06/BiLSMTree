@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "table.h"
 
@@ -47,14 +48,9 @@ class IndexTable : public Table {
 public:
   IndexTable();
 
-  IndexTable(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult, DataManager* datamanager);
+  IndexTable(const std::vector<BlockMeta>& bms, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
   
   ~IndexTable();
-
-  Meta GetMeta();
-
-private:
-  Meta meta_;
 };
 
 

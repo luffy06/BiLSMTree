@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "table.h"
+
 namespace bilsmtree {
 
 class TableIterator {

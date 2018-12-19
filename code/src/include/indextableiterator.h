@@ -5,7 +5,8 @@
 #include <string>
 #include <sstream>
 
-#include "table.h"
+#include "indextable.h"
+
 namespace bilsmtree {
 
 class IndexTableIterator {
@@ -22,7 +23,7 @@ public:
 
   size_t Id() const { return id_;}
 
-  KV Next() {
+  BlockMeta Next() {
     assert(iter_ < bms_.size());
     return bms_[iter_++];
   }
@@ -42,7 +43,7 @@ private:
 };
 
 struct IndexTableComparator {
-  bool operator()(TableIterator *&a, TableIterator *&b) const {
+  bool operator()(IndexTableIterator *&a, IndexTableIterator *&b) const {
     BlockMeta bm_a = a->Current();
     BlockMeta bm_b = b->Current();
     if (bm_a.smallest_.compare(bm_b.smallest_) != 0)

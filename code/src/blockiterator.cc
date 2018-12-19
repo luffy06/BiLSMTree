@@ -8,11 +8,10 @@ BlockIterator::BlockIterator() {
   iter_ = 0;
 }
 
-BlockIterator::BlockIterator(size_t id, BlockMeta bm, DataManager *datamanager) {
+BlockIterator::BlockIterator(size_t id, BlockMeta bm, std::string block_data) {
   id_ = id;
-  std::string block_data_ = datamanager->ReadBlock(bm);
   std::stringstream ss;
-  ss.str(block_data_);
+  ss.str(block_data);
   while (true) {
     std::string key_str, value_str;
     ss << key_str << value_str;

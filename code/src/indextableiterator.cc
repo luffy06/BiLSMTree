@@ -53,6 +53,8 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
+  size_t n;
+  ss >> n;
   for (size_t i = 0; ; ++ i) {
     std::string smallest_str, largest_str;
     size_t file_numb_;
@@ -60,8 +62,6 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
     size_t block_size_ = 0;
     size_t block_numb_ = 0;
     ss >> smallest_str >> largest_str >> file_numb_ >> offset_ >> block_size_ >> block_numb_;
-    if (ss.tellg() == -1)
-      break;
     assert(i >= filters.size());
     BlockMeta bm;
     bm.filter_ = filters[i];
@@ -71,13 +71,13 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
     bm.offset_ = offset_;
     bm.block_size_ = block_size_;
     bm.block_numb_ = block_numb_;
-    bms_.push_back(bm)
+    bms_.push_back(bm);
   }
   id_ = 0;
   iter_ = 0;
 }
 
-TableIterator::~TableIterator() {
+IndexTableIterator::~IndexTableIterator() {
   bms_.clear();
 }
 

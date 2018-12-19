@@ -50,13 +50,13 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
-  while (true) {
+  size_t n;
+  ss >> n;
+  for (size_t i = 0; i < n; ++ i) {
     std::string largest_str;
     size_t offset_ = 0;
     size_t block_size_ = 0;
     ss >> largest_str >> offset_ >> block_size_;
-    if (ss.tellg() == -1)
-      break;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, block_size_);
@@ -77,11 +77,11 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   ss.str(block_data);
-  while (true) {
+  size_t n;
+  ss >> n;
+  for (size_t i = 0; i < n; ++ i) {
     std::string key_str, value_str;
     ss >> key_str >> value_str;
-    if (ss.tellg() == -1)
-      break;
     
     if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
       if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))

@@ -18,6 +18,8 @@ BlockMeta DataManager::Append(std::vector<KV> kvs) {
   assert(kvs.size() > 0);
   std::stringstream ss;
   std::vector<Slice> keys_for_filter_;
+  ss << kvs.size();
+  ss << Config::DATA_SEG;
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     ss << kv_.key_.ToString();
@@ -37,13 +39,15 @@ bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t of
   int index = FindFileMeta(file_numb);
   assert(index == -1);
   std::string filename = GetFilename(file_numb);
-  filesystem_->Open(filename);
-  filesystem_->Seek(offset);
+  filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
+  filesystem_->Seek(filename, offset);
   std::string block_data_ = filesystem_->Read(filename, block_size);
   filesystem_->Close(filename);
   std::stringstream ss;
   ss.str(block_data_);
-  while (true) {
+  size_t n;
+  ss >> n;
+  for (size_t i = 0; i < n; ++ i) {
     std::string key_str, value_str;
     ss << key_str << value_str;
     Slice key_ = Slice(key_str.data(), key_str.size());
@@ -52,8 +56,6 @@ bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t of
       value = value_;
       return true;
     }
-    if (ss.tellg() == -1)
-      break;
   }
   return false;
 }
@@ -62,8 +64,8 @@ std::string DataManager::ReadBlock(BlockMeta bm) {
   int index = FindFileMeta(bm.file_numb_);
   assert(index == -1);
   std::string filename = GetFilename(bm.file_numb_);
-  filesystem_->Open(filename);
-  filesystem_->Seek(bm.offset_);
+  filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
+  filesystem_->Seek(filename, bm.offset_);
   std::string block_data_ = filesystem_->Read(filename, bm.block_size_);
   filesystem_->Close(filename);
   return block_data_;
@@ -123,8 +125,8 @@ int DataManager::FindFileMeta(size_t file_numb) {
 BlockMeta DataManager::WriteBlock(std::string block_data) {
   size_t file_numb_ = 0;
   if (total_file_number_ != 0)
-    file_numb = total_file_number_ - 1;
-  int index = FindFileMeta(file_numb_)
+    file_numb_ = total_file_number_ - 1;
+  int index = FindFileMeta(file_numb_);
   assert(index != -1);
   if (file_meta_[index].block_numb_ >= MAX_BLOCK_NUMB) {
     file_numb_ = GetFileNumber();
@@ -132,12 +134,17 @@ BlockMeta DataManager::WriteBlock(std::string block_data) {
     assert(index != -1);
   }
   std::string filename = GetFilename(file_numb_);
-  filesystem_->Open(filename);
-  filesystem_->Seek(filename, file_meta_[index].file_size_);
-  filesystem_->Write(filename, block_data_.data(), block_data_.size());
+  filesystem_->Open(filename, Config::FileSystemConfig::APPEND_OPTION);
+  filesystem_->Write(filename, block_data.data(), block_data.size());
   filesystem_->Close(filename);
-  file_meta_[index].file_size_ = file_meta_[index].file_size_ + block_data_.size();
+  BlockMeta bm;
+  bm.file_numb_ = file_numb_;
+  bm.offset_ = file_meta_[index].file_size_;
+  bm.block_size_ = block_data.size();
+  bm.block_numb_ = file_meta_[index].block_numb_;
+  file_meta_[index].file_size_ = file_meta_[index].file_size_ + block_data.size();
   file_meta_[index].block_numb_ = file_meta_[index].block_numb_ + 1;
+  return bm;
 }
 
 }

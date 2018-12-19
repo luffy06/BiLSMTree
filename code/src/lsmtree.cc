@@ -7,7 +7,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   lsmtreeresult_ = lsmtreeresult;
   total_sequence_number_ = 0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
-  datamanager_ = new DataManager(filesystem)
+  datamanager_ = new DataManager(filesystem);
   max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   max_size_[0] = Config::LSMTreeConfig::L0SIZE;
@@ -76,22 +76,50 @@ bool LSMTree::Get(const Slice key, Slice& value) {
   return false;
 }
 
+std::vector<BlockMeta> LSMTree::GenerateBlocks(const std::vector<KV>& kvs) {
+  std::vector<KV> datas_;
+  std::vector<BlockMeta> indexs_;
+  size_t size_ = 0;
+  // write data blocks
+  for (size_t i = 0; i < kvs.size(); ++ i) {
+    KV kv_ = kvs[i];
+    datas_.push_back(kv_);
+    size_ = size_ + kv_.size() + 2 * sizeof(Config::DATA_SEG);
+
+    if (size_ >= Config::TableConfig::BLOCKSIZE) {
+      // a data block finish
+      BlockMeta bm = datamanager_->Append(datas_);
+      indexs_.push_back(bm);
+      datas_.clear();
+      size_ = 0;
+    }
+  }
+  if (size_ > 0) {
+    BlockMeta bm = datamanager_->Append(datas_);
+    indexs_.push_back(bm);
+  }
+  return indexs_;
+}
+
 void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   size_t sequence_number_ = GetSequenceNumber();
   std::string algo = Util::GetAlgorithm();
   std::string filename_ = GetFilename(sequence_number_);
   Table *table_ = NULL;
-  if (algo == std::string("LevelDB-Sep"))
-    table_ = new IndexTable(kvs, sequence_number_, filename_, filesystem_, lsmtreeresult_, datamanager_);
-  else
+  if (algo == std::string("LevelDB-Sep")) {
+    std::vector<BlockMeta> bms = GenerateBlocks(kvs);
+    table_ = new IndexTable(bms, sequence_number_, filename_, filesystem_, lsmtreeresult_);
+  }
+  else {
     table_ = new Table(kvs, sequence_number_, filename_, filesystem_, lsmtreeresult_);
+  }
   Meta meta = table_->GetMeta();
   meta.level_ = 0;
   delete table_;
 
   if (Config::TRACE_LOG)
     std::cout << "DUMP L0:" << filename_ << "\tRange:[" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << "]" << std::endl;
-  lsmtreeresult_->MinorCompaction();
+  lsmtreeresult_->MinorCompaction(meta.file_size_);
   if (algo == std::string("BiLSMTree")) {
     buffer_[0].insert(buffer_[0].begin(), meta);
     int deleted = recent_files_->Append(sequence_number_);
@@ -273,7 +301,9 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   size_t offset_ = 0;
   size_t block_size_ = 0;
   size_t block_numb_ = 0;
-  while (true) {
+  size_t n;
+  ss >> n;
+  for (size_t i = 0; i < n; ++ i) {
     std::string smallest_str;
     std::string largest_str;
     if (algo != std::string("LevelDB-Sep"))
@@ -282,8 +312,6 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
       ss >> smallest_str >> largest_str >> file_numb_ >> offset_ >> block_size_ >> block_numb_;
     Slice largest_ = Slice(largest_str.data(), largest_str.size());
 
-    if (ss.tellg() == -1) 
-      break;
     if (key.compare(largest_) <= 0) {
       found = true;
       break;
@@ -309,17 +337,16 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   else {
     filesystem_->Seek(filename, offset_);
     std::string data_ = filesystem_->Read(filename, block_size_);
-    lsmtreeresult_->Read();
+    lsmtreeresult_->Read(data_.size());
     filesystem_->Close(filename);
     ss.str(data_);
-    while (true) {
+    ss >> n;
+    for (size_t i = 0; i < n; ++ i) {
       std::string key_str, value_str;
-      ss >> key_ >> value_;
+      ss >> key_str >> value_str;
       Slice key_ = Slice(key_str.data(), key_str.size());
       Slice value_ = Slice(value_str.data(), value_str.size());
 
-      if (ss.tellg() == -1)
-        break;
       if (key.compare(key_) == 0) {
         if (Config::TRACE_READ_LOG)
           std::cout << "Find Key" << std::endl;
@@ -501,31 +528,31 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
   return result_;
 }
 
-std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<TableIterator*>& tables) {
+std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterator*>& tables) {
   if (Config::TRACE_LOG)
     std::cout << "MergeIndexTables Start:" << tables.size() << std::endl;
   
   std::vector<KV> kv_buffers_;
   std::vector<BlockMeta> index_buffers_;
   std::vector<Table*> result_;
-  std::priority_queue<TableIterator*, std::vector<TableIterator*>, IndexTableComparator> q;
+  std::priority_queue<IndexTableIterator*, std::vector<IndexTableIterator*>, IndexTableComparator> q;
   std::vector<std::pair<size_t, BlockMeta>> overlaps;
   size_t data_size_ = 0;
   bool first = true;
   Slice largest_;
   
   for (size_t i = 0; i < tables.size(); ++ i) {
-    TableIterator *ti = tables[i];
+    IndexTableIterator *ti = tables[i];
     ti->SetId(i);
     // std::cout << "Ready Merge IndexTable " << i << " Size:" << ti->DataSize() << std::endl;
-    if (ti.HasNext())
+    if (ti->HasNext())
       q.push(ti);
   }
 
   size_t table_size_ = Util::GetSSTableSize();
   while (!q.empty() || overlaps.size() > 0) {
     if (!q.empty()) {
-      TableIterator *ti = q.top();
+      IndexTableIterator *ti = q.top();
       q.pop();
       BlockMeta bm = ti->Next();
       if (first) {
@@ -549,22 +576,23 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<TableIterator*>&
         BlockMeta nbm = datamanager_->Append(kv_buffers_);
         kv_buffers_.clear();
         index_buffers_.push_back(nbm);
-        data_size_ = data_size_ + nbm.size_;
+        data_size_ = data_size_ + nbm.block_size_;
       }
       index_buffers_.push_back(overlaps[0].second);
-      data_size_ = data_size_ + overlaps[0].second.size_;
+      data_size_ = data_size_ + overlaps[0].second.block_size_;
       if (data_size_ >= table_size_) {
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
         Table *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
-        result_.push_back(t);
+        result_.push_back(it);
         index_buffers_.clear();
       }
     }
     else {
       std::vector<BlockIterator*> bis;
       for (size_t i = 0; i < overlaps.size(); ++ i) {
-        BlockIterator *bi = new BlockIterator(overlaps[i].first, overlaps[i].second, datamanager_);
+        std::string block_data_ = datamanager_->ReadBlock(overlaps[i].second);
+        BlockIterator *bi = new BlockIterator(overlaps[i].first, overlaps[i].second, block_data_);
         bis.push_back(bi);
       }
       std::vector<BlockMeta> bms = MergeBlocks(bis, kv_buffers_);
@@ -572,12 +600,12 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<TableIterator*>&
         datamanager_->Invalidate(overlaps[i].second);
       for (size_t i = 0; i < bms.size(); ++ i) {
         index_buffers_.push_back(bms[i]);
-        data_size_ = data_size_ + bms[i].size_;
+        data_size_ = data_size_ + bms[i].block_size_;
         if (data_size_ >= table_size_) {
           size_t sequence_number_ = GetSequenceNumber();
           std::string filename = GetFilename(sequence_number_);
           Table *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
-          result_.push_back(t);
+          result_.push_back(it);
           index_buffers_.clear();
         }
       }
@@ -596,21 +624,21 @@ std::vector<BlockMeta> LSMTree::MergeBlocks(const std::vector<BlockIterator*>& b
       q.push(bis[i]);
   }
   size_t buffer_size_ = 0;
-  for (size_t i = 0; i < kv_buffers_.size(); ++ i)
-    buffer_size_ = buffer_size_ + kv_buffers_[i].size();
+  for (size_t i = 0; i < kv_buffers.size(); ++ i)
+    buffer_size_ = buffer_size_ + kv_buffers[i].size();
   while (!q.empty()) {
     BlockIterator *bi = q.top();
     q.pop();
     KV kv = bi->Next();
     if (bi->HasNext())
       q.push(bi);
-    if (kv_buffers_.size() == 0 || kv.key_.compare(kv_buffers_[kv_buffers_.size() - 1].key_) > 0) {
-      kv_buffers_.push_back(kv);
+    if (kv_buffers.size() == 0 || kv.key_.compare(kv_buffers[kv_buffers.size() - 1].key_) > 0) {
+      kv_buffers.push_back(kv);
       buffer_size_ = buffer_size_ + kv.size();
       if (buffer_size_ >= Config::TableConfig::BLOCKSIZE) {
-        BlockMeta bm = datamanager_->Append(kv_buffers_);
+        BlockMeta bm = datamanager_->Append(kv_buffers);
         result_.push_back(bm);
-        kv_buffers_.clear();
+        kv_buffers.clear();
         buffer_size_ = 0;
       }
     }
@@ -695,11 +723,12 @@ void LSMTree::MajorCompaction(size_t level) {
   GetOverlaps(file_[level + 1], wait_queue_);
 
   std::vector<TableIterator*> tables_;
+  std::vector<IndexTableIterator*> index_tables_;
   size_t total_size_ = 0;
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
     if (algo == std::string("LevelDB-Sep"))
-      tables_.push_back(new IndexTableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
+      index_tables_.push_back(new IndexTableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
     else
       tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
     total_size_ = total_size_ + wait_queue_[i].file_size_;
@@ -708,7 +737,7 @@ void LSMTree::MajorCompaction(size_t level) {
   lsmtreeresult_->MajorCompaction(total_size_);
   std::vector<Table*> merged_tables;
   if (algo == std::string("LevelDB-Sep"))
-    merged_tables = MergeIndexTables(tables_);
+    merged_tables = MergeIndexTables(index_tables_);
   else
     merged_tables = MergeTables(tables_);    
   for (size_t i = 0; i < merged_tables.size(); ++ i) {

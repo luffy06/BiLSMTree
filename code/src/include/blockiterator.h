@@ -5,13 +5,15 @@
 #include <string>
 #include <sstream>
 
+#include "indextable.h"
+
 namespace bilsmtree {
 
 class BlockIterator {
 public:
   BlockIterator();
 
-  BlockIterator(size_t id, BlockMeta bm);
+  BlockIterator(size_t id, BlockMeta bm, std::string block_data);
 
   ~BlockIterator();
   
