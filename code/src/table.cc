@@ -13,6 +13,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   if (Config::TRACE_LOG)
     std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
+  bool ordered = true;
+  for (size_t i = 1; i < kvs.size(); ++ i) {
+    if (kvs[i].key_.compare(kvs[i - 1].key_) <= 0)
+      ordered = false;
+  }
+  assert(ordered);
   // for data blocks
   std::vector<std::string> datas_;
   // for index block
@@ -25,6 +31,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   std::string footer_block_;
 
   size_t size_ = 0;
+  size_t numb_ = 0;
   std::stringstream ss;
   // write data blocks
   for (size_t i = 0; i < kvs.size(); ++ i) {
@@ -36,19 +43,26 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     ss << kv_.value_.ToString();
     ss << Config::DATA_SEG;
     size_ = size_ + ss.str().size() - add_;
-
+    numb_ = numb_ + 1;
     if (size_ >= Config::TableConfig::BLOCKSIZE) {
+      std::string block_data_ = ss.str();
+      ss.str("");
+      ss << numb_ << Config::DATA_SEG;
       // a data block finish
-      datas_.push_back(ss.str());
+      datas_.push_back(ss.str() + block_data_);
       // record index for data block
       last_keys_.push_back(kvs[i].key_);
       // create a new block
       size_ = 0;
+      numb_ = 0;
       ss.str("");
     }
   }
   if (size_ > 0) {
-    datas_.push_back(ss.str());
+    std::string block_data_ = ss.str();
+    ss.str("");
+    ss << numb_ << Config::DATA_SEG;
+    datas_.push_back(ss.str() + block_data_);
     last_keys_.push_back(kvs[kvs.size() - 1].key_);
   }
   
@@ -56,6 +70,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   ss.str("");
   size_t data_size_ = 0;
   size_t last_offset = 0;
+  ss << datas_.size() << Config::DATA_SEG;
   for (size_t i = 0; i < datas_.size(); ++ i) {
     size_t data_block_size_ = datas_[i].size();
     data_size_ = data_size_ + datas_[i].size();
@@ -133,6 +148,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   filesystem->Close(filename);
   if (Config::TRACE_LOG) {
     std::cout << "Create Table Success! File Size:" << meta_.file_size_ << std::endl;
+    std::cout << "Range:[" << meta_.smallest_.ToString() << ",\t" << meta_.largest_.ToString() << "]" << std::endl;
   }
 }
 
