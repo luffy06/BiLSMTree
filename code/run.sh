@@ -5,7 +5,11 @@ set -e  # fail and exit on any command erroring
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'BiLSMTree' 'Wisckey')
+algos=('LevelDB' 'LevelDB-Sep' 'Wisckey')
+tracepath="trace"
+if [[ ! -d ${tracepath} ]]; then
+  mkdir ${tracepath}
+fi
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
@@ -25,6 +29,7 @@ for file in ${datafolder}/*${suffix}; do
     echo 'RUNNING '${filename}
     echo 'RUNNING '${filename} >> ${resultname}
     echo `build/main < $datafolder/$filename` >> ${resultname}
+    mv trace.in ${tracepath}/${algo}_${filename}
     date
   done
 done
