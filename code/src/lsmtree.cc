@@ -315,7 +315,6 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     else
       ss >> smallest_str >> largest_str >> file_numb_ >> offset_ >> block_size_ >> block_numb_;
     Slice largest_ = Slice(largest_str.data(), largest_str.size());
-
     if (key.compare(largest_) <= 0) {
       found = true;
       break;
@@ -717,8 +716,9 @@ void LSMTree::MajorCompaction(size_t level) {
   std::vector<Meta> wait_queue_;
   if (file_[level].size() <= max_size_[level])
     return ;
-  if (Config::TRACE_LOG)
+  if (Config::TRACE_LOG) 
     std::cout << "MajorCompaction On Level:" << level << std::endl;
+
   size_t select_numb_Li = file_[level].size() - max_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
   max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
@@ -810,6 +810,7 @@ bool LSMTree::CheckFileList(size_t level) {
 
 void LSMTree::ShowMetas(size_t level, bool show_buffer) {
   std::cout << std::string(30, '%') << std::endl;
+  std::cout << "Level: " << level << std::endl;
   std::cout << "File" << std::endl;
   for (size_t i = 0; i < file_[level].size(); ++ i) {
     Meta m = file_[level][i];

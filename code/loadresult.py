@@ -3,7 +3,7 @@ import os
 
 resultdir = 'result'
 resultexcel = 'result.xlsx'
-algorithms = ['BiLSMTree', 'LevelDB-KV', 'LevelDB']
+algorithms = ['BiLSMTree', 'Wisckey', 'LevelDB']
 attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN', 'SCAN_READ']
 metrics = ['LATENCY', 'ERASE_TIMES', 'READ_FILES', 'READ_SIZE', 'WRITE_FILES', 
             'WRITE_SIZE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 

@@ -53,9 +53,9 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   size_t n;
   ss >> n;
   for (size_t i = 0; i < n; ++ i) {
-    std::string largest_str;
     size_t offset_ = 0;
     size_t block_size_ = 0;
+    std::string largest_str;
     ss >> largest_str >> offset_ >> block_size_;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
@@ -81,7 +81,11 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
   ss >> n;
   for (size_t i = 0; i < n; ++ i) {
     std::string key_str, value_str;
+<<<<<<< HEAD
     ss >> key_str >> value_str;
+=======
+    ss >> key_str >> value_str;    
+>>>>>>> simple
     
     if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
       if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))
