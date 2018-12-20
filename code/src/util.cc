@@ -3,7 +3,6 @@
 namespace bilsmtree {
 
 Util::Util() {
-
 }
 
 Util::~Util() {

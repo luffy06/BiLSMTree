@@ -82,6 +82,7 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
   meta_.footer_size_ = footer_block_.size();
   if (Config::TRACE_LOG) {
     std::cout << "Create IndexTable Success! File Size:" << meta_.file_size_ << std::endl;
+    std::cout << "Range:[" << meta_.smallest_.ToString() << ",\t" << meta_.largest_.ToString() << "]" << std::endl;
   }
 }
 

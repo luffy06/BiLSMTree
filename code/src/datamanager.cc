@@ -92,8 +92,8 @@ std::string DataManager::GetFilename(size_t file_numb) {
 }
 
 size_t DataManager::GetFileNumber() {
-  if (Config::TRACE_LOG)
-    std::cout << "Create New DATAFILE:" << total_file_number_ << std::endl;
+  // if (Config::TRACE_LOG)
+  //   std::cout << "Create New DATAFILE:" << total_file_number_ << std::endl;
   filesystem_->Create(GetFilename(total_file_number_));
   FileMeta fm = FileMeta(total_file_number_);
   file_meta_.push_back(fm);

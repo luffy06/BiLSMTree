@@ -10,6 +10,9 @@ Flash::Flash(FlashResult *flashresult) {
     std::fstream f(block_path, std::ios::app | std::ios::out);
     f.close();
   }
+
+  std::fstream f(Config::TRACE_PATH, std::ios::ate | std::ios::out);
+  f.close();  
   
   block_info_.resize(Config::FlashConfig::BLOCK_NUMS);
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i)
@@ -40,6 +43,9 @@ Flash::~Flash() {
 }
 
 char* Flash::Read(const size_t lba) {
+  std::stringstream ss;
+  ss << "R\t" << lba;
+  WriteLog(ss.str());
   // read block num and page num from page table
   if (page_table_.find(lba) == page_table_.end()) {
     std::cout << "LBA:" << lba << " doesn't exist!" << std::endl;
@@ -56,7 +62,10 @@ char* Flash::Read(const size_t lba) {
 }
 
 void Flash::Write(const size_t lba, const char* data) {
-    // calculate block num and page num
+  std::stringstream ss;
+  ss << "W\t" << lba;
+  WriteLog(ss.str());
+  // calculate block num and page num
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;
   // examinate block whether used or not
@@ -384,5 +393,12 @@ void Flash::ShowInfo() {
     std::cout << block_info_[i].invalid_nums_ << "\t" << block_info_[i].valid_nums_ << std::endl;
   }
 }
+
+void Flash::WriteLog(std::string data) {
+  std::fstream f(Config::TRACE_PATH, std::ios::app | std::ios::out);
+  f << data << "\n";
+  f.close();
+} 
+
 
 }

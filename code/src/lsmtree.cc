@@ -574,13 +574,13 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         continue ;
     }
     
-    if (Config::TRACE_LOG)
-      std::cout << "Merge All Overlaps:" << overlaps.size() << std::endl;
+    // if (Config::TRACE_LOG)
+    //   std::cout << "Merge All Overlaps:" << overlaps.size() << std::endl;
     first = true;
     // merge all overlaped files
     if (overlaps.size() == 1) {
-      if (Config::TRACE_LOG)
-        std::cout << "Keep Block" << std::endl;
+      // if (Config::TRACE_LOG)
+      //   std::cout << "Keep Block" << std::endl;
       if (kv_buffers_.size() > 0) {
         BlockMeta nbm = datamanager_->Append(kv_buffers_);
         kv_buffers_.clear();
@@ -597,10 +597,10 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         index_buffers_.clear();
         data_size_ = 0;
       }
-      std::cout << "Keep END" << std::endl;
+      // std::cout << "Keep END" << std::endl;
     }
     else {
-      std::cout << "Merge Blocks" << std::endl;
+      // std::cout << "Merge Blocks" << std::endl;
       std::vector<BlockIterator*> bis;
       for (size_t i = 0; i < overlaps.size(); ++ i) {
         std::string block_data_ = datamanager_->ReadBlock(overlaps[i].second);
@@ -608,6 +608,7 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         bis.push_back(bi);
       }
       std::vector<BlockMeta> bms = MergeBlocks(bis, kv_buffers_);
+
       for (size_t i = 0; i < bis.size(); ++ i)
         delete bis[i];
       for (size_t i = 0; i < overlaps.size(); ++ i)
@@ -624,7 +625,7 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
           data_size_ = 0;
         }
       }
-      std::cout << "Merge Blocks END" << std::endl;
+      // std::cout << "Merge Blocks END" << std::endl;
     }
     overlaps.clear();
   }
@@ -637,36 +638,42 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
   }
   for (size_t i = 0; i < tables.size(); ++ i)
     delete tables[i];
-  if (Config::TRACE_LOG)
-    std::cout << "MergeIndexTables End:" << result_.size() << std::endl;
+  // if (Config::TRACE_LOG)
+  //   std::cout << "MergeIndexTables End:" << result_.size() << std::endl;
   return result_;
 }
 
 std::vector<BlockMeta> LSMTree::MergeBlocks(const std::vector<BlockIterator*>& bis, std::vector<KV>& kv_buffers) {
   std::vector<BlockMeta> result_;
   std::priority_queue<BlockIterator*, std::vector<BlockIterator*>, BlockComparator> q;
+  std::vector<KV> temp;
   for (size_t i = 0; i < bis.size(); ++ i) {
     if (bis[i]->HasNext())
       q.push(bis[i]);
   }
-  size_t buffer_size_ = 0;
   for (size_t i = 0; i < kv_buffers.size(); ++ i)
-    buffer_size_ = buffer_size_ + kv_buffers[i].size();
+    temp.push_back(kv_buffers[i]);
+  kv_buffers.clear();
   while (!q.empty()) {
     BlockIterator *bi = q.top();
     q.pop();
     KV kv = bi->Next();
     if (bi->HasNext())
       q.push(bi);
-    if (kv_buffers.size() == 0 || kv.key_.compare(kv_buffers[kv_buffers.size() - 1].key_) > 0) {
-      kv_buffers.push_back(kv);
-      buffer_size_ = buffer_size_ + kv.size();
-      if (buffer_size_ >= Config::TableConfig::BLOCKSIZE) {
-        BlockMeta bm = datamanager_->Append(kv_buffers);
-        result_.push_back(bm);
-        kv_buffers.clear();
-        buffer_size_ = 0;
-      }
+    if (temp.size() == 0 || kv.key_.compare(temp[temp.size() - 1].key_) > 0) {
+      temp.push_back(kv);
+    }
+  }
+  size_t buffer_size_ = 0;
+  for (size_t i = 0; i < temp.size(); ++ i) {
+    KV kv = temp[i];
+    kv_buffers.push_back(kv);
+    buffer_size_ = buffer_size_ + kv.size();
+    if (buffer_size_ >= Config::TableConfig::BLOCKSIZE) {
+      BlockMeta bm = datamanager_->Append(kv_buffers);
+      result_.push_back(bm);
+      kv_buffers.clear();
+      buffer_size_ = 0;
     }
   }
   return result_;

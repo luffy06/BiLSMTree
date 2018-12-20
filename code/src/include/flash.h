@@ -29,6 +29,8 @@ public:
   void Invalidate(const size_t lba);
 
   void ShowInfo();
+
+  void WriteLog(std::string data);
 private:  
   enum PageStatus {
     PageFree,
