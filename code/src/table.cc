@@ -111,15 +111,6 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   ss << Config::DATA_SEG;
   footer_block_ = ss.str();
 
-  // create meta
-  meta_ = Meta();
-  meta_.smallest_ = kvs[0].key_;
-  meta_.largest_ = kvs[kvs.size() - 1].key_;
-  meta_.sequence_number_ = sequence_number;
-  meta_.level_ = 0;
-  meta_.file_size_ = data_size_ + index_block_.size() + filter_block_.size() + footer_block_.size();
-  meta_.footer_size_ = footer_block_.size();
-
   // for (size_t i = 0; i < datas_.size(); ++ i)
   //   std::cout << "DATA BLOCK SIZE:" << datas_[i].size() << std::endl;
   // std::cout << "INDEX BLOCK SIZE:" << index_block_.size() << std::endl;
@@ -136,8 +127,10 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   filesystem->Create(filename);
   filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
   ss.str("");
+  size_t file_size_ = 0;
   for (size_t i = 0; i < datas_.size(); ++ i) {
     ss << datas_[i];
+    file_size_ = file_size_ + datas_[i].size();
     if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
       std::string buffer = ss.str();
       ss.str("");
@@ -146,6 +139,17 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     lsmtreeresult->Write(datas_[i].size()); 
   }
   filesystem->Close(filename);
+
+  assert(file_size_ == data_size_ + index_block_.size() + filter_block_.size() + footer_block_.size());
+  // create meta
+  meta_ = Meta();
+  meta_.smallest_ = kvs[0].key_;
+  meta_.largest_ = kvs[kvs.size() - 1].key_;
+  meta_.sequence_number_ = sequence_number;
+  meta_.level_ = 0;
+  meta_.file_size_ = file_size_;
+  meta_.footer_size_ = footer_block_.size();
+
   if (Config::TRACE_LOG) {
     std::cout << "Create Table Success! File Size:" << meta_.file_size_ << std::endl;
     std::cout << "Range:[" << meta_.smallest_.ToString() << ",\t" << meta_.largest_.ToString() << "]" << std::endl;
