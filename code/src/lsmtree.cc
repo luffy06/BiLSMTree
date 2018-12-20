@@ -483,8 +483,6 @@ void LSMTree::CompactList(size_t level) {
     filesystem_->Delete(filename);
   }
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  for (size_t i = 0; i < tables_.size(); ++ i)
-    delete tables_[i];
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
     delete merged_tables[i];
@@ -557,8 +555,6 @@ void LSMTree::MajorCompaction(size_t level) {
   }
   lsmtreeresult_->MajorCompaction(total_size_);
   std::vector<Table*> merged_tables = MergeTables(tables_);
-  for (size_t i = 0; i < tables_.size(); ++ i)
-    delete tables_[i];
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
     delete merged_tables[i];
