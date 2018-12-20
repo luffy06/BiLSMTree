@@ -7,25 +7,21 @@ resultfolder="result"
 suffix=".in"
 algos=('LevelDB' 'BiLSMTree' 'Wisckey')
 for algo in ${algos[*]}; do
+  if [[ -f 'config.in' ]]; then
+    rm 'config.in'
+  fi
+  echo ${algo} >> config.in
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
     rm ${resultname}
   fi
-done
-for file in ${datafolder}/*${suffix}; do
-  for algo in ${algos[*]}; do
-    if [[ -f 'config.in' ]]; then
-      rm 'config.in'
-    fi
-    echo ${algo} >> config.in
-    resultname=${resultfolder}/${algo}.out
-    echo 'Running '${algo} 
+  echo 'Running '${algo} 
+  for file in ${datafolder}/*${suffix}; do
     filename=`basename $file`
-    date
     echo 'RUNNING '${filename}
     echo 'RUNNING '${filename} >> ${resultname}
     echo `build/main < $datafolder/$filename` >> ${resultname}
-    date
+    break
   done
 done
 echo 'LOADING RESULT'
