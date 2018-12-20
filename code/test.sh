@@ -2,6 +2,7 @@
 
 set -e  # fail and exit on any command erroring
 
+testid=0
 datafolder="data"
 resultfolder="result"
 suffix=".in"
@@ -16,13 +17,10 @@ for algo in ${algos[*]}; do
     rm ${resultname}
   fi
   echo 'Running '${algo} 
-  for file in ${datafolder}/*${suffix}; do
-    filename=`basename $file`
-    echo 'RUNNING '${filename}
-    echo 'RUNNING '${filename} >> ${resultname}
-    echo `build/main < $datafolder/$filename` >> ${resultname}
-    break
-  done
+  filename=`basename data$testid.in`
+  echo 'RUNNING '${filename}
+  echo 'RUNNING '${filename} >> ${resultname}
+  echo `build/main < $datafolder/$filename` >> ${resultname}
 done
 echo 'LOADING RESULT'
 echo `python3 loadresult.py`
