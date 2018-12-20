@@ -81,11 +81,7 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
   ss >> n;
   for (size_t i = 0; i < n; ++ i) {
     std::string key_str, value_str;
-<<<<<<< HEAD
     ss >> key_str >> value_str;
-=======
-    ss >> key_str >> value_str;    
->>>>>>> simple
     
     if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
       if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))
