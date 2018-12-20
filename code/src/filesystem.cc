@@ -146,7 +146,7 @@ std::string FileSystem::Read(const std::string filename, const size_t read_size)
 // TODO: Using substr() is LOW EFFICIENCY
 void FileSystem::Write(const std::string filename, const char* data, const size_t write_size) {
   // if (Config::FILESYSTEM_LOG)
-  //   std::cout << "Write File:" << filename << std::endl;
+    // std::cout << "Write File:" << filename << std::endl;
   std::string data_(data, write_size);
   int index = SearchInBuffer(filename);
   if (index == -1) {
@@ -160,6 +160,7 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     assert(false);
   }
 
+  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
   assert(fs.offset_ < Config::FileSystemConfig::BLOCK_SIZE);
   size_t size_ = 0;
   if (fs.offset_ > 0) {
@@ -204,7 +205,6 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     flash_->Write(fs.lba_, data_.substr(size_, write_size).c_str());
     fs.offset_ = write_size - size_;
   }
-  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
 }
 
 void FileSystem::Delete(const std::string filename) {
@@ -234,6 +234,8 @@ void FileSystem::Delete(const std::string filename) {
 }
 
 void FileSystem::Close(const std::string filename) {
+  if (Config::FILESYSTEM_LOG)
+    std::cout << "Close File:" << filename << std::endl;
   int index = SearchInBuffer(filename);
   if (index == -1)
     return ;

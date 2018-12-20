@@ -77,6 +77,8 @@ bool LSMTree::Get(const Slice key, Slice& value) {
 }
 
 std::vector<BlockMeta> LSMTree::GenerateBlocks(const std::vector<KV>& kvs) {
+  if (Config::TRACE_LOG)
+    std::cout << "Generate BlockMeta" << std::endl;
   std::vector<KV> datas_;
   std::vector<BlockMeta> indexs_;
   size_t size_ = 0;
@@ -98,6 +100,8 @@ std::vector<BlockMeta> LSMTree::GenerateBlocks(const std::vector<KV>& kvs) {
     BlockMeta bm = datamanager_->Append(datas_);
     indexs_.push_back(bm);
   }
+  if (Config::TRACE_LOG)
+    std::cout << "Generate BlockMeta Success! Size:" << indexs_.size() << std::endl;
   return indexs_;
 }
 
@@ -238,9 +242,9 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   size_t filter_offset_ = 0;
   ss >> index_offset_;
   ss >> filter_offset_;
-  assert(index_offset_ != 0);
   if (algo != std::string("LevelDB-Sep"))
-    assert(filter_offset_ != 0);
+    assert(index_offset_ != 0);
+  assert(filter_offset_ != 0);
   if (Config::TRACE_READ_LOG)
     std::cout << "Read Footer Block Success! Index Offset:" << index_offset_ << " Filter Offset:" << filter_offset_ << std::endl;
 
@@ -523,6 +527,8 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
     Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
     result_.push_back(t);
   }
+  for (size_t i = 0; i < tables.size(); ++ i)
+    delete tables[i];
   if (Config::TRACE_LOG)
     std::cout << "MergeTables End:" << result_.size() << std::endl;
   return result_;
@@ -568,11 +574,15 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
       if (!q.empty() && largest_.compare(q.top()->Current().smallest_) >= 0)
         continue ;
     }
-
+    
+    if (Config::TRACE_LOG)
+      std::cout << "Merge All Overlaps:" << overlaps.size() << std::endl;
     first = true;
     // merge all overlaped files
     if (overlaps.size() == 1) {
-      if (kv_buffers_.size() != 0) {
+      if (Config::TRACE_LOG)
+        std::cout << "Keep Block" << std::endl;
+      if (kv_buffers_.size() > 0) {
         BlockMeta nbm = datamanager_->Append(kv_buffers_);
         kv_buffers_.clear();
         index_buffers_.push_back(nbm);
@@ -586,9 +596,12 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         Table *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
         result_.push_back(it);
         index_buffers_.clear();
+        data_size_ = 0;
       }
+      std::cout << "Keep END" << std::endl;
     }
     else {
+      std::cout << "Merge Blocks" << std::endl;
       std::vector<BlockIterator*> bis;
       for (size_t i = 0; i < overlaps.size(); ++ i) {
         std::string block_data_ = datamanager_->ReadBlock(overlaps[i].second);
@@ -596,6 +609,8 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         bis.push_back(bi);
       }
       std::vector<BlockMeta> bms = MergeBlocks(bis, kv_buffers_);
+      for (size_t i = 0; i < bis.size(); ++ i)
+        delete bis[i];
       for (size_t i = 0; i < overlaps.size(); ++ i)
         datamanager_->Invalidate(overlaps[i].second);
       for (size_t i = 0; i < bms.size(); ++ i) {
@@ -607,12 +622,24 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
           Table *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
           result_.push_back(it);
           index_buffers_.clear();
+          data_size_ = 0;
         }
       }
+      std::cout << "Merge Blocks END" << std::endl;
     }
+    overlaps.clear();
   }
+  if (data_size_ > 0) {
+    size_t sequence_number_ = GetSequenceNumber();
+    std::string filename = GetFilename(sequence_number_);
+    Table *it = new IndexTable(index_buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+    result_.push_back(it);
+    index_buffers_.clear();
+  }
+  for (size_t i = 0; i < tables.size(); ++ i)
+    delete tables[i];
   if (Config::TRACE_LOG)
-    std::cout << "MergeTables End:" << result_.size() << std::endl;
+    std::cout << "MergeIndexTables End:" << result_.size() << std::endl;
   return result_;
 }
 

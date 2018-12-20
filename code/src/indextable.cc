@@ -28,10 +28,10 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
   
   // write index block
   ss.str("");
-  ss << indexs_.size();
-  ss << Config::DATA_SEG;
+  ss << indexs_.size() << Config::DATA_SEG;
   ready_to_write_.push_back(ss.str());
-  index_offset_ = ss.str().size();
+  index_block_ = ss.str();
+  filter_block_size_ = filter_block_size_ + ss.str().size();
   for (size_t i = 0; i < indexs_.size(); ++ i) {
     BlockMeta bm = indexs_[i];
     std::string filter_data_ = bm.filter_->ToString();
@@ -41,11 +41,11 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
     ss << filter_data_;
     ready_to_write_.push_back(ss.str());
     filter_block_size_ = filter_block_size_ + ss.str().size();
-    index_offset_ = index_offset_ + ss.str().size();
     index_block_ = index_block_ + bm.ToString();
     delete bm.filter_;
   }
-  ready_to_write_.push_back(index_block_);
+  ready_to_write_.insert(ready_to_write_.begin(), index_block_);
+  filter_offset_ = index_block_.size();
   // write footer block
   ss.str("");
   ss << index_offset_;
@@ -55,30 +55,33 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
   footer_block_ = ss.str();
   ready_to_write_.push_back(footer_block_);
 
+
+  filesystem->Create(filename);
+  filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
+  ss.str("");
+  size_t file_size_ = 0;
+  for (size_t i = 0; i < ready_to_write_.size(); ++ i) {
+    ss << ready_to_write_[i];
+    file_size_ = file_size_ + ready_to_write_[i].size();
+    if (i == ready_to_write_.size() - 1 || ss.str().size() + ready_to_write_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
+      std::string buffer = ss.str();
+      filesystem->Write(filename, buffer.data(), buffer.size());
+      ss.str("");
+    }
+    lsmtreeresult->Write(ready_to_write_[i].size()); 
+  }
+  filesystem->Close(filename);
+  assert(file_size_ == filter_block_size_ + index_block_.size() + footer_block_.size());
   // create meta
   meta_ = Meta();
   meta_.smallest_ = indexs_[0].smallest_;
   meta_.largest_ = indexs_[indexs_.size() - 1].largest_;
   meta_.sequence_number_ = sequence_number;
   meta_.level_ = 0;
-  meta_.file_size_ = index_block_.size() + filter_block_size_ + footer_block_.size();
+  meta_.file_size_ = file_size_;
   meta_.footer_size_ = footer_block_.size();
-
-  filesystem->Create(filename);
-  filesystem->Open(filename, Config::FileSystemConfig::WRITE_OPTION);
-  ss.str("");
-  for (size_t i = 0; i < ready_to_write_.size(); ++ i) {
-    ss << ready_to_write_[i];
-    if (i == ready_to_write_.size() - 1 || ss.str().size() + ready_to_write_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
-      std::string buffer = ss.str();
-      ss.str("");
-      filesystem->Write(filename, buffer.data(), buffer.size());
-    }
-    lsmtreeresult->Write(ready_to_write_[i].size()); 
-  }
-  filesystem->Close(filename);
   if (Config::TRACE_LOG) {
-    std::cout << "Create Table Success! File Size:" << meta_.file_size_ << std::endl;
+    std::cout << "Create IndexTable Success! File Size:" << meta_.file_size_ << std::endl;
   }
 }
 

@@ -9,8 +9,6 @@ IndexTableIterator::IndexTableIterator() {
 }
 
 IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
-  // std::cout << "Read:" << filename << std::endl;
-  // meta.Show();
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
@@ -24,7 +22,7 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   ss >> index_offset_;
   ss >> filter_offset_;
   // std::cout << "Index Offset:" << index_offset_ << "\tFilter Offset:" << filter_offset_ << std::endl;
-  assert(index_offset_ != 0);
+  assert(index_offset_ == 0);
   assert(filter_offset_ != 0);
   // std::cout << "Load Filter Data" << std::endl;
   filesystem->Seek(filename, filter_offset_);
@@ -55,14 +53,14 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   ss.str(index_data_);
   size_t n;
   ss >> n;
-  for (size_t i = 0; ; ++ i) {
+  for (size_t i = 0; i < n; ++ i) {
     std::string smallest_str, largest_str;
     size_t file_numb_;
     size_t offset_ = 0;
     size_t block_size_ = 0;
     size_t block_numb_ = 0;
     ss >> smallest_str >> largest_str >> file_numb_ >> offset_ >> block_size_ >> block_numb_;
-    assert(i >= filters.size());
+    assert(i < filters.size());
     BlockMeta bm;
     bm.filter_ = filters[i];
     bm.smallest_ = Slice(smallest_str.data(), smallest_str.size());

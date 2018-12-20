@@ -23,10 +23,9 @@ struct BlockMeta {
   }
 
   ~BlockMeta() {
-    delete filter_;
   }
 
-  std::string ToString() {
+  std::string ToString() const {
     std::stringstream ss;
     ss << smallest_.ToString();
     ss << Config::DATA_SEG;
@@ -42,6 +41,18 @@ struct BlockMeta {
     ss << Config::DATA_SEG;    
     return ss.str();
   }
+
+  BlockMeta& operator=(const BlockMeta& bm) {
+    smallest_ = Slice(bm.smallest_.data(), bm.smallest_.size());
+    largest_ = Slice(bm.largest_.data(), bm.largest_.size());
+    file_numb_ = bm.file_numb_;
+    offset_ = bm.offset_;
+    block_size_ = bm.block_size_;
+    block_numb_ = bm.block_numb_;
+    filter_ = bm.filter_;
+    return *this;
+  }
+
 };
 
 class IndexTable : public Table {

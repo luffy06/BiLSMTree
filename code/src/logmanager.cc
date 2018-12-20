@@ -26,9 +26,9 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     std::string data = ss.str();
     ss.str("");
     ss << pos;
-    ss << Config::DATA_SEG;
+    ss << ",";
     ss << data.size();
-    ss << Config::DATA_SEG;
+    ss << ",";
     std::string value = ss.str();
     res.push_back(KV(kv.key_.ToString(), value));
     pos = pos + data.size();
@@ -45,13 +45,21 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
 
 Slice LogManager::Get(const Slice location) {
   // std::cout << location.ToString() << std::endl;
-  std::stringstream ss;
-  ss.str(location.ToString());
-  std::string location_;
-  size_t size_ = 0;
-  ss >> location_;
-  ss >> size_;
-  size_t loc_ = Util::StringToInt(location_);
+  std::string data = location.ToString();
+  std::vector<std::string> strs;
+  std::string str = "";
+  for (size_t i = 0; i < data.size(); ++ i) {
+    if (data[i] == ',') {
+      strs.push_back(str);
+      str = "";
+    }
+    else {
+      str = str + data[i];
+    }
+  }
+  assert(strs.size() == 2);
+  size_t loc_ = Util::StringToInt(strs[0]);
+  size_t size_ = Util::StringToInt(strs[1]);
   // std::cout << loc_ << "\t" << size_ << std::endl;
   KV kv = ReadKV(loc_, size_);
   return kv.value_;

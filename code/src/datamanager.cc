@@ -5,6 +5,7 @@ namespace bilsmtree {
 DataManager::DataManager(FileSystem *filesystem) {
   total_file_number_ = 0;
   filesystem_ = filesystem;
+  GetFileNumber();
 }
 
 DataManager::~DataManager() {
@@ -14,7 +15,7 @@ DataManager::~DataManager() {
   }
 }
   
-BlockMeta DataManager::Append(std::vector<KV> kvs) {
+BlockMeta DataManager::Append(const std::vector<KV>& kvs) {
   assert(kvs.size() > 0);
   std::stringstream ss;
   std::vector<Slice> keys_for_filter_;
@@ -29,15 +30,15 @@ BlockMeta DataManager::Append(std::vector<KV> kvs) {
     keys_for_filter_.push_back(kv_.key_);
   }
   BlockMeta bm = WriteBlock(ss.str());
-  bm.smallest_ = kvs[0].key_;
-  bm.largest_ = kvs[kvs.size() - 1].key_;
+  bm.smallest_ = Slice(kvs[0].key_.data(), kvs[0].key_.size());
+  bm.largest_ = Slice(kvs[kvs.size() - 1].key_.data(), kvs[kvs.size() - 1].key_.size());
   bm.filter_ = new BloomFilter(keys_for_filter_);
   return bm;
 }
 
 bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t offset, size_t block_size) {
   int index = FindFileMeta(file_numb);
-  assert(index == -1);
+  assert(index != -1);
   std::string filename = GetFilename(file_numb);
   filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(filename, offset);
@@ -60,9 +61,9 @@ bool DataManager::Get(const Slice key, Slice& value, size_t file_numb, size_t of
   return false;
 }
 
-std::string DataManager::ReadBlock(BlockMeta bm) {
+std::string DataManager::ReadBlock(const BlockMeta& bm) {
   int index = FindFileMeta(bm.file_numb_);
-  assert(index == -1);
+  assert(index != -1);
   std::string filename = GetFilename(bm.file_numb_);
   filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(filename, bm.offset_);
@@ -71,11 +72,14 @@ std::string DataManager::ReadBlock(BlockMeta bm) {
   return block_data_;
 }
 
-void DataManager::Invalidate(BlockMeta bm) {
+void DataManager::Invalidate(const BlockMeta& bm) {
   int index = FindFileMeta(bm.file_numb_);
   assert(index != -1);
-  file_meta_[index].block_status_ &= (~(1 << bm.block_numb_));
+  assert(bm.block_numb_ >= 0 && bm.block_numb_ < MAX_BLOCK_NUMB);
+  file_meta_[index].block_status_ &= (~(((size_t)1) << bm.block_numb_));
   if (file_meta_[index].block_status_ == 0) {
+    // if (Config::TRACE_LOG)
+    //   std::cout << "Delete DATAFILE:" << file_meta_[index].file_numb_ << std::endl;
     filesystem_->Delete(GetFilename(file_meta_[index].file_numb_));
     file_meta_.erase(file_meta_.begin() + index);
   }
@@ -88,6 +92,8 @@ std::string DataManager::GetFilename(size_t file_numb) {
 }
 
 size_t DataManager::GetFileNumber() {
+  if (Config::TRACE_LOG)
+    std::cout << "Create New DATAFILE:" << total_file_number_ << std::endl;
   filesystem_->Create(GetFilename(total_file_number_));
   FileMeta fm = FileMeta(total_file_number_);
   file_meta_.push_back(fm);
@@ -122,10 +128,9 @@ int DataManager::FindFileMeta(size_t file_numb) {
 //   }
 // }
 
-BlockMeta DataManager::WriteBlock(std::string block_data) {
-  size_t file_numb_ = 0;
-  if (total_file_number_ != 0)
-    file_numb_ = total_file_number_ - 1;
+BlockMeta DataManager::WriteBlock(const std::string& block_data) {
+  assert(total_file_number_ != 0);
+  size_t file_numb_ = total_file_number_ - 1;
   int index = FindFileMeta(file_numb_);
   assert(index != -1);
   if (file_meta_[index].block_numb_ >= MAX_BLOCK_NUMB) {
@@ -145,6 +150,14 @@ BlockMeta DataManager::WriteBlock(std::string block_data) {
   file_meta_[index].file_size_ = file_meta_[index].file_size_ + block_data.size();
   file_meta_[index].block_numb_ = file_meta_[index].block_numb_ + 1;
   return bm;
+}
+
+void DataManager::ShowFileMeta() {
+  std::cout << std::string(30, '#') << std::endl;
+  std::cout << "Total File:" << file_meta_.size() << std::endl;
+  for (size_t i = 0; i < file_meta_.size(); ++ i)
+    std::cout << "File Numb:" << file_meta_[i].file_numb_ << "\tFile Size:" << file_meta_[i].file_size_ << "\tBlock Numb:" << file_meta_[i].block_numb_ << "\tStatus:" << file_meta_[i].Status() << std::endl;
+  std::cout << std::string(30, '#') << std::endl;
 }
 
 }
