@@ -32,8 +32,8 @@ public:
     std::cout << "AVG_WRITE_SIZE:" << result_->lsmtreeresult_->GetAverageWriteSize() << std::endl;
     std::cout << "MINOR_COMPACTION:" << result_->lsmtreeresult_->GetMinorCompactionTimes() << std::endl;
     std::cout << "MINOR_COMPACTION_SIZE:" << result_->lsmtreeresult_->GetMinorCompactionSize() << std::endl;
-    std::cout << "MINOR_COMPACTION_SIZE:" << result_->lsmtreeresult_->GetAverageMinorCompactionSize() << std::endl;
-    std::cout << "AVG_MAJOR_COMPACTION:" << result_->lsmtreeresult_->GetMajorCompactionTimes() << std::endl;
+    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << result_->lsmtreeresult_->GetAverageMinorCompactionSize() << std::endl;
+    std::cout << "MAJOR_COMPACTION:" << result_->lsmtreeresult_->GetMajorCompactionTimes() << std::endl;
     std::cout << "MAJOR_COMPACTION_SIZE:" << result_->lsmtreeresult_->GetMajorCompactionSize() << std::endl;
     std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << result_->lsmtreeresult_->GetAverageMajorCompactionSize() << std::endl;
     std::cout << "AVERAGE_CHECK_TIMES:" << result_->lsmtreeresult_->GetCheckTimesAvg() << std::endl;
