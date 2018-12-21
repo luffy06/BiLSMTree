@@ -19,7 +19,6 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
 }
 
 LSMTree::~LSMTree() {
-  std::cout << "ROLLBACK:" << rollback_ << std::endl;
   delete recent_files_;
 }
 
