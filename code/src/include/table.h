@@ -17,6 +17,7 @@ struct Meta {
   size_t level_;
   size_t file_size_;
   size_t footer_size_;
+  size_t data_numb_;
 
   Meta() {
   }
@@ -28,6 +29,7 @@ struct Meta {
     level_ = meta.level_;
     file_size_ = meta.file_size_;
     footer_size_ = meta.footer_size_;
+    data_numb_ = meta.data_numb_;
   }
 
   bool Intersect(Meta other) const {

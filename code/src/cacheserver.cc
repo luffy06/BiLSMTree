@@ -14,12 +14,13 @@ CacheServer::~CacheServer() {
     delete imms_[i].imm_;
 }
 
-SkipList* CacheServer::Put(const KV kv) {
+std::vector<SkipList*> CacheServer::Put(const KV kv) {
   std::string algo = Util::GetAlgorithm();
-  SkipList* res = NULL;
+  std::vector<SkipList*> res;
   if (algo == std::string("BiLSMTree")) {
-    KV pop_kv;
-    if (lru_->Put(kv, pop_kv)) {
+    std::vector<KV> lru_pop = lru_->Put(kv);
+    for (size_t i = 0; i < lru_pop.size(); ++ i) {
+      KV pop_kv = lru_pop[i];
       // lru2q is full
       if (mem_->IsFull()) {
         // immutable memtable is full
@@ -34,7 +35,7 @@ SkipList* CacheServer::Put(const KV kv) {
               index = i;
             }
           }
-          res = imms_[index].imm_;
+          res.push_back(imms_[index].imm_);
           imms_.erase(imms_.begin() + index);
         }
         mem_->DisableWrite();
@@ -50,7 +51,7 @@ SkipList* CacheServer::Put(const KV kv) {
   else if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("BiLSMTree2")) {
     if (mem_->IsFull()) {
       if (imms_.size() != 0) {
-        res = imms_[0].imm_;
+        res.push_back(imms_[0].imm_);
         imms_.clear();
       }
       mem_->DisableWrite();
@@ -63,6 +64,7 @@ SkipList* CacheServer::Put(const KV kv) {
     std::cout << "Algorithm Error" << std::endl;
     assert(false);
   }
+  assert(res.size() < 2);
   return res;
 }
 

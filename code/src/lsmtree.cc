@@ -6,6 +6,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   filesystem_ = filesystem;
   lsmtreeresult_ = lsmtreeresult;
   total_sequence_number_ = 0;
+  rollback_ = 0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
   max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
@@ -18,6 +19,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
 }
 
 LSMTree::~LSMTree() {
+  std::cout << "ROLLBACK:" << rollback_ << std::endl;
   delete recent_files_;
 }
 
@@ -48,9 +50,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
         std::cout << "Check SEQ:" << meta.sequence_number_ << "[" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
       if (GetValueFromFile(meta, key, value)) {
         if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
-          int deleted = recent_files_->Append(meta.sequence_number_);
-          frequency_[meta.sequence_number_] ++;
-          if (deleted != -1) frequency_[deleted] --;
+          UpdateFrequency(meta.sequence_number_);
           if (i > 0) {
             size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
             for (size_t k = 1; k < file_[i - 1].size(); ++ k) {
@@ -78,6 +78,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
   Table *table_ = new Table(kvs, sequence_number_, filename, filesystem_, lsmtreeresult_);
+  UpdateFrequency(sequence_number_);
   Meta meta = table_->GetMeta();
   meta.level_ = 0;
   delete table_;
@@ -88,9 +89,6 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
   std::string algo = Util::GetAlgorithm();
   if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
     buffer_[0].insert(buffer_[0].begin(), meta);
-    int deleted = recent_files_->Append(sequence_number_);
-    frequency_[sequence_number_] ++;
-    if (deleted != -1) frequency_[deleted] --;
     if (buffer_[0].size() > min_size_[0])
       CompactList(0);
   }
@@ -137,6 +135,12 @@ int LSMTree::BinarySearch(size_t level, const Slice key) {
       return r;
   }
   return -1;
+}
+
+void LSMTree::UpdateFrequency(size_t sequence_number) {
+  int deleted = recent_files_->Append(sequence_number);
+  frequency_[sequence_number] ++;
+  if (deleted != -1) frequency_[deleted] --;
 }
 
 std::vector<size_t> LSMTree::GetCheckFiles(std::string algo, size_t level, const Slice key) {
@@ -328,6 +332,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   assert(to_level <= now_level);
   if (to_level == now_level)
     return ;
+  rollback_ = rollback_ + 1;
   if (Config::TRACE_LOG) {
     std::cout << "RollBack Now Level:" << now_level << " To Level:" << to_level << std::endl;
     std::cout << "SEQ:" << meta.sequence_number_ << " [" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
@@ -446,6 +451,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
         Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+        UpdateFrequency(sequence_number_);
         result_.push_back(t);
         buffers_.clear();
         buffer_size_ = 0;
@@ -458,6 +464,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
     size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
     Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+    UpdateFrequency(sequence_number_);
     result_.push_back(t);
   }
   for (size_t i = 0; i < tables.size(); ++ i) {

@@ -32,12 +32,15 @@ private:
   size_t total_sequence_number_;
   FileSystem *filesystem_;
   LSMTreeResult *lsmtreeresult_;
+  size_t rollback_;
 
   size_t GetSequenceNumber();
 
   std::string GetFilename(size_t sequence_number_);
 
   int BinarySearch(size_t level, const Slice key);
+
+  void UpdateFrequency(size_t sequence_number);
 
   std::vector<size_t> GetCheckFiles(std::string algo, size_t level, const Slice key);
 

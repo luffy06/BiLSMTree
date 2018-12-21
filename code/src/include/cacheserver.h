@@ -11,7 +11,7 @@ public:
   CacheServer();
   ~CacheServer();
 
-  SkipList* Put(const KV kv);
+  std::vector<SkipList*> Put(const KV kv);
 
   bool Get(const Slice key, Slice& value);
 private:

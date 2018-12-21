@@ -18,8 +18,9 @@ DB::~DB() {
 
 void DB::Put(const std::string key, const std::string value) {
   KV kv_ = KV(key, value);
-  SkipList* sl = cacheserver_->Put(kv_);
-  if (sl != NULL) {
+  std::vector<SkipList*> skiplists = cacheserver_->Put(kv_);
+  for (size_t i = 0; i < skiplists.size(); ++ i) {
+    SkipList* sl = skiplists[i];
     // need compaction
     if (Config::TRACE_LOG)
       std::cout << "Ready to Minor Compaction" << std::endl;
