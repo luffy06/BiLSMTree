@@ -5,11 +5,11 @@ from functools import reduce
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
 distribution = [(200000, 0.50, 0.50, 0.00, 0.00),  # 0  a 50% read 50% update
                 (200000, 0.95, 0.05, 0.00, 0.00),  # 1  b 95% read 5% update
-                (200000, 0.95, 0.05, 0.00, 0.00),  # 2    5% read 95% update
+                (200000, 0.05, 0.95, 0.00, 0.00),  # 2    5% read 95% update
                 (200000, 1.00, 0.00, 0.00, 0.00),  # 3  c 100% read
                 (200000, 0.50, 0.50, 0.00, 0.00),  # 4    50% read 50% insert
-                (200000, 0.95, 0.00, 0.00, 0.05),  # 5  d 95% read 5% insert
-                (200000, 0.95, 0.00, 0.00, 0.05),  # 6  d 5% read 95% insert
+                (200000, 0.95, 0.00, 0.05, 0.00),  # 5  d 95% read 5% insert
+                (200000, 0.05, 0.00, 0.95, 0.00),  # 6  d 5% read 95% insert
                 (100000, 0.00, 1.00, 0.00, 0.01),  # 7    50% scan 50% update
                 (100000, 0.00, 0.50, 0.00, 0.01),  # 8    95% scan 5% update
                 (150000, 0.00, 1.90, 0.00, 0.001), # 9    5% scan 95% update
