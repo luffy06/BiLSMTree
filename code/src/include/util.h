@@ -112,7 +112,7 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static constexpr const double ALPHA = 2.;
+    static constexpr const double ALPHA = 1.;
     static const size_t LISTSIZE = 10;
   };
 
