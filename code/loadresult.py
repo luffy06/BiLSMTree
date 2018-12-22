@@ -5,9 +5,11 @@ resultdir = 'result'
 resultexcel = 'result.xlsx'
 algorithms = ['BiLSMTree', 'Wisckey', 'LevelDB']
 attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN', 'SCAN_READ']
-metrics = ['LATENCY', 'ERASE_TIMES', 'READ_FILES', 'READ_SIZE', 'WRITE_FILES', 
-            'WRITE_SIZE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
-            'MAJOR_COMPACTION', 'MAJOR_COMPACTION_SIZE', 'AVERAGE_CHECK_TIMES'];
+metrics = ['LATENCY', 'READ_TIMES', 'WRITE_TIMES', 'ERASE_TIMES', 'READ_FILES', 
+            'READ_SIZE', 'AVG_READ_SIZE', 'WRITE_FILES', 'WRITE_SIZE', 
+            'AVG_WRITE_SIZE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
+            'AVG_MINOR_COMPACTION_SIZE', 'MAJOR_COMPACTION', 'MAJOR_COMPACTION_SIZE', 
+            'AVG_MAJOR_COMPACTION_SIZE', 'AVERAGE_CHECK_TIMES'];
 
 def parse_filename(filename):
   names = filename.split('.')
