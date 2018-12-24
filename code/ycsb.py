@@ -129,17 +129,3 @@ if __name__ == '__main__':
     read(in_filename_run, out_filename)
   print('CLEAN DATA')
   clean_data(project_path, dirname, prefix, suffix)
-ect_path)
-  print('GET DATA')
-  get_data(project_path)
-  print('READ DATA')
-  for i in range(workload_num):
-    in_filename_load = dirname + prefix + str(i) + '_load' + suffix
-    in_filename_run = dirname + prefix + str(i) + '_run' + suffix
-    out_filename = dirname + prefix + str(i) + suffix
-    if os.path.exists(out_filename):
-      os.remove(out_filename)
-    read(in_filename_load, out_filename)
-    read(in_filename_run, out_filename)
-  print('CLEAN DATA')
-  clean_data(project_path, dirname, prefix, suffix)
