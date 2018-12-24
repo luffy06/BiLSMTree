@@ -19,30 +19,17 @@ public:
 
   bool IsFull();
   
-  void Set(size_t pos, const KV kv);
-
-  void MoveToHead(size_t pos);
-
-  KV Get(size_t pos);
-
-  KV Delete(size_t pos);
-
   // insert after tail, pop head
   // true: has key pop
   // false: no key pop
-  bool Append(const KV kv, KV& pop_kv);
+  std::vector<KV> Append(const KV kv);
 
   // insert before head, pop tail
   // true: has key pop
   // false: no key pop  
-  bool Insert(const KV kv, KV& pop_kv);
+  std::vector<KV> Insert(const KV kv);
 
-  size_t Head() { return data_[head_].next_; }
-
-  size_t Tail() {
-    assert(tail_ > 0);
-    return tail_;
-  }
+  bool Get(const Slice key, Slice& value);
 
   std::vector<KV> GetAll() {
     std::vector<KV> res;
@@ -83,6 +70,10 @@ private:
   size_t data_numb_;
   std::queue<size_t> free_;
   std::vector<ListNode> data_;
+
+  int ExistAndUpdate(const KV kv);
+
+  KV Delete(size_t pos);
 };
 
 }

@@ -13,7 +13,7 @@ public:
 
   ~LRU2Q();
 
-  bool Put(const KV kv, KV& pop_kv);
+  std::vector<KV> Put(const KV kv);
 
   bool Get(const Slice key, Slice& value);
 
@@ -25,13 +25,8 @@ public:
     return res;
   }
 private:
-  std::vector<std::pair<Slice, int>> map_;        // key, the index of lru or fifo
   BiList *lru_;
   BiList *fifo_;
-
-  std::pair<size_t, int> GetPos(const Slice key);
-
-  void MoveToHead(size_t index);
 };
 
 }

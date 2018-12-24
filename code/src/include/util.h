@@ -30,6 +30,8 @@ public:
 
   static size_t GetSSTableSize();
 
+  static size_t GetBlockSize();
+
   static void Test(std::string msg) {
     std::string k;
     std::cout << msg << ":";
@@ -93,8 +95,8 @@ public:
   struct LRU2QConfig {
     static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
     static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M1_NUMB = 50;                   // max number of lru
-    static const size_t M2_NUMB = 50;                   // max number of fifo    
+    static const size_t M1_NUMB = 1000;                   // max number of lru
+    static const size_t M2_NUMB = 1000;                   // max number of fifo    
   };
 
   struct FilterConfig {
@@ -118,12 +120,12 @@ public:
     static const size_t LIBASE = 10;
     static constexpr const double ALPHA = 1.;
     static const size_t LISTSIZE = 10;
-    static const size_t TABLE_SIZE = ImmutableMemTableConfig::MEM_SIZE / 512;
   };
 
   struct TableConfig {
     static const size_t BUFFER_SIZE = 2000000;
-    static const size_t BLOCKSIZE = LSMTreeConfig::TABLE_SIZE / 16;
+    static const size_t TABLE_SIZE = 512;
+    static const size_t BLOCK_SIZE = 16;
   };
 
   struct VisitFrequencyConfig {
@@ -142,6 +144,8 @@ public:
   FlashResult() {
     latency_ = 0;
     erase_times_ = 0;
+    read_times_ = 0;
+    write_times_ = 0;
     record_ = false;
   }
 
@@ -150,13 +154,17 @@ public:
   }
 
   void Read() {
-    if (record_)
+    if (record_) {
       latency_ = latency_ + Config::FlashConfig::READ_LATENCY;
+      read_times_ = read_times_ + 1;
+    }
   }
 
   void Write() {
-    if (record_)
+    if (record_) {
       latency_ = latency_ + Config::FlashConfig::WRITE_LATENCY;
+      write_times_ = write_times_ + 1;
+    }
   }
 
   void Erase() {
@@ -170,6 +178,14 @@ public:
     return latency_;
   }
 
+  size_t GetReadTimes() {
+    return read_times_;
+  }
+
+  size_t GetWriteTimes() {
+    return write_times_;
+  }
+
   size_t GetEraseTimes() {
     return erase_times_;
   }
@@ -180,16 +196,22 @@ public:
 private:
   bool record_;
   size_t latency_;
+  size_t read_times_;
+  size_t write_times_;
   size_t erase_times_;
 };
 
 class LSMTreeResult {
 public:
   LSMTreeResult() {
-    write_files_ = 0;
     read_files_ = 0;
+    read_size_ = 0;
+    write_files_ = 0;
+    write_size_ = 0;
     minor_compaction_times_ = 0;
+    minor_compaction_size_ = 0;
     major_compaction_times_ = 0;
+    major_compaction_size_ = 0;
     check_times_.clear();
     record_ = false;
   }
@@ -252,16 +274,40 @@ public:
     return read_size_;
   }
 
+  double GetAverageReadSize() {
+    if (read_files_ == 0)
+      return 0;
+    return read_size_ * 1.0 / read_files_;
+  }
+
   size_t GetWriteSize() {
     return write_size_;
+  }
+
+  double GetAverageWriteSize() {
+    if (write_files_ == 0)
+      return 0;
+    return write_size_ * 1.0 / write_files_;
   }
 
   size_t GetMinorCompactionSize() {
     return minor_compaction_size_;
   }
 
+  double GetAverageMinorCompactionSize() {
+    if (minor_compaction_times_ == 0)
+      return 0;
+    return minor_compaction_size_ * 1.0 / minor_compaction_times_;
+  }
+
   size_t GetMajorCompactionSize() {
     return major_compaction_size_;
+  }
+
+  double GetAverageMajorCompactionSize() {
+    if (major_compaction_times_ == 0)
+      return 0;
+    return major_compaction_size_ * 1.0 / major_compaction_times_;
   }
 
   double GetCheckTimesAvg() {

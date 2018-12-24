@@ -19,9 +19,11 @@ for algo in ${algos[*]}; do
   fi
   echo 'Running '${algo} 
   filename=`basename data$testid.in`
+  date
   echo 'RUNNING '${filename}
   echo 'RUNNING '${filename} >> ${resultname}
   echo `build/main < $datafolder/$filename` >> ${resultname}
   mv trace.in ${tracepath}/${algo}_${filename}
+  date
 done
 echo 'RUN SUCCESS'

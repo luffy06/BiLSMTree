@@ -44,7 +44,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     ss << Config::DATA_SEG;
     size_ = size_ + ss.str().size() - add_;
     numb_ = numb_ + 1;
-    if (size_ >= Config::TableConfig::BLOCKSIZE) {
+    if (size_ >= Util::GetBlockSize()) {
       std::string block_data_ = ss.str();
       ss.str("");
       ss << numb_ << Config::DATA_SEG;
@@ -149,6 +149,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   meta_.level_ = 0;
   meta_.file_size_ = file_size_;
   meta_.footer_size_ = footer_block_.size();
+  meta_.data_numb_ = kvs.size();
 
   if (Config::TRACE_LOG) {
     std::cout << "Create Table Success! File Size:" << meta_.file_size_ << std::endl;

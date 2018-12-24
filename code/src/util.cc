@@ -49,10 +49,14 @@ size_t Util::GetMemTableSize() {
 }
 
 size_t Util::GetSSTableSize() {
-  // return GetMemTableSize();
-  std::string algo = Util::GetAlgorithm();
-  size_t table_size_ = Config::LSMTreeConfig::TABLE_SIZE;
-  return table_size_;
+  // size_t mem_size_ = GetMemTableSize();
+  // return mem_size_ / Config::TableConfig::TABLE_SIZE;
+  return 8 * 1024;
+}
+
+size_t Util::GetBlockSize() {
+  size_t table_size_ = GetSSTableSize();
+  return table_size_ / Config::TableConfig::BLOCK_SIZE;
 }
 
 }
