@@ -7,6 +7,7 @@ datafolder="data"
 resultfolder="result"
 suffix=".in"
 algos=('LevelDB' 'BiLSMTree' 'Wisckey')
+tracepath="trace"
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
     rm 'config.in'
@@ -21,6 +22,6 @@ for algo in ${algos[*]}; do
   echo 'RUNNING '${filename}
   echo 'RUNNING '${filename} >> ${resultname}
   echo `build/main < $datafolder/$filename` >> ${resultname}
+  mv trace.in ${tracepath}/${algo}_${filename}
 done
-echo 'LOADING RESULT'
-echo `python3 loadresult.py`
+echo 'RUN SUCCESS'

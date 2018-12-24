@@ -5,7 +5,7 @@ set -e  # fail and exit on any command erroring
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'LevelDB-Sep' 'Wisckey')
+algos=('LevelDB-Sep' 'LevelDB' 'Wisckey')
 tracepath="trace"
 if [[ ! -d ${tracepath} ]]; then
   mkdir ${tracepath}
@@ -33,5 +33,4 @@ for file in ${datafolder}/*${suffix}; do
     date
   done
 done
-echo 'LOADING RESULT'
-echo `python3 loadresult.py`
+echo 'RUN SUCCESS'
