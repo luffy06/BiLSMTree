@@ -48,7 +48,7 @@ std::vector<SkipList*> CacheServer::Put(const KV kv) {
       mem_->Insert(pop_kv);
     }
   }
-  else if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("BiLSMTree2") || algo == std::string("LevelDB-Sep")) {
+  else if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("LevelDB-Sep") || algo == std::string("BiLSMTree2")) {
     if (mem_->IsFull()) {
       if (imms_.size() != 0) {
         res.push_back(imms_[0].imm_);

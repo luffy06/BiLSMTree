@@ -12,7 +12,6 @@ namespace bilsmtree {
 struct BlockMeta {
   Slice smallest_;
   Slice largest_;
-  size_t file_numb_;
   size_t offset_;
   size_t block_size_;
   size_t block_numb_;
@@ -31,8 +30,6 @@ struct BlockMeta {
     ss << Config::DATA_SEG;
     ss << largest_.ToString();
     ss << Config::DATA_SEG;
-    ss << file_numb_;
-    ss << Config::DATA_SEG;
     ss << offset_;
     ss << Config::DATA_SEG;
     ss << block_size_;
@@ -45,7 +42,6 @@ struct BlockMeta {
   BlockMeta& operator=(const BlockMeta& bm) {
     smallest_ = Slice(bm.smallest_.data(), bm.smallest_.size());
     largest_ = Slice(bm.largest_.data(), bm.largest_.size());
-    file_numb_ = bm.file_numb_;
     offset_ = bm.offset_;
     block_size_ = bm.block_size_;
     block_numb_ = bm.block_numb_;

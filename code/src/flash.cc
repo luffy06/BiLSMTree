@@ -45,7 +45,7 @@ Flash::~Flash() {
 char* Flash::Read(const size_t lba) {
   std::stringstream ss;
   ss << "R\t" << lba;
-  WriteLog(ss.str());
+  Util::WriteLog(ss.str());
   // read block num and page num from page table
   if (page_table_.find(lba) == page_table_.end()) {
     std::cout << "LBA:" << lba << " doesn't exist!" << std::endl;
@@ -64,7 +64,7 @@ char* Flash::Read(const size_t lba) {
 void Flash::Write(const size_t lba, const char* data) {
   std::stringstream ss;
   ss << "W\t" << lba;
-  WriteLog(ss.str());
+  Util::WriteLog(ss.str());
   // calculate block num and page num
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;

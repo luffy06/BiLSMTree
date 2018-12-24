@@ -22,7 +22,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   // for data blocks
   std::vector<std::string> datas_;
   // for index block
-  std::vector<Slice> last_keys_;
+  std::vector<std::string> smallest_keys;
+  std::vector<std::string> largest_keys;
   std::string index_block_;
   // for filter block
   std::vector<Slice> keys_for_filter_;
@@ -32,6 +33,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
 
   size_t size_ = 0;
   size_t numb_ = 0;
+  std::string smallest_ = "";
+  std::string largest_ = "";
   std::stringstream ss;
   // write data blocks
   for (size_t i = 0; i < kvs.size(); ++ i) {
@@ -44,6 +47,10 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     ss << Config::DATA_SEG;
     size_ = size_ + ss.str().size() - add_;
     numb_ = numb_ + 1;
+    if (smallest_ == "" || kv_.key_.compare(Slice(smallest_.data(), smallest_.size())) < 0)
+      smallest_ = kv_.key_.ToString();
+    if (largest_ == "" || kv_.key_.compare(Slice(largest_.data(), largest_.size())) > 0)
+      largest_ = kv_.key_.ToString();
     if (size_ >= Util::GetBlockSize()) {
       std::string block_data_ = ss.str();
       ss.str("");
@@ -51,10 +58,12 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
       // a data block finish
       datas_.push_back(ss.str() + block_data_);
       // record index for data block
-      last_keys_.push_back(kvs[i].key_);
+      largest_keys.push_back(largest_);
       // create a new block
       size_ = 0;
       numb_ = 0;
+      smallest_ = "";
+      largest_ = "";
       ss.str("");
     }
   }
@@ -63,7 +72,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     ss.str("");
     ss << numb_ << Config::DATA_SEG;
     datas_.push_back(ss.str() + block_data_);
-    last_keys_.push_back(kvs[kvs.size() - 1].key_);
+    largest_keys.push_back(largest_);
   }
   
   // write index block
@@ -75,7 +84,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     size_t data_block_size_ = datas_[i].size();
     data_size_ = data_size_ + datas_[i].size();
 
-    ss << last_keys_[i].ToString();
+    ss << largest_keys[i];
     ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;
@@ -88,7 +97,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   // write filter block
   std::string algo = Util::GetAlgorithm();
   Filter *filter_ = NULL;
-  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
+  if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("LevelDB-Sep")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
   else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {

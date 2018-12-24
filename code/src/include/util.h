@@ -32,6 +32,8 @@ public:
 
   static size_t GetBlockSize();
 
+  static void WriteLog(std::string data);
+
   static void Test(std::string msg) {
     std::string k;
     std::cout << msg << ":";

@@ -55,17 +55,15 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   ss >> n;
   for (size_t i = 0; i < n; ++ i) {
     std::string smallest_str, largest_str;
-    size_t file_numb_;
     size_t offset_ = 0;
     size_t block_size_ = 0;
     size_t block_numb_ = 0;
-    ss >> smallest_str >> largest_str >> file_numb_ >> offset_ >> block_size_ >> block_numb_;
+    ss >> smallest_str >> largest_str >> offset_ >> block_size_ >> block_numb_;
     assert(i < filters.size());
     BlockMeta bm;
     bm.filter_ = filters[i];
     bm.smallest_ = Slice(smallest_str.data(), smallest_str.size());
     bm.largest_ = Slice(largest_str.data(), largest_str.size());
-    bm.file_numb_ = file_numb_;
     bm.offset_ = offset_;
     bm.block_size_ = block_size_;
     bm.block_numb_ = block_numb_;

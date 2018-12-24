@@ -11,57 +11,24 @@ public:
 
   ~DataManager();
   
-  BlockMeta Append(const std::vector<KV>& kvs);
+  std::vector<BlockMeta> Append(const std::vector<KV>& kvs);
 
-  bool Get(const Slice key, Slice& value, size_t file_numb, size_t offset, size_t block_size);
+  bool Get(const Slice key, Slice& value, size_t offset, size_t block_size);
 
   std::string ReadBlock(const BlockMeta& bm);
 
   void Invalidate(const BlockMeta& bm);
 private:
-  const static size_t MAX_BLOCK_NUMB = sizeof(size_t) * 8;
-  struct FileMeta {
-    size_t file_numb_;
-    size_t block_status_; // 1 valid 0 invalid
-    size_t file_size_;
-    size_t block_numb_;
-
-    FileMeta(size_t a) {
-      file_numb_ = a;
-      block_status_ = 0;
-      block_status_ = ~(block_status_);
-      file_size_ = 0;
-      block_numb_ = 0;
-    }
-
-    std::string Status() {
-      std::stringstream ss;
-      size_t status = block_status_;
-      for (size_t i = 0; i < MAX_BLOCK_NUMB; ++ i) {
-        if (status & 1)
-          ss << 1;
-        else
-          ss << 0;
-        status >>= 1;
-      }
-      return ss.str();
-    }
-  };
-  size_t total_file_number_;
-  std::vector<FileMeta> file_meta_;
+  size_t file_size_;
+  size_t total_block_number_;
+  std::vector<size_t> status_;
   FileSystem *filesystem_;
 
-  std::string GetFilename(size_t file_numb);
-
-  size_t GetFileNumber();
-
-  int FindFileMeta(size_t file_numb);
+  std::string GetFilename();
 
   // void CollectGarbage();
 
-  BlockMeta WriteBlock(const std::string& block_data);
-
-  void ShowFileMeta();
+  std::vector<BlockMeta> WriteBlocks(const std::vector<std::string>& block_datas);
 };
 }
 

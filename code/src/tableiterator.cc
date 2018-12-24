@@ -35,7 +35,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
     filter_ = new CuckooFilter(filter_data_);
   }
-  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
+  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB-Sep") || algo == std::string("LevelDB")) {
     filter_ = new BloomFilter(filter_data_);
   }
   else {
@@ -55,6 +55,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   for (size_t i = 0; i < n; ++ i) {
     size_t offset_ = 0;
     size_t block_size_ = 0;
+    std::string smallest_str;
     std::string largest_str;
     ss >> largest_str >> offset_ >> block_size_;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;

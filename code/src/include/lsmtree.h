@@ -56,13 +56,11 @@ private:
 
   void RollBack(const size_t now_level, const Meta meta);
 
-  std::vector<BlockMeta> GenerateBlocks(const std::vector<KV>& kvs);
-
   std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
   std::vector<Table*> MergeIndexTables(const std::vector<IndexTableIterator*>& tables);
 
-  std::vector<BlockMeta> MergeBlocks(const std::vector<BlockIterator*>& bis, std::vector<KV>& kv_buffers);
+  void MergeBlocks(const std::vector<BlockIterator*>& bis, std::vector<KV>& kv_buffers);
 
   void CompactList(size_t level);
 
