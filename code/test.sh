@@ -6,7 +6,7 @@ testid=0
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'BiLSMTree' 'Wisckey')
+algos=('LevelDB-Sep' 'LevelDB' 'Wisckey')
 tracepath="trace"
 for algo in ${algos[*]}; do
   if [[ -f 'config.in' ]]; then
