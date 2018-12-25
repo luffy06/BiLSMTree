@@ -231,7 +231,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::vector<Filter*> filters;
   if (Config::TRACE_READ_LOG)
     std::cout << "Create Filter" << std::endl;
-  if (algo == std::string("LevelDB") || algo == std::string("LevelDB-KV")) {
+  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filters.push_back(new BloomFilter(filter_data_));
   }
   else if (algo == std::string("BiLSMTree")) {
@@ -522,10 +522,12 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
   bool first = true;
   Slice largest_;
   
+  size_t total_blocks_ = 0;
+  size_t still_blocks_ = 0;
   for (size_t i = 0; i < tables.size(); ++ i) {
     IndexTableIterator *ti = tables[i];
     ti->SetId(i);
-    // std::cout << "Ready Merge IndexTable " << i << " Size:" << ti->DataSize() << std::endl;
+    total_blocks_ = total_blocks_ + ti->DataSize();
     if (ti->HasNext())
       q.push(ti);
   }
@@ -557,6 +559,7 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
     if (overlaps.size() == 1) {
       // if (Config::TRACE_LOG)
       //   std::cout << "Keep Block" << std::endl;
+      still_blocks_ = still_blocks_ + 1;
       std::vector<BlockMeta> bms;
       if (kv_buffers_.size() > 0) {
         std::vector<BlockMeta> nbm = datamanager_->Append(kv_buffers_);
@@ -605,6 +608,7 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
   }
   for (size_t i = 0; i < tables.size(); ++ i)
     delete tables[i];
+  lsmtreeresult_->KeepBlock((still_blocks_ * 1.0) / total_blocks_);
   // if (Config::TRACE_LOG)
   //   std::cout << "MergeIndexTables End:" << result_.size() << std::endl;
   return result_;

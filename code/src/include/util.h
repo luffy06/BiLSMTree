@@ -256,6 +256,12 @@ public:
     }
   }
 
+  void KeepBlock(double rate) {
+    if (record_) {
+      still_rate_.push_back(rate);
+    }
+  }
+
   size_t GetReadFiles() {
     return read_files_;
   }
@@ -321,6 +327,15 @@ public:
     return (sum / check_times_.size());
   }
 
+  double GetStillRateAvg() {
+    double sum = 0;
+    for (size_t i = 0; i < still_rate_.size(); ++ i)
+      sum = sum + still_rate_[i];
+    if (still_rate_.size() == 0)
+      return 0;
+    return (sum / still_rate_.size());
+  }
+
   void StartRecord() {
     record_ = true;
   }
@@ -335,6 +350,7 @@ private:
   size_t major_compaction_times_;
   size_t major_compaction_size_;
   std::vector<size_t> check_times_;
+  std::vector<double> still_rate_;
 };
 
 class Result {

@@ -51,7 +51,7 @@ size_t Util::GetMemTableSize() {
 size_t Util::GetSSTableSize() {
   // size_t mem_size_ = GetMemTableSize();
   // return mem_size_ / Config::TableConfig::TABLE_SIZE;
-  return 8 * 1024;
+  return GetMemTableSize();
 }
 
 size_t Util::GetBlockSize() {
