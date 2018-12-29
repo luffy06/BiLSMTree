@@ -12,7 +12,7 @@ namespace bilsmtree {
 class Bucket{
 public:
   Bucket() {
-    data_.resize(Config::CuckooFilterConfig::MAXBUCKETSIZE);
+    data_.resize(Config::FilterConfig::MAXBUCKETSIZE);
     size_ = 0;
   }
  
@@ -20,7 +20,7 @@ public:
   }
 
   bool Insert(size_t fp) {
-    if (size_ < Config::CuckooFilterConfig::MAXBUCKETSIZE) {
+    if (size_ < Config::FilterConfig::MAXBUCKETSIZE) {
       data_[size_] = fp;
       int i = size_;
       while (i > 0 && data_[i] < data_[i - 1]) {
@@ -76,10 +76,10 @@ public:
   }
 
   void SetData(const std::string data, const size_t size) {
-    if (size > Config::CuckooFilterConfig::MAXBUCKETSIZE)
+    if (size > Config::FilterConfig::MAXBUCKETSIZE)
       std::cout << "Error Size:" << size << std::endl;
-    assert(size <= Config::CuckooFilterConfig::MAXBUCKETSIZE);
-    data_.resize(Config::CuckooFilterConfig::MAXBUCKETSIZE);
+    assert(size <= Config::FilterConfig::MAXBUCKETSIZE);
+    data_.resize(Config::FilterConfig::MAXBUCKETSIZE);
     std::stringstream ss;
     ss.str(data);
     size_ = size;
@@ -127,7 +127,6 @@ public:
   CuckooFilter(const std::vector<Slice>& keys) {
     data_size_ = keys.size();
     data_size_ = std::max(data_size_, (size_t)2);
-    data_size_ = data_size_ * 2;
     max_kick_ = keys.size();
     array_.resize(data_size_);
     for (size_t i = 0; i < keys.size(); ++ i)

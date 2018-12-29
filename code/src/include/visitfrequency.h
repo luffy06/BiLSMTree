@@ -23,9 +23,9 @@ private:
 
   size_t mode_; // 0 for small queue 1 for big queue 
 
-  void Dump();
+  // void Dump();
 
-  void Load();
+  // void Load();
 };
 }
 

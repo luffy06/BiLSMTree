@@ -224,7 +224,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filter = new BloomFilter(filter_data_);
   }
-  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
     filter = new CuckooFilter(filter_data_);
   }
   else {

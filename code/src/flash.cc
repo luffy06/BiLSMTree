@@ -36,7 +36,6 @@ Flash::Flash(FlashResult *flashresult) {
 }
   
 Flash::~Flash() {
-  delete flashresult_;
 }
 
 char* Flash::Read(const size_t lba) {

@@ -5,7 +5,7 @@ namespace bilsmtree {
 DB::DB() {
   result_ = new Result();
   filesystem_ = new FileSystem(result_->flashresult_);
-  cacheserver_ = new CacheServer();
+  cacheserver_ = new CacheServer(result_->memoryresult_);
   kvserver_ = new KVServer(filesystem_, result_->lsmtreeresult_);
 }
 

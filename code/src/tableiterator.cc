@@ -32,7 +32,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read(filter_data_.size());
   Filter *filter_ = NULL;
-  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
     filter_ = new CuckooFilter(filter_data_);
   }
   else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {

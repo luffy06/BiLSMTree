@@ -91,7 +91,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
   }
-  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
     filter_ = new CuckooFilter(keys_for_filter_);
   }
   else {

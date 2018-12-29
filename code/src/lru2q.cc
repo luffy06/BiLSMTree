@@ -12,9 +12,6 @@ LRU2Q::~LRU2Q() {
   delete fifo_;
 }
 
-/*
-* STATUS: checking
-*/
 std::vector<KV> LRU2Q::Put(const KV kv) {
   // std::map<Slice, size_t>::iterator it = map_.find(kv.key_);
   std::vector<KV> res;
@@ -28,7 +25,7 @@ std::vector<KV> LRU2Q::Put(const KV kv) {
       std::vector<KV> fifo_pop = fifo_->Append(lru_pop[i]);
       // fifo is full
       for (size_t j = 0; j < fifo_pop.size(); ++ j)
-        res.push_back(fifo_pop[i]);
+        res.push_back(fifo_pop[j]);
     }
   }
   return res;

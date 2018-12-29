@@ -83,22 +83,23 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 1;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 1024 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 256 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M1_NUMB = 1000;                   // max number of lru
-    static const size_t M2_NUMB = 1000;                   // max number of fifo    
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 16;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 16;
+    static const size_t M1_NUMB = 100000;                   // max number of lru
+    static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };
 
   struct FilterConfig {
     static const size_t BITS_PER_KEY = 10;
+    static const size_t MAXBUCKETSIZE = 4;
     static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
   };
@@ -112,7 +113,7 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static constexpr const double ALPHA = 1.;
+    static constexpr const double ALPHA = 60.;
     static const size_t LISTSIZE = 10;
   };
 
@@ -125,10 +126,6 @@ public:
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
     static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
-  };
-
-  struct CuckooFilterConfig {
-    static const size_t MAXBUCKETSIZE = 4;
   };
 
 };
@@ -187,6 +184,14 @@ public:
   void StartRecord() {
     record_ = true;
   }
+
+  void ShowResult() {
+    std::cout << "LATENCY:" << GetLatency() << std::endl;
+    std::cout << "READ_TIMES:" << GetReadTimes() << std::endl;
+    std::cout << "WRITE_TIMES:" << GetWriteTimes() << std::endl;
+    std::cout << "ERASE_TIMES:" << GetEraseTimes() << std::endl;
+  }
+
 private:
   bool record_;
   size_t latency_;
@@ -207,6 +212,7 @@ public:
     major_compaction_times_ = 0;
     major_compaction_size_ = 0;
     check_times_.clear();
+    rollback_ = 0;
     record_ = false;
   }
 
@@ -245,6 +251,12 @@ public:
   void Check(size_t times) {
     if (record_) {
       check_times_.push_back(times);
+    }
+  }
+
+  void RollBack() {
+    if (record_) {
+      rollback_ = rollback_ + 1;
     }
   }
 
@@ -313,9 +325,31 @@ public:
     return (sum / check_times_.size());
   }
 
+  size_t GetRollBack() {
+    return rollback_;
+  }
+
   void StartRecord() {
     record_ = true;
   }
+
+  void ShowResult() {
+    std::cout << "READ_FILES:" << GetReadFiles() << std::endl;
+    std::cout << "READ_SIZE:" << GetReadSize() << std::endl;
+    std::cout << "AVG_READ_SIZE:" << GetAverageReadSize() << std::endl;
+    std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
+    std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
+    std::cout << "AVG_WRITE_SIZE:" << GetAverageWriteSize() << std::endl;
+    std::cout << "MINOR_COMPACTION:" << GetMinorCompactionTimes() << std::endl;
+    std::cout << "MINOR_COMPACTION_SIZE:" << GetMinorCompactionSize() << std::endl;
+    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << GetAverageMinorCompactionSize() << std::endl;
+    std::cout << "MAJOR_COMPACTION:" << GetMajorCompactionTimes() << std::endl;
+    std::cout << "MAJOR_COMPACTION_SIZE:" << GetMajorCompactionSize() << std::endl;
+    std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
+    std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
+    std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
+  }
+
 private:
   bool record_;
   double write_files_;
@@ -327,6 +361,73 @@ private:
   size_t major_compaction_times_;
   size_t major_compaction_size_;
   std::vector<size_t> check_times_;
+  size_t rollback_;
+};
+
+class MemoryResult {
+public:
+  MemoryResult() {
+    hit_ = 0;
+    total_ = 0;
+    lru_size_ = 0;
+    mem_size_ = 0;
+    record_ = false;
+  }
+
+  ~MemoryResult() {
+
+  }
+
+  void Hit(size_t hit) {
+    if (record_) {
+      hit_ = hit_ + hit;
+      total_ = total_ + 1;
+    }
+  }
+
+  void SplitMemory(size_t lru_size, size_t mem_size) {
+    lru_size_ = lru_size;
+    mem_size_ = mem_size;
+  }
+
+  size_t GetHit() {
+    return hit_;
+  }
+
+  size_t GetTotalQuery() {
+    return total_;
+  }
+
+  double GetHitRate() {
+    if (total_ == 0)
+      return 0;
+    return (1. * hit_) / total_;
+  }
+
+  size_t GetLRU2QSize() {
+    return lru_size_;
+  }
+
+  size_t GetMemSize() {
+    return mem_size_;
+  }
+
+  void StartRecord() {
+    record_ = true;
+  }
+
+  void ShowResult() {
+    std::cout << "HIT:" << GetHit() << std::endl;
+    std::cout << "TOTAL_QUERY:" << GetTotalQuery() << std::endl;
+    std::cout << "HIT_RATE:" << GetHitRate() << std::endl;
+    std::cout << "MEMORY_RATE:" << (1. * GetLRU2QSize()) / GetMemSize() << std::endl;
+  }
+private:
+  bool record_;
+  size_t hit_;
+  size_t total_;
+  size_t lru_size_;
+  size_t mem_size_;
 };
 
 class Result {
@@ -334,15 +435,30 @@ public:
   Result() {
     flashresult_ = new FlashResult();
     lsmtreeresult_ = new LSMTreeResult();
+    memoryresult_ = new MemoryResult();
+  }
+
+  ~Result() {
+    delete flashresult_;
+    delete lsmtreeresult_;
+    delete memoryresult_;
   }
 
   void StartRecord() {
     lsmtreeresult_->StartRecord();
     flashresult_->StartRecord();
+    memoryresult_->StartRecord();
+  }
+
+  void ShowResult() { 
+    flashresult_->ShowResult();
+    lsmtreeresult_->ShowResult();
+    memoryresult_->ShowResult();
   }
 
   LSMTreeResult *lsmtreeresult_;
   FlashResult *flashresult_;
+  MemoryResult *memoryresult_;
 };
 
 }
