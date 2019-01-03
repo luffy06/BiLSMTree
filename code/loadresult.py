@@ -9,7 +9,7 @@ metrics = ['LATENCY', 'READ_TIMES', 'WRITE_TIMES', 'ERASE_TIMES', 'READ_FILES',
             'READ_SIZE', 'AVG_READ_SIZE', 'WRITE_FILES', 'WRITE_SIZE', 
             'AVG_WRITE_SIZE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
             'AVG_MINOR_COMPACTION_SIZE', 'MAJOR_COMPACTION', 'MAJOR_COMPACTION_SIZE', 
-            'AVG_MAJOR_COMPACTION_SIZE', 'AVERAGE_CHECK_TIMES'];
+            'AVG_MAJOR_COMPACTION_SIZE', 'AVERAGE_CHECK_TIMES', 'ROLLBACK', 'HIT_RATE'];
 
 def parse_filename(filename):
   names = filename.split('.')
@@ -66,7 +66,7 @@ def load_result(attr, resultmap):
     r = r + 1
 
     # write attributes
-    st.write(r, 0, 'DATA')
+    st.write(r, 0, 'BENCHMARK')
     for j, a in enumerate(attributes):
       st.write(r, j + 1, a)
     for j, a in enumerate(algorithms):

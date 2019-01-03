@@ -2,25 +2,31 @@
 
 set -e  # fail and exit on any command erroring
 
-testid=0
+testid=(9 10 11)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB' 'BiLSMTree' 'Wisckey')
+algos=('Wisckey' 'BiLSMTree' 'LevelDB')
 for algo in ${algos[*]}; do
-  if [[ -f 'config.in' ]]; then
-    rm 'config.in'
-  fi
-  echo ${algo} >> config.in
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
     rm ${resultname}
   fi
-  echo 'Running '${algo} 
-  filename=`basename data$testid.in`
-  echo 'RUNNING '${filename}
-  echo 'RUNNING '${filename} >> ${resultname}
-  echo `build/main < $datafolder/$filename` >> ${resultname}
 done
-echo 'LOADING RESULT'
-echo `python3 loadresult.py`
+for id in ${testid[*]}; do
+  for algo in ${algos[*]}; do
+    if [[ -f 'config.in' ]]; then
+      rm 'config.in'
+    fi
+    echo ${algo} >> config.in
+    resultname=${resultfolder}/${algo}.out
+    echo 'Running '${algo} 
+    filename=`basename data$id.in`
+    date
+    echo 'RUNNING '${filename}
+    echo 'RUNNING '${filename} >> ${resultname}
+    echo `build/main < $datafolder/$filename` >> ${resultname}
+    date
+  done
+done
+echo 'RUN SUCCESS'

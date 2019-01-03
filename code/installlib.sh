@@ -26,6 +26,6 @@ cd ${libpath}
 # Download YCSB
 if [[ ! -d YCSB ]]; then
   git clone https://github.com/brianfrankcooper/YCSB
-  cd YCSB
-  bin/ycsb.sh load basic -P workloads/workloada
 fi
+cd YCSB
+bin/ycsb.sh load basic -P workloads/workloada
