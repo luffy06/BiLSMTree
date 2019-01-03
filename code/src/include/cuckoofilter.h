@@ -127,6 +127,7 @@ public:
   CuckooFilter(const std::vector<Slice>& keys) {
     data_size_ = keys.size();
     data_size_ = std::max(data_size_, (size_t)2);
+    data_size_ = data_size_ * 2;
     max_kick_ = keys.size();
     array_.resize(data_size_);
     for (size_t i = 0; i < keys.size(); ++ i)

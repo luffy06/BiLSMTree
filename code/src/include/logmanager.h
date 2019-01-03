@@ -19,12 +19,10 @@ public:
   Slice Get(const Slice location);
 
 private:
-  size_t head_;
-  size_t tail_;
+  size_t file_size_;
   size_t record_count_;
   FileSystem* filesystem_;
-
-  size_t WriteKV(const KV kv);
+  std::string buffer_;
 
   KV ReadKV(const size_t location, const size_t size_);
 };

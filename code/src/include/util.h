@@ -5,10 +5,12 @@
 #include <cassert>
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <algorithm>
 
 namespace bilsmtree {
@@ -51,7 +53,9 @@ public:
   static const bool FLASH_LOG = false;
   static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
+  static const bool WRITE_OUTPUT = false;
   static const size_t MAX_SCAN_NUMB = 100;
+  static const size_t BUFFER_SIZE = 2000000;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -60,7 +64,7 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 4096;
-    static const size_t PAGE_NUMS = 32;
+    static const size_t PAGE_NUMS = 64;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
@@ -98,7 +102,7 @@ public:
   };
 
   struct FilterConfig {
-    static const size_t BITS_PER_KEY = 10;
+    static const size_t BITS_PER_KEY = 12;
     static const size_t MAXBUCKETSIZE = 4;
     static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
@@ -113,12 +117,10 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static constexpr const double ALPHA = 60.;
     static const size_t LISTSIZE = 10;
   };
 
   struct TableConfig {
-    static const size_t BUFFER_SIZE = 2000000;
     static const size_t TABLE_SIZE = 512;
     static const size_t BLOCK_SIZE = 16;
   };
@@ -220,10 +222,14 @@ public:
 
   }
 
-  void Read(size_t size) {
+  void Read(size_t size, const std::string type) {
     if (record_) {
       read_files_ = read_files_ + 1;
       read_size_ = read_size_ + size;
+      if (read_map_.find(type) != read_map_.end())
+        read_map_[type] = read_map_[type] + size;
+      else
+        read_map_[type] = size;
     }
   }
 
@@ -336,18 +342,20 @@ public:
   void ShowResult() {
     std::cout << "READ_FILES:" << GetReadFiles() << std::endl;
     std::cout << "READ_SIZE:" << GetReadSize() << std::endl;
-    std::cout << "AVG_READ_SIZE:" << GetAverageReadSize() << std::endl;
+    std::cout << "AVG_READ_SIZE:" << std::setprecision(6) << GetAverageReadSize() << std::endl;
     std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
     std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
-    std::cout << "AVG_WRITE_SIZE:" << GetAverageWriteSize() << std::endl;
+    std::cout << "AVG_WRITE_SIZE:" << std::setprecision(6) << GetAverageWriteSize() << std::endl;
     std::cout << "MINOR_COMPACTION:" << GetMinorCompactionTimes() << std::endl;
     std::cout << "MINOR_COMPACTION_SIZE:" << GetMinorCompactionSize() << std::endl;
-    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << GetAverageMinorCompactionSize() << std::endl;
+    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << std::setprecision(6) << GetAverageMinorCompactionSize() << std::endl;
     std::cout << "MAJOR_COMPACTION:" << GetMajorCompactionTimes() << std::endl;
     std::cout << "MAJOR_COMPACTION_SIZE:" << GetMajorCompactionSize() << std::endl;
-    std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
-    std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
+    std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << std::setprecision(6) << GetAverageMajorCompactionSize() << std::endl;
+    std::cout << "AVERAGE_CHECK_TIMES:" << std::setprecision(6) << GetCheckTimesAvg() << std::endl;
     std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
+    for (std::map<std::string, size_t>::iterator it = read_map_.begin(); it != read_map_.end(); ++ it)
+      std::cout << "TYPE_" << it->first << ":" << it->second << std::endl;
   }
 
 private:
@@ -361,6 +369,7 @@ private:
   size_t major_compaction_times_;
   size_t major_compaction_size_;
   std::vector<size_t> check_times_;
+  std::map<std::string, size_t> read_map_;
   size_t rollback_;
 };
 

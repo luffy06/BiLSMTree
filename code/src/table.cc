@@ -9,7 +9,7 @@ Table::Table() {
 * DATA BLOCK: key,\t,value,\t
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
-Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
+Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, FilterManager* filtermanager, LSMTreeResult* lsmtreeresult) {
   if (Config::TRACE_LOG)
     std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
@@ -90,15 +90,20 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   Filter *filter_ = NULL;
   if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
+    filter_block_ = filter_->ToString();
   }
   else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
     filter_ = new CuckooFilter(keys_for_filter_);
+    filter_block_ = filter_->ToString();
+    // std::pair<size_t, size_t> loc = filtermanager->Append(filter_->ToString());
+    // ss.str("");
+    // ss << loc.first << Config::DATA_SEG << loc.second << Config::DATA_SEG;
+    // filter_block_ = ss.str();
   }
   else {
     filter_ = NULL;
     assert(false);
   }
-  filter_block_ = filter_->ToString();
   delete filter_;
 
   // write footer block
@@ -131,7 +136,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   for (size_t i = 0; i < datas_.size(); ++ i) {
     ss << datas_[i];
     file_size_ = file_size_ + datas_[i].size();
-    if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
+    if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::BUFFER_SIZE) {
       std::string buffer = ss.str();
       ss.str("");
       filesystem->Write(filename, buffer.data(), buffer.size());
@@ -139,7 +144,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
     lsmtreeresult->Write(datas_[i].size()); 
   }
   filesystem->Close(filename);
-
+  if (Config::WRITE_OUTPUT)
+    std::cout << "WRITE SSTABLE " << file_size_ << " DATA " << data_size_ << " INDEX " << index_block_.size() << " FILTER " << filter_block_.size() << std::endl;
   assert(file_size_ == data_size_ + index_block_.size() + filter_block_.size() + footer_block_.size());
   // create meta
   meta_ = Meta();

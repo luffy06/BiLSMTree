@@ -58,6 +58,7 @@ void FileSystem::Open(const std::string filename, const size_t mode) {
 
   if (fs.mode_ & Config::FileSystemConfig::APPEND_OPTION)
     Seek(filename, fcbs_[filename].filesize_);
+  // std::cout << "OPEN:" << filename << ":" << fcbs_[filename].filesize_ << std::endl;
 }
 
 void FileSystem::Seek(const std::string filename, const size_t offset) {
@@ -159,6 +160,7 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     std::cout << "CANNOT WRITE WITHOUT WRITE PERMISSION" << std::endl;
     assert(false);
   }
+  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
 
   assert(fs.offset_ < Config::FileSystemConfig::BLOCK_SIZE);
   size_t size_ = 0;
@@ -170,8 +172,7 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     // std::cout << "Origin data:" << c_data << std::endl;
     // std::cout << fs.offset_ << "\t" << add_ << std::endl;
     // std::cout << "Concat:" << data_.substr(0, add_) << std::endl;
-    std::string w_data = std::string(c_data, fs.offset_) + 
-                        data_.substr(0, add_);
+    std::string w_data = std::string(c_data, fs.offset_) + data_.substr(0, add_);
     flash_->Write(fs.lba_, w_data.c_str());
     size_ = size_ + add_;
     fs.offset_ = fs.offset_ + add_;
@@ -204,7 +205,6 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
     flash_->Write(fs.lba_, data_.substr(size_, write_size).c_str());
     fs.offset_ = write_size - size_;
   }
-  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
 }
 
 void FileSystem::Delete(const std::string filename) {
@@ -234,6 +234,7 @@ void FileSystem::Delete(const std::string filename) {
 }
 
 void FileSystem::Close(const std::string filename) {
+  // std::cout << "CLOSE:" << filename << ":" << fcbs_[filename].filesize_ << std::endl;
   int index = SearchInBuffer(filename);
   if (index == -1)
     return ;

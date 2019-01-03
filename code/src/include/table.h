@@ -6,7 +6,7 @@
 
 #include "bloomfilter.h"
 #include "cuckoofilter.h"
-#include "filesystem.h"
+#include "filtermanager.h"
 
 namespace bilsmtree {
 
@@ -60,7 +60,7 @@ class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
+  Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, FilterManager* filtermanager, LSMTreeResult* lsmtreeresult);
   
   ~Table();
 
