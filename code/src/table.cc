@@ -140,7 +140,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   for (size_t i = 0; i < datas_.size(); ++ i) {
     ss << datas_[i];
     file_size_ = file_size_ + datas_[i].size();
-    if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
+    if (i == datas_.size() - 1 || ss.str().size() + datas_[i + 1].size() >= Config::BUFFER_SIZE) {
       std::string buffer = ss.str();
       ss.str("");
       filesystem->Write(filename, buffer.data(), buffer.size());

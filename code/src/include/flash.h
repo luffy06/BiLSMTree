@@ -30,7 +30,11 @@ public:
 
   void ShowInfo();
 
-  void WriteLog(std::string data);
+  void StartRecord() {
+    op_ = op_ + 1;
+    assert(op_ < 2);
+  }
+
 private:  
   enum PageStatus {
     PageFree,
@@ -113,6 +117,10 @@ private:
   std::vector<bool> free_block_tag_;  // free tag of block
   size_t free_blocks_num_;            // free blocks number
 
+  size_t op_;
+  size_t op_numb_[2];
+  std::string buffer_;
+
   FlashResult *flashresult_;
 
   inline std::string GetBlockPath(const size_t block_num) {
@@ -132,6 +140,8 @@ private:
   void MajorCollectGarbage();
 
   size_t AssignFreeBlock();
+
+  void WriteLog(std::string data);
 };
 
 }

@@ -45,6 +45,7 @@ bool DB::Get(const std::string key, std::string& value) {
 }
 
 void DB::StartRecord() {
+  filesystem_->StartRecord();
   result_->StartRecord();
 }
 

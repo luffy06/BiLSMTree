@@ -2,34 +2,38 @@
 
 set -e  # fail and exit on any command erroring
 
-testid=0
+testids=(3)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
 algos=('LevelDB-Sep' 'Wisckey' 'LevelDB')
 tracepath="trace"
-if [[ ! -d ${tracepath} ]]; then
+temppath="trace.in"
+if [[ -d ${tracepath} ]]; then
+  rm -rf ${tracepath}
   mkdir ${tracepath}
 fi
-for algo in ${algos[*]}; do
-  if [[ -f 'config.in' ]]; then
-    rm 'config.in'
-  fi
-  echo ${algo} >> config.in
-  resultname=${resultfolder}/${algo}.out
-  if [[ -f ${resultname} ]]; then
-    rm ${resultname}
-  fi
-  if [[ -f trace.in ]]; then
-    rm trace.in
-  fi
-  echo 'Running '${algo} 
-  filename=`basename data$testid.in`
-  date
-  echo 'RUNNING '${filename}
-  echo 'RUNNING '${filename} >> ${resultname}
-  echo `build/main < $datafolder/$filename` >> ${resultname}
-  mv trace.in ${tracepath}/${algo}_${filename}
-  date
+for testid in ${testids[*]}; do
+  for algo in ${algos[*]}; do
+    if [[ -f 'config.in' ]]; then
+      rm 'config.in'
+    fi
+    echo ${algo} >> config.in
+    resultname=${resultfolder}/${algo}.out
+    if [[ -f ${resultname} ]]; then
+      rm ${resultname}
+    fi
+    if [[ -f $temppath ]]; then
+      rm $temppath
+    fi
+    echo 'Running '${algo} 
+    filename=`basename data$testid.in`
+    date
+    echo 'RUNNING '${filename}
+    echo 'RUNNING '${filename} >> ${resultname}
+    echo `build/main < $datafolder/$filename` >> ${resultname}
+    date
+    echo `python3 preprocess.py $algo $filename $temppath $tracepath`
+  done
 done
 echo 'RUN SUCCESS'

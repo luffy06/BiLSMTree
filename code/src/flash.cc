@@ -34,18 +34,29 @@ Flash::Flash(FlashResult *flashresult) {
     free_block_tag_[i] = true;
   }
 
+  op_ = 0;
+  op_numb_[0] = op_numb_[1] = 0;
+
   flashresult_ = flashresult;
   // std::cout << "CREATE SUCCESS" << std::endl;
 }
   
 Flash::~Flash() {
-  delete flashresult_;
+  std::stringstream ss;
+  ss << op_numb_[0] << "\t" << op_numb_[1] << "\n";
+  WriteLog(ss.str());
+  if (buffer_.size() > 0) {
+    std::fstream f(Config::TRACE_PATH, std::ios::app | std::ios::out);
+    f << buffer_;
+    f.close();
+  }
 }
 
 char* Flash::Read(const size_t lba) {
   std::stringstream ss;
-  ss << "R\t" << lba;
-  Util::WriteLog(ss.str());
+  ss << "R\t" << lba << "\n";
+  WriteLog(ss.str());
+  op_numb_[op_] = op_numb_[op_] + 1;
   // read block num and page num from page table
   if (page_table_.find(lba) == page_table_.end()) {
     std::cout << "LBA:" << lba << " doesn't exist!" << std::endl;
@@ -57,14 +68,14 @@ char* Flash::Read(const size_t lba) {
   // read page
   std::pair<size_t, char*> res = ReadByPageNum(block_num_, page_num_);
   assert(lba == res.first);
-  // std::cout << "Read From Flash:" << res.second << std::endl << std::endl;
   return res.second;
 }
 
 void Flash::Write(const size_t lba, const char* data) {
   std::stringstream ss;
-  ss << "W\t" << lba;
-  Util::WriteLog(ss.str());
+  ss << "W\t" << lba << "\n";
+  WriteLog(ss.str());
+  op_numb_[op_] = op_numb_[op_] + 1;
   // calculate block num and page num
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;
@@ -395,10 +406,13 @@ void Flash::ShowInfo() {
 }
 
 void Flash::WriteLog(std::string data) {
-  std::fstream f(Config::TRACE_PATH, std::ios::app | std::ios::out);
-  f << data << "\n";
-  f.close();
-} 
-
+  buffer_ = buffer_ + data;
+  if (buffer_.size() >= Config::BUFFER_SIZE) {
+    std::fstream f(Config::TRACE_PATH, std::ios::app | std::ios::out);
+    f << buffer_;
+    f.close();
+    buffer_ = "";
+  }
+}
 
 }

@@ -50,7 +50,7 @@ int main() {
   while (std::cin >> op >> key >> value) {
     if (bilsmtree::Config::TRACE_LOG)
       std::cout << "RUN " << j << "\tOp:" << op << std::endl;
-    if (j >= load_number) {
+    if (j == load_number) {
       db->StartRecord();
     }
     if (op == "INSERT") {

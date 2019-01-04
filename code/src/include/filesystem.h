@@ -62,6 +62,8 @@ public:
   void Delete(const std::string filename);
 
   void Close(const std::string filename);
+
+  void StartRecord() { flash_->StartRecord(); }
 private:
   std::vector<FileStatus> file_buffer_;     // opened files
   std::map<std::string, FCB> fcbs_;              // all files

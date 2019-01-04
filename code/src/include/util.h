@@ -56,6 +56,7 @@ public:
   static const bool TRACE_READ_LOG = false;
   static const bool FLASH_TRACE = false;
   static const size_t MAX_SCAN_NUMB = 100;
+  static const size_t BUFFER_SIZE = 5000000;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -125,7 +126,6 @@ public:
   };
 
   struct TableConfig {
-    static const size_t BUFFER_SIZE = 2000000;
     static const size_t TABLE_SIZE = 512;
     static const size_t BLOCK_SIZE = 16;
   };
@@ -358,6 +358,11 @@ public:
   Result() {
     flashresult_ = new FlashResult();
     lsmtreeresult_ = new LSMTreeResult();
+  }
+
+  ~Result() {
+    delete flashresult_;
+    delete lsmtreeresult_;
   }
 
   void StartRecord() {

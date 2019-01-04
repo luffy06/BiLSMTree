@@ -59,10 +59,4 @@ size_t Util::GetBlockSize() {
   return table_size_ / Config::TableConfig::BLOCK_SIZE;
 }
 
-void Util::WriteLog(std::string data) {
-  std::fstream f(Config::TRACE_PATH, std::ios::app | std::ios::out);
-  f << data << "\n";
-  f.close();
-}
-
 }

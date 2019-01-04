@@ -63,7 +63,7 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
   for (size_t i = 0; i < ready_to_write_.size(); ++ i) {
     ss << ready_to_write_[i];
     file_size_ = file_size_ + ready_to_write_[i].size();
-    if (i == ready_to_write_.size() - 1 || ss.str().size() + ready_to_write_[i + 1].size() >= Config::TableConfig::BUFFER_SIZE) {
+    if (i == ready_to_write_.size() - 1 || ss.str().size() + ready_to_write_[i + 1].size() >= Config::BUFFER_SIZE) {
       std::string buffer = ss.str();
       filesystem->Write(filename, buffer.data(), buffer.size());
       ss.str("");
