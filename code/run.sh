@@ -7,7 +7,9 @@ resultfolder="result"
 suffix=".in"
 algos=('LevelDB-Sep' 'LevelDB' 'Wisckey')
 tracepath="trace"
+temppath="trace.in"
 if [[ ! -d ${tracepath} ]]; then
+  rm -rf ${tracepath}
   mkdir ${tracepath}
 fi
 for algo in ${algos[*]}; do
@@ -23,14 +25,17 @@ for file in ${datafolder}/*${suffix}; do
     fi
     echo ${algo} >> config.in
     resultname=${resultfolder}/${algo}.out
+    if [[ -f $temppath ]]; then
+      rm $temppath
+    fi
     echo 'Running '${algo} 
     filename=`basename $file`
     date
     echo 'RUNNING '${filename}
     echo 'RUNNING '${filename} >> ${resultname}
     echo `build/main < $datafolder/$filename` >> ${resultname}
-    mv trace.in ${tracepath}/${algo}_${filename}
     date
+    echo `python3 preprocess.py $algo $filename $temppath $tracepath`
   done
 done
 echo 'RUN SUCCESS'

@@ -13,6 +13,12 @@ if [[ -d ${tracepath} ]]; then
   rm -rf ${tracepath}
   mkdir ${tracepath}
 fi
+for algo in ${algos[*]}; do
+  resultname=${resultfolder}/${algo}.out
+  if [[ -f ${resultname} ]]; then
+    rm ${resultname}
+  fi
+done
 for testid in ${testids[*]}; do
   for algo in ${algos[*]}; do
     if [[ -f 'config.in' ]]; then
@@ -20,9 +26,6 @@ for testid in ${testids[*]}; do
     fi
     echo ${algo} >> config.in
     resultname=${resultfolder}/${algo}.out
-    if [[ -f ${resultname} ]]; then
-      rm ${resultname}
-    fi
     if [[ -f $temppath ]]; then
       rm $temppath
     fi
