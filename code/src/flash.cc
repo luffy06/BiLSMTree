@@ -55,7 +55,9 @@ char* Flash::Read(const size_t lba) {
 }
 
 void Flash::Write(const size_t lba, const char* data) {
-    // calculate block num and page num
+  if (Config::FLASH_LOG)
+    std::cout << "Write LBA:" << lba << std::endl;
+  // calculate block num and page num
   size_t block_num_ = lba / Config::FlashConfig::PAGE_NUMS;
   size_t page_num_ = lba % Config::FlashConfig::PAGE_NUMS;
   // examinate block whether used or not
@@ -142,7 +144,8 @@ std::pair<size_t, char*> Flash::ReadByPageNum(const size_t block_num, const size
 }
 
 void Flash::WriteByPageNum(const size_t block_num, const size_t page_num, const size_t lba, const char* data) {
-  // std::cout << "Write Flash Block_" << block_num << "\tPage_" << page_num << std::endl;
+  if (Config::FLASH_LOG)
+    std::cout << "Write Flash LBA:" << lba << "\tBlock:" << block_num << "\tPage:" << page_num << std::endl;
   size_t page_size_ = Config::FlashConfig::PAGE_SIZE;
   char *temp = new char[page_size_ + 1];
   strncpy(temp, data, page_size_);

@@ -50,8 +50,8 @@ public:
   static constexpr const char* ALGO_PATH = "config.in";
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
-  static const bool FLASH_LOG = false;
-  static const bool TRACE_LOG = false;
+  static const bool FLASH_LOG = true;
+  static const bool TRACE_LOG = true;
   static const bool TRACE_READ_LOG = false;
   static const bool WRITE_OUTPUT = false;
   static const size_t MAX_SCAN_NUMB = 100;

@@ -33,7 +33,7 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     record_count_ = record_count_ + 1;
     buffer_ = buffer_ + data;
     if (buffer_.size() >= Config::BUFFER_SIZE) {
-      if (Config::WRITE_OUTPUT)
+      if (Config::TRACE_LOG)
         std::cout << "WRITE VLOG " << buffer_.size() << std::endl;
       filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
       filesystem_->Write(Config::LogManagerConfig::LOG_PATH, buffer_.data(), buffer_.size());
