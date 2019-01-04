@@ -50,8 +50,8 @@ public:
   static constexpr const char* ALGO_PATH = "config.in";
   static const char DATA_SEG = '\t';
   static const bool FILESYSTEM_LOG = false;
-  static const bool FLASH_LOG = true;
-  static const bool TRACE_LOG = true;
+  static const bool FLASH_LOG = false;
+  static const bool TRACE_LOG = false;
   static const bool TRACE_READ_LOG = false;
   static const bool WRITE_OUTPUT = false;
   static const size_t MAX_SCAN_NUMB = 100;
@@ -68,8 +68,8 @@ public:
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
-    static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(BLOCK_NUMS * 0.2);
-    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.8);
+    static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(LBA_NUMS * 0.2);
+    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(LBA_NUMS * 0.8);
   };
 
   struct FileSystemConfig {
