@@ -64,7 +64,7 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 4096;
-    static const size_t PAGE_NUMS = 64;
+    static const size_t PAGE_NUMS = 32;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
