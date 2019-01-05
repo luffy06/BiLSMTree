@@ -17,8 +17,10 @@ public:
     if (k_ > 30) k_ = 30;
 
     bits_ = keys.size() * Config::FilterConfig::BITS_PER_KEY;
-    array_ = new size_t[bits_ + 1];
-    for (size_t i = 0; i <= bits_; ++ i)
+    if (bits_ < (size_ * 8)) bits_ = size_ * 8;
+    size_t bytes = bits_ / size_;
+    array_ = new size_t[bytes + 1];
+    for (size_t i = 0; i <= bytes; ++ i)
       array_[i] = 0;
     for (size_t i = 0; i < keys.size(); ++ i)
       Add(keys[i]);
@@ -32,8 +34,9 @@ public:
     std::stringstream ss;
     ss.str(data);
     ss >> bits_;
-    array_ = new size_t[bits_ + 1];
-    for (size_t i = 0; i <= bits_; ++ i) {
+    size_t bytes = bits_ / size_;
+    array_ = new size_t[bytes + 1];
+    for (size_t i = 0; i <= bytes; ++ i) {
       ss >> array_[i];
     }
   }
@@ -47,7 +50,8 @@ public:
     const size_t delta_ = (h >> 34) | (h << 30);
     for (size_t j = 0; j < k_; ++ j) {
       const size_t bitpos = h % bits_;
-      if (!(array_[bitpos] & 1))
+      const size_t pos = bitpos / size_;
+      if ((array_[pos] & (1 << (bitpos % size_))) == 0)
         return false;
       h += delta_;
     }
@@ -58,7 +62,8 @@ public:
     std::stringstream ss;
     ss << bits_;
     ss << Config::DATA_SEG;
-    for (size_t i = 0; i <= bits_; ++ i) {
+    size_t bytes = bits_ / size_;
+    for (size_t i = 0; i <= bytes; ++ i) {
       ss << array_[i];
       ss << Config::DATA_SEG;
     }
@@ -77,7 +82,9 @@ private:
     const size_t delta_ = (h >> 34) | (h << 30);
     for (size_t j = 0; j < k_; ++ j) {
       const size_t bitpos = h % bits_;
-      array_[bitpos] |= 1;
+      const size_t pos = bitpos / size_;
+      assert(pos <= (bits_ / size_));
+      array_[pos] |= (1 << (bitpos % size_));
       h += delta_;
     }  
   }
