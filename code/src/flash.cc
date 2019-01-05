@@ -57,17 +57,6 @@ void Flash::Write(const size_t lba, const char* data) {
     std::cout << "Write LBA:" << lba << "\tBLOCK NUM:" << pba_.block_num_ << "\tPAGE NUM:" << pba_.page_num_ << std::endl;
   // write page
   WriteByPageNum(pba_.block_num_, pba_.page_num_, lba, data);
-  // make old location invalid
-  Invalidate(lba);
-  // update page info
-  page_info_[pba_.block_num_][pba_.page_num_].status_ = PageValid;
-  page_info_[pba_.block_num_][pba_.page_num_].lba_ = lba;
-  block_info_[pba_.block_num_].valid_nums_ = block_info_[pba_.block_num_].valid_nums_ + 1;
-  // update free page number
-  free_pages_num_ = free_pages_num_ - 1;
-  AdjustHeap(pba_.block_num_);
-  // update page table
-  page_table_[lba] = pba_;
   // check whether start garbage collection
   if (free_pages_num_ < Config::FlashConfig::BLOCK_COLLECTION_TRIGGER)
     MajorCollectGarbage();
@@ -108,6 +97,17 @@ void Flash::WriteByPageNum(const size_t block_num, const size_t page_num, const 
   f.write((char *)&lba, sizeof(size_t));
   f.close();
   delete[] temp;
+  // make old location invalid
+  Invalidate(lba);
+  // update page info
+  page_info_[block_num][page_num].status_ = PageValid;
+  page_info_[block_num][page_num].lba_ = lba;
+  block_info_[block_num].valid_nums_ = block_info_[block_num].valid_nums_ + 1;
+  // update page table
+  page_table_[lba] = PBA(block_num, page_num);
+  // update free page number
+  free_pages_num_ = free_pages_num_ - 1;
+  AdjustHeap(block_num);
   flashresult_->Write();
 }
 
@@ -126,6 +126,7 @@ void Flash::Erase(const size_t block_num) {
   block_info_[block_num].valid_nums_ = 0;
   // insert into free queue
   free_pages_num_ = free_pages_num_ + Config::FlashConfig::PAGE_NUMS;
+  AdjustHeap(block_num);
   flashresult_->Erase();
 }
 
@@ -168,7 +169,6 @@ void Flash::MajorCollectGarbage() {
       WriteByPageNum(pba_.block_num_, pba_.page_num_, res.first, res.second);
     }
     Erase(block_num_);
-    AdjustHeap(block_num_);
   }
   if (Config::FLASH_LOG) {
     std::cout << "TOTAL VALID:" << total_valids << "\tINVALID:" << total_invalids << std::endl; 
@@ -178,10 +178,16 @@ void Flash::MajorCollectGarbage() {
 }
 
 PBA Flash::GetLocation() {
+  if (Config::FLASH_LOG)
+    std::cout << "Total Free Page:" << free_pages_num_ << std::endl;
   for (size_t repeat_ = 0; repeat_ <= Config::FlashConfig::BLOCK_NUMS && block_info_[heap_].father_ != -1; ++ repeat_) {
     heap_ = block_info_[heap_].father_;
     assert(repeat_ < Config::FlashConfig::BLOCK_NUMS);
   }
+  if (Config::FLASH_LOG)
+    block_info_[heap_].Show();
+  if (block_info_[heap_].offset_ >= Config::FlashConfig::PAGE_NUMS)
+    ShowInfo();
   assert(heap_ >= 0 && heap_ < block_info_.size());
   assert(block_info_[heap_].offset_ >= 0 && block_info_[heap_].offset_ < Config::FlashConfig::PAGE_NUMS);
   PBA pba_ = PBA(heap_, block_info_[heap_].offset_);
@@ -282,7 +288,8 @@ void Flash::ShowInfo() {
   for (size_t i = 0; i < Config::FlashConfig::BLOCK_NUMS; ++ i) {
     // std::cout << "block:" << block_info_[i].block_num_ << std::endl;
     // std::cout << block_info_[i].invalid_nums_ << "\t" << block_info_[i].valid_nums_ << std::endl;
-    std::cout << "Self:" << i << "\tFather:" << block_info_[i].father_ << "\tLeft:" << block_info_[i].left_ << "\tRight:" << block_info_[i].right_ << std::endl;
+    std::cout << "Self:" << i << "\tOffset:" << block_info_[i].offset_ << std::endl;
+    std::cout << "Father:" << block_info_[i].father_ << "\tLeft:" << block_info_[i].left_ << "\tRight:" << block_info_[i].right_ << std::endl;
   }
 }
 
