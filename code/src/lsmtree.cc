@@ -84,6 +84,9 @@ bool LSMTree::Get(const Slice key, Slice& value) {
 }
 
 void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
+  size_t total_size_ = 0;
+  for (size_t i = 0; i < kvs.size(); ++ i)
+    total_size_ = total_size_ + kvs[i].size();
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
   Table *table_ = new Table(kvs, sequence_number_, filename, filesystem_, filtermanager_, lsmtreeresult_);
@@ -94,7 +97,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
 
   if (Config::TRACE_LOG)
     std::cout << "DUMP L0:" << filename << "\tRange:[" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << "]" << std::endl;
-  lsmtreeresult_->MinorCompaction(meta.file_size_);
+  lsmtreeresult_->MinorCompaction(total_size_);
   std::string algo = Util::GetAlgorithm();
   if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
     buffer_[0].insert(buffer_[0].begin(), meta);
