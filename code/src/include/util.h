@@ -87,16 +87,16 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 1;                     // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 256 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 32 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 16;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 16;
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 64;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 64;
     static const size_t M1_NUMB = 100000;                   // max number of lru
     static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };
