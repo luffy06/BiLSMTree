@@ -63,7 +63,7 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 4096;
+    static const size_t BLOCK_NUMS = 8192;
     static const size_t PAGE_NUMS = 64;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
@@ -95,8 +95,8 @@ public:
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 64;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 64;
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 128;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 128;
     static const size_t M1_NUMB = 100000;                   // max number of lru
     static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };

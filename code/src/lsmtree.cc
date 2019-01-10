@@ -7,7 +7,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   lsmtreeresult_ = lsmtreeresult;
   total_sequence_number_ = 0;
   rollback_ = 0;
-  ALPHA = 5.0;
+  ALPHA = 3.0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
   filtermanager_ = new FilterManager(filesystem);
 
@@ -66,7 +66,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
               if (frequency_[file_[i - 1][k].sequence_number_] < min_fre)
                 min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
-            if (frequency_[meta.sequence_number_] >= min_fre * (1. + ALPHA)) {
+            if (frequency_[meta.sequence_number_] >= min_fre * ALPHA) {
               if (p < file_[i].size())
                 file_[i].erase(file_[i].begin() + p);
               else

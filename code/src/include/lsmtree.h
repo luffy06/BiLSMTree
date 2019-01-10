@@ -35,7 +35,7 @@ private:
   FileSystem *filesystem_;
   LSMTreeResult *lsmtreeresult_;
   size_t rollback_;
-  double ALPHA = 3.;
+  double ALPHA;
 
   size_t GetSequenceNumber();
 
