@@ -207,8 +207,10 @@ public:
   LSMTreeResult() {
     read_files_ = 0;
     read_size_ = 0;
+    real_read_size_ = 0;
     write_files_ = 0;
     write_size_ = 0;
+    real_write_size_ = 0;
     minor_compaction_times_ = 0;
     minor_compaction_size_ = 0;
     major_compaction_times_ = 0;
@@ -219,7 +221,12 @@ public:
   }
 
   ~LSMTreeResult() {
+  }
 
+  void RealRead(size_t size) {
+    if (record_) {
+      real_read_size_ = real_read_size_ + size;
+    }
   }
 
   void Read(size_t size, const std::string type) {
@@ -230,6 +237,12 @@ public:
         read_map_[type] = read_map_[type] + size;
       else
         read_map_[type] = size;
+    }
+  }
+
+  void RealWrite(size_t size) {
+    if (record_) {
+      real_write_size_ = real_write_size_ + size;
     }
   }
 
@@ -292,6 +305,10 @@ public:
     return read_size_ * 1.0 / read_files_;
   }
 
+  size_t GetRealReadSize() {
+    return real_read_size_;
+  }
+
   size_t GetWriteSize() {
     return write_size_;
   }
@@ -300,6 +317,10 @@ public:
     if (write_files_ == 0)
       return 0;
     return write_size_ * 1.0 / write_files_;
+  }
+
+  size_t GetRealWriteSize() {
+    return real_write_size_;
   }
 
   size_t GetMinorCompactionSize() {
@@ -342,9 +363,11 @@ public:
   void ShowResult() {
     std::cout << "READ_FILES:" << GetReadFiles() << std::endl;
     std::cout << "READ_SIZE:" << GetReadSize() << std::endl;
+    std::cout << "REAL_READ_SIZE:" << GetRealReadSize() << std::endl;
     std::cout << "AVG_READ_SIZE:" << std::setprecision(6) << GetAverageReadSize() << std::endl;
     std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
     std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
+    std::cout << "REAL_WRITE_SIZE:" << GetRealWriteSize() << std::endl;
     std::cout << "AVG_WRITE_SIZE:" << std::setprecision(6) << GetAverageWriteSize() << std::endl;
     std::cout << "MINOR_COMPACTION:" << GetMinorCompactionTimes() << std::endl;
     std::cout << "MINOR_COMPACTION_SIZE:" << GetMinorCompactionSize() << std::endl;
@@ -360,10 +383,12 @@ public:
 
 private:
   bool record_;
-  double write_files_;
-  double write_size_;
-  double read_files_;
-  double read_size_;
+  size_t write_files_;
+  size_t write_size_;
+  size_t real_write_size_;
+  size_t read_files_;
+  size_t read_size_;
+  size_t real_read_size_;
   size_t minor_compaction_times_;
   size_t minor_compaction_size_;
   size_t major_compaction_times_;
