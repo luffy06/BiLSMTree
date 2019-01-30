@@ -4,3 +4,4 @@
 /code/build
 /code/data
 /code/config.in
+/result/*.out
