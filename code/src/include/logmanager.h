@@ -10,7 +10,7 @@ namespace bilsmtree {
 
 class LogManager {
 public:
-  LogManager(FileSystem* filesystem);
+  LogManager(FileSystem* filesystem, LSMTreeResult *lsmtreeresult);
   
   ~LogManager();
 
@@ -23,6 +23,7 @@ private:
   size_t record_count_;
   FileSystem* filesystem_;
   std::string buffer_;
+  LSMTreeResult *lsmtreeresult_;
 
   KV ReadKV(const size_t location, const size_t size_);
 };

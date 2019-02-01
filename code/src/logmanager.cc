@@ -2,10 +2,11 @@
 
 namespace bilsmtree {
 
-LogManager::LogManager(FileSystem* filesystem) {
+LogManager::LogManager(FileSystem* filesystem, LSMTreeResult *lsmtreeresult) {
   file_size_ = 0;
   record_count_ = 0;
   filesystem_ = filesystem;
+  lsmtreeresult_ = lsmtreeresult;
   filesystem_->Create(Config::LogManagerConfig::LOG_PATH);
 }
 
@@ -37,6 +38,7 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
         std::cout << "WRITE VLOG " << buffer_.size() << std::endl;
       filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
       filesystem_->Write(Config::LogManagerConfig::LOG_PATH, buffer_.data(), buffer_.size());
+      lsmtreeresult_->Write(buffer_.size());
       filesystem_->Close(Config::LogManagerConfig::LOG_PATH);
       file_size_ = file_size_ + buffer_.size();
       buffer_ = "";
@@ -62,6 +64,7 @@ Slice LogManager::Get(const Slice location) {
   size_t loc_ = Util::StringToInt(strs[0]);
   size_t size_ = Util::StringToInt(strs[1]);
   KV kv = ReadKV(loc_, size_);
+  lsmtreeresult_->Read(kv.size(), "VLOG");
   return kv.value_;
 }
 

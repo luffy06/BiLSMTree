@@ -231,8 +231,8 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem_->Seek(filename, meta.file_size_ - meta.footer_size_);
   std::string offset_data_ = filesystem_->Read(filename, meta.footer_size_);
-  ss.str(offset_data_);
   lsmtreeresult_->Read(offset_data_.size(), "FOOTER");
+  ss.str(offset_data_);
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss >> index_offset_;

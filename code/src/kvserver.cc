@@ -4,7 +4,7 @@ namespace bilsmtree {
 
 KVServer::KVServer(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   lsmtree_ = new LSMTree(filesystem, lsmtreeresult);
-  logmanager_ = new LogManager(filesystem);
+  logmanager_ = new LogManager(filesystem, lsmtreeresult);
 }
 
 KVServer::~KVServer() {
