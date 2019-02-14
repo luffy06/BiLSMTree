@@ -53,7 +53,10 @@ size_t Util::GetSSTableSize() {
   // size_t mem_size_ = GetMemTableSize();
   // return mem_size_ / Config::TableConfig::TABLE_SIZE;
   // size_t table_size_ = Config::ImmutableMemTableConfig::MEM_SIZE * (Config::CacheServerConfig::MAXSIZE + 1) + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
-  return 16 * 1024;
+  std::string algo = Util::GetAlgorithm();
+  // if (algo == std::string("BiLSMTree"))
+  //   return 8 * 1024;
+  return 8 * 1024;
 }
 
 size_t Util::GetBlockSize() {

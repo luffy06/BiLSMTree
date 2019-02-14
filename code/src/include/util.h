@@ -64,7 +64,7 @@ public:
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 8192;
-    static const size_t PAGE_NUMS = 64;
+    static const size_t PAGE_NUMS = 128;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
@@ -87,11 +87,11 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 1;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 32 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 32 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
@@ -117,11 +117,11 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static const size_t LISTSIZE = 10;
+    static const size_t LISTSIZE = 50;
   };
 
   struct TableConfig {
-    static const size_t TABLE_SIZE = 512;
+    static const size_t TABLE_SIZE = 8;
     static const size_t BLOCK_SIZE = 16;
   };
 

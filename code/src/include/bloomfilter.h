@@ -84,7 +84,7 @@ private:
   size_t *array_;
   size_t bits_;
   const size_t size_ = sizeof(size_t) * 8;
-  const bool improved = true;
+  const bool improved = false;
 
   void Add(const Slice key) {
     size_t h = Hash(key.data(), key.size(), Config::FilterConfig::SEED);

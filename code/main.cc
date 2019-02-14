@@ -93,7 +93,9 @@ int main() {
     }
     ++ j;
   }
+  size_t total = random_read + random_write + sequence_read + sequence_write;
   std::cout << "READ:" << random_read << "\tUPDATE:" << random_write << "\tINSERT:" << sequence_write << "\tSCAN:" << scan << "\tSCAN_READ:" << sequence_read << std::endl;
+  std::cout << "READ_RATIO:" << (random_read + sequence_read) * 1.0 / total << "\tWRITE_RATIO:" << (random_write + sequence_write) * 1.0 / total << std::endl;
   std::cout << "EXPECTED_READ:" << total_read_size << "\tEXPECTED_WRITE:" << total_write_size << std::endl;
   db->ShowResult();
   delete db;
