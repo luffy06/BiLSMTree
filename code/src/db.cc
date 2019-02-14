@@ -41,8 +41,12 @@ bool DB::Get(const std::string key, std::string& value) {
   if (!res) {
     res = kvserver_->Get(key_, value_);
     result_->lsmtreeresult_->RealRead(key_.size());
+    result_->lsmtreeresult_->ReadInFlash();
     if (res)
       result_->lsmtreeresult_->RealRead(value_.size());
+  }
+  else {
+    result_->lsmtreeresult_->ReadInMemory();
   }
   if (res) {
     value = value_.ToString();

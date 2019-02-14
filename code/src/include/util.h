@@ -208,6 +208,8 @@ public:
     read_files_ = 0;
     read_size_ = 0;
     real_read_size_ = 0;
+    read_in_flash_ = 0;
+    read_in_memory_ = 0;
     write_files_ = 0;
     write_size_ = 0;
     real_write_size_ = 0;
@@ -226,6 +228,18 @@ public:
   void RealRead(size_t size) {
     if (record_) {
       real_read_size_ = real_read_size_ + size;
+    }
+  }
+
+  void ReadInFlash() {
+    if (record_) {
+      read_in_flash_ = read_in_flash_ + 1;
+    }
+  }
+
+  void ReadInMemory() {
+    if (record_) {
+      read_in_memory_ = read_in_memory_ + 1;
     }
   }
 
@@ -309,6 +323,14 @@ public:
     return real_read_size_;
   }
 
+  size_t GetReadInFlash() {
+    return read_in_flash_;
+  }
+
+  size_t GetReadInMemory() {
+    return read_in_memory_;
+  }
+
   size_t GetWriteSize() {
     return write_size_;
   }
@@ -366,6 +388,8 @@ public:
     std::cout << "REAL_READ_SIZE:" << GetRealReadSize() << std::endl;
     std::cout << "READ_AMPLIFICATION:" << 1.0 * GetReadSize() / GetRealReadSize() << std::endl;
     std::cout << "AVG_READ_SIZE:" << std::setprecision(6) << GetAverageReadSize() << std::endl;
+    std::cout << "READ_IN_FLASH:" << GetReadInFlash() << std::endl;
+    std::cout << "READ_IN_MEMORY:" << GetReadInMemory() << std::endl;
     std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
     std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
     std::cout << "REAL_WRITE_SIZE:" << GetRealWriteSize() << std::endl;
@@ -391,6 +415,8 @@ private:
   size_t read_files_;
   size_t read_size_;
   size_t real_read_size_;
+  size_t read_in_flash_;
+  size_t read_in_memory_;
   size_t minor_compaction_times_;
   size_t minor_compaction_size_;
   size_t major_compaction_times_;
