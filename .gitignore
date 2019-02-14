@@ -4,4 +4,4 @@
 /code/build
 /code/data
 /code/config.in
-/code/result/*.out
+/code/result/*
