@@ -3,15 +3,14 @@ import os
 
 resultdir = 'result'
 resultexcel = 'result.xlsx'
-algorithms = ['BiLSMTree', 'Wisckey', 'LevelDB']
-attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN', 'SCAN_READ']
-metrics = ['LATENCY', 'READ_TIMES', 'WRITE_TIMES', 'ERASE_TIMES', 'READ_FILES', 
-            'REAL_READ_SIZE', 'READ_SIZE', 'AVG_READ_SIZE', 'EXPECTED_READ', 
-            'WRITE_FILES', 'REAL_WRITE_SIZE', 'WRITE_SIZE', 'AVG_WRITE_SIZE', 
-            'EXPECTED_WRITE', 'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
-            'AVG_MINOR_COMPACTION_SIZE', 'MAJOR_COMPACTION', 
-            'MAJOR_COMPACTION_SIZE', 'AVG_MAJOR_COMPACTION_SIZE', 
-            'AVERAGE_CHECK_TIMES', 'ROLLBACK', 'HIT_RATE'];
+algorithms = ['BiLSMTree', 'Wisckey', 'LevelDB', 'Cuckoo']
+attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN_READ', 'READ_RATIO', 'WRITE_RATIO']
+metrics = ['LATENCY', 'READ_TIMES', 'WRITE_TIMES', 'ERASE_TIMES', 
+            'READ_AMPLIFICATION', 'READ_SIZE', 'EXPECTED_READ', 
+            'WRITE_AMPLIFICATION', 'WRITE_SIZE', 'EXPECTED_WRITE', 
+            'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 'MAJOR_COMPACTION', 
+            'MAJOR_COMPACTION_SIZE', 'AVERAGE_CHECK_TIMES', 'ROLLBACK', 
+            'HIT_RATE'];
 
 def parse_filename(filename):
   names = filename.split('.')
@@ -41,7 +40,10 @@ def parse_filecontent(filename, algo, attribute, resultmap):
   for i in range(0, len(lines), 2):
     trace_id = parse_trace(lines[i])
     data = parse_content(lines[i + 1])
-    attr.append([trace_id, data['READ'], data['UPDATE'], data['INSERT'], data['SCAN'], data['SCAN_READ']])
+    l = [trace_id]
+    for a in attributes:
+      l.append(data[a])
+    attr.append(l)
     for m in metrics:
       resultmap[m][algo].append([trace_id, data[m]])
   attr.sort(key=lambda x: x[0])
