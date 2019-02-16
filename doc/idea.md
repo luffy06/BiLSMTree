@@ -1,6 +1,6 @@
 
 
-# Algorithm
+# Idea
 
 major contribution：
 
@@ -9,26 +9,112 @@ major contribution：
 3. 增加了数据上浮的操作；
 4. 支持LSMTree的形状变化；
 
-## 内存：多级缓存替换
+## 结构
 
-### 结构
+![architecture](./pic/architecture.svg)
 
-![MemoryStructrue](pic/memorystructure.png)
+【图1：整体架构】
 
-【图3：内存存储结构】
+### 内存：多级缓存替换
 
-我们提出的内存存储结构中，用LRU2Q替换原有的MemTable，同时维护一个由多个更小的Immutable Memtable组成的Imm LRU。用一个更小的MemTable作为缓冲，每当有数据从LRU2Q中淘汰时，数据将会被加入MemTable。当MemTable满了以后，将其加入Imm List。当Imm LRU满了之后，将该LRU队尾的Immutable MemTable淘汰，DUMP到外部存储设备中。
+如图1中的Memory部分，在内存中的存储结构，我们用一个LRU2Q+一个MemTable+一个Imm List替换原来的的MemTable+Immutable MemTable组合。数据依次流动从LRU2Q，MemTable，由Immutable MemTable组成的List，最后流入外部存储设备。
 
-### 与LevelDB比较
+每当有数据从LRU2Q中淘汰后会被加入MemTable。当MemTable满了以后，将这个Memtable转换为Immutable MemTable，加入Imm List。当Imm List满了之后，将该List队尾的Immutable MemTable淘汰，存储到外部存储设备中。当数据在LRU2Q中被访问到后，会按照LRU2Q的策略移动在队伍中的位置。
 
-1. 在原有的内存存储结构中，**在MemTable中频繁访问的数据，会因为新数据的加入而被转换成Immutable MemTable，随后DUMP到$L_0$中。当再读这些数据时，都需要进行IO读写。**我们所提出的结构能够让频繁访问的数据长时间被保存在内存中，而不会因为机制的问题而被强制DUMP到外部存储设备中。
-2. 同时，在原有的结构中，每当一个Immutable MemTable被DUMP到外部存储设备时，都会创建一个新的空的MemTable，并且因为一个MemTable的大小较大，所以此时内存的利用率会出现较大程度的下降。我们所提出的结构采用更小的MemTable和Immutable MemTable作为一个分配单位，不会较大程度的下降，基本上维持在较高的水准。
+### LRU2Q、MemTable、Imm List大小分配
 
-### 例子
+初始设定每个MemTable和Immutable MemTable最大为$\theta$MB。
+
+若内存不足2$\times\theta$MB，则平均划分内存空间，一半划分为MemTable，一半划分为Imm List，Imm List中只有一个Immutable MemTable。
+
+当内存大于2$\times\theta$MB，优先分配给LRU2Q。设定LRU2Q的大小为MemTable和Imm List的大小之和的$\alpha$倍，Imm List中Immutable MemTable的个数最大为$\beta$个。
+
+定义$g(k)=(1+k)\times\theta\times (1 + \alpha), (1\le k\le \beta)$，表示$k$个大小$\theta$MB的Immutable MemTable时的最小需要内存大小。
+
+当内存大小在$[g(k), g(k+1)]$时，分配$k$个大小为$\theta$MB的Immutable MemTable，一个$\theta$MB的MemTable，剩余空间全分配个LRU2Q。
+
+当内存大小大于$g(\beta)$时，分配$\beta$个大小为$\theta$MB的Immutable MemTable，一个$\theta$MB的MemTable，剩下空间全分配给LRU2Q。
+
+### 外存：上浮缓冲区
+
+如图1中的Disk/Flash部分，因为直接上浮合并的代价较大，我们为每层额外增加了一个Buffer用于存放被上浮的文件。
+
+如图1（a），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起键值范围重叠，将其先放在$L_1$层的`buffer`中，随后在$L_1$层进行Compaction的时候将其合并到`file`中。
+
+如图1（b），当$L_5$层的`buffer`中的一个文件被访问后，同样的通过计算将其移动到$L_0$层，等待合并。
+
+如图1（c），当$L_1$层中的缓冲区满了之后，其中的所有文件通过Compaction的形式加入$L_1$层的`file`中。
+
+#### 1. 确定需要上浮的数据
+
+在外部存储设备中，数据从高层到低层是按照新旧度依次递减的，$L_0$层的数据最新， $L_6$层的数据最旧。根据LevelDB的查找机制来看，查找一个存在于$L_6$层的SSTable比查找一个存在于$L_0$层的SSTable，可能会产生更多的IO读，消耗更多的时间，尤其这个$L_6$层的SSTable近期被频繁访问时，所产生的代价是更大的，因此我们认为**数据分布不仅仅需要考虑数据的新旧度，同时还需要考虑数据的访问频率**。当低层的某个SSTable的访问频率越来越高时，这个SSTable应该通过适当的调整，上浮到高层。
+
+我们对每个SSTable文件记录最近$F$次访问中的访问次数$f$，第$i$层的第$t$个SSTable的最近$F$次访问中的访问次数为$f_{i,t}$，若满足
+$$
+f_{i,t}\ge min(f_{i-1,u})  \times \gamma (i > 0)\quad (1)
+$$
+其中$f_{i-1,u}$为第$i-1$层的第$u$个SSTable的最近$F$次访问中的访问次数，$\gamma​$为上浮常数，那么这个SSTable文件需要进行上浮操作。
+
+#### 2. 确定数据上浮的目标层数
+
+若$L_i$层的第$t$个文件需要移动，假设移动到$L_j$层：
+
+用$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，$b_l$表示第$l$层的SSTable Buffer最大大小。
+
+假设未来的$F​$次访问中，该文件也将会被访问$f_{i,t}​$次，那么分别计算移动与不移动产生的代价：
+
+- **若不移动文件**：这$f_{i,t}$次访问所带来的时间消耗为：
+  $$
+  T_1=3\times f_{i,t}\times T_R\times (3 + i + \sum^{i-1}_{l=0}b_l)
+  $$
+  考虑最坏情况，在每一层（除$L_0$层外）的`file`部分都需要查询一个文件，共计$i-1$个文件，$L_0$层每个文件都需要查询，共4个文件；第$l$层的`buffer`部分的有$b_l$个文件需要查询，所以总共有$4 + i-1 + \sum^{i-1}_{l=0}b_l$个文件需要查询。对于每个文件都需要进行3次IO读（读取FilterBlock，读取IndexBlock，读取DataBlock）。
+
+- **若移动文件**：移动到$L_j​$层，这$f_{i,t}​$次访问所带来的时间消耗为：
+  $$
+  T_2=3\times f_{i,t}\times T_R \times (3+ j + \sum^{j-1}_{l=0}b_l) + T_W+T_R\times( \sum^{i-1}_{l=j}c_l+1)
+  $$
+  
+
+  其中$c_l​$表示$L_l​$层与该文件的键值范围有重叠的文件个数。考虑最坏情况，$T_2​$的前半部分为移动到$L_j​$层后的查询该文件的代价，$T_W​$为写入新的Filter的代价，$T_R\times (\sum^{i-1}_{l=j}c_l+1)​$为读取该文件​和读取从$L_{i-1}​$层到$L_j​$层与该文件存在键值范围重叠的文件的Filter的代价。
+
+定义$T_{diff}=T_1-T_2​$表示移动后相比移动前，能够减少的时间代价，若为负数，则表示增加时间代价，那么：
+$$
+T_{diff} = 3\times f_{i,t}\times T_R \times (i-j + \sum^{i-1}_{l=j} b_l)-T_W-T_R\times( \sum^{i-1}_{l=j}c_l+1) \quad(2)
+$$
+因为$T_W\approx h\times T_R$，所以公式（3）可以转换为
+$$
+T_{diff}=3\times f_{i,t}\times T_R \times \left(i - j - h - 1 +\sum^{i-1}_{l=j} (b_l -c_l)\right) \quad(3)
+$$
+其中$0\le j\le i-1​$。
+
+因为总共只有7层，那么可以通过枚举找到最大的$T_{diff}​$，将该文件移动到对应的层。 
+
+#### 3. 数据上浮
+
+##### 两个性质
+
+1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在重叠**。
+2. **数据从$L_0$层到$L_6$层的新旧度逐渐降低，$i$越小的$L_i$层的文件中的数据越新。**
+
+某个文件需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
+
+如果直接将上浮时有键值范围重叠的所有SSTable全部读出来，分别和上浮的SSTable比较去重，这个不仅不能减少读的量，反而会增加因上浮所引起的额外的读。所以如何既要不破坏原有2个性质，又不产生很大的额外代价，是上浮操作的关键。
+
+通过对LevelDB查找Key的机制可以发现，当一个SSTable的Filter显示一个Key不存在时，则将不会继续查找数据区域（DataBlock），转而对下一个SSTable查找。
+
+由此我们提出上浮时，仅仅删除Filter中的旧数据，保留数据区域的旧数据，这样只需要修改Filter部分，不会产生大量的额外读。为了能够保持键值范围不重叠的性质，我们提出让上浮的SSTable先暂存在每层设定的缓冲`buffer`中，等`buffer`满了以后，再统一做合并。
+
+#### 4. 使用CuckooFilter
+
+因为LevelDB中使用的BloomFilter，具有一定的错误率，也无法支持删除操作，对上浮操作是十分不利的。所以我们使用空间利用率更高，无错误率且支持删除操作的CuckooFilter替换BloomFilter。
+
+# 例子
+
+## 内存中读写
 
 ![case1](pic/case1.png)
 
-【图4：例子】
+【图2：例子1】
 
 如图4，内存中已经存入了`a,b,c,d,e,f,g,h,i`，如子图1。在原来的结构中，Immutable MemTable中保存了`e,f,g,h,i`，MemTable中保存了`a,b,c,d`，还留有一个空位置；在我们提出的结构中，LRU2Q中，LRU队列保存了`a,b`，FIFO队列保存了`c,d`。MemTable中仅保存了`e`，也还留有一个空位置。Imm LRU中包含了两个Immutable MemTable，分别存储了`f,g`和`h,i`。两种结构中的内存利用率均为90%。
 
@@ -40,15 +126,15 @@ major contribution：
 
 如子图5，当读取`i`和`e`时，在原有的结构中，因为`i,e`之前存在于同一个Immutable MemTable此时已经被DUMP到外部存储设备，所以现在需要从外部存储设备通过IO读取数据。在我们提出的结构中，因为`e`和`i`仍处于内存中，所以读取的速度更快。
 
-### 大小分析
+## 外存中读写
 
-内存空间最少需要保证一个MemTable和一个Immutable Memtable（默认均2MB）。
+![case2](./pic/case2.svg)
 
-若内存不足4MB，则按平均分一半划分为MemTable，一半划分为Immutable MemTable。
+【图3：例子2】
 
-当内存大于4MB，优先增加LRU2Q的大小。当LRU2Q的大小为所有MemTable和Immutable MemTable的2倍时，增加一个Immutable MemTable。当Immutable MemTable数量达到设定上限（默认为4）时，剩下的内存均分配给LRU2Q。
 
-### 伪代码
+
+# Algorithms
 
 **Algorithm 1 内存数据读取**
 
@@ -61,95 +147,6 @@ major contribution：
 ![algo2](pic/algo2.png)
 
 算法3.2展示在新的内存结构中如何存储一对key和value。首先在LRU2Q中通过$Put(key, value)$的方法将key和value存储在LRU2Q的中LRU队列的队首，若$key$已经存在了，则直接更新$value$。同时，该方法还会返回从LRU2Q中淘汰的数据$d\_key, d\_value$。若有数据被淘汰，则需要将其加入到缓冲的Immutable MemTable$imm\_temp\_$中。若$imm\_temp\_$已经满了，则将它加入到immutable MemTable的LRU队列$imms\_$的头部，重新分配一个新的Immutable MemTable。同时，若$imms\_$已经满了，则淘汰队尾的Immutable MemTable，用指针$imm\_dump\_$指向淘汰的Immutable MemTable，将其返回，等待DUMP到$L_0$层。
-
-## 外存：数据上浮，替换Filter
-
-### 结构
-
-![externstorage](pic/externstorage.png)
-
-【图5：外部存储结构】
-
-如图5，我们为每层额外增加了一个buffer用于存放被上浮的文件。
-
-如图5（a），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起Overlap，将其先放在$L_1$层的额外的list中，随后在$L_1$层进行Compaction的时候将其合并到file中。
-
-如图5（b），当$L_5$层额外的list中的一个文件被访问后，同样的通过计算将其移动到$L_0$层，等待合并。
-
-### 需要解决的问题
-
-1. 数据如何上浮？
-2. 数据上浮的层数？
-3. 哪些数据需要上浮？
-
-#### 1. 数据如何上浮？
-
-##### 两个性质
-
-1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在Overlap**。对于$L_0$层来说，数据是直接从内存DUMP下来的，若要保持不存在Overlap的特性，在DUMP的同时还需要进行多路归并，但是考虑到IO读写的代价对性能的影响，所以允许Immutable MemTable直接生成SSTable，直接DUMP到$L_0$层，其该层的SSTable之间的键值范围存在Overlap。$L_0$层至多只有4个SSTable，这也相对有了一定的折中，保证了查找效率。其他层的文件都是通过Compaction得到的，所以可以保证不存在Overlap，文件数量也可以成倍增长，查找时可以通过二分查找加快查找效率。
-2. **数据从$L_0$层到$L_6$层的新旧度逐渐降低，** $i$越小的$L_i$层的文件中的数据越新。若某个Key同时存在于多层的多个SSTable中，则$i$最小的层中的Key对应的是最新的数据，其他层的数据均已无效。特别地，对$L_0$层来说，因为允许不同的SSTable之间的键值范围存在Overlap，所以越靠前即$j$越小的SSTable中的数据越新。
-
-##### 为什么要换成CuckooFilter
-
-文件M需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
-
-可以发现，在查找一个Key之前，LevelDB为了提高查找效率，对每个SSTable增加了一个Filter，用于快速判断一个Key是否存在在当前的SSTable中。因为Filter所能表示的Key的个数和实际SSTable的Key的个数是一样的，那么**可以把Filter看作整个SSTable的一个snapshot**。在去除旧数据时若能够只删除Filter中的数据，而不删除DataBlock中的数据，将会大大减少上浮产生的代价。**若DataBlock中某个Key是旧数据，那么上浮完成后在对应的Filter中这个Key已经被删除了，在Filter中就永远不会被查询到，就不会进一步查询DataBlock**。
-
-LevelDB中引入的是BloomFilter，但它具有以下几点不足：
-
-1. 存在一定的错误率，将不存在的Key可能会返回存在。
-2. 无法进行删除操作。
-
-我们将文件上浮以后，需要继续保持原有的两个性质，我们使用查询效率更高，空间利用率更高，且无错误率的CuckooFilter[CuckooFilter]来替换BloomFilter。
-
-##### 具体操作
-
-![relativecomplement](pic/relativecomplement.png)
-
-【图6：求过滤器的相对补集】
-
-对于$L_i$层的文件M，用集合$S_M$表示文件M对应的CuckooFilter。设$L_{j}$层有$k$个文件与文件M表示的键值范围有交集，他们对应的CuckooFilter分别为$S^u_1,\ldots,S^u_k$，那么将文件M移动到$L_{j}$层后，它的CuckooFilter变为$S_M=S_M-S^u_t\quad \{u=i-1,\ldots,j,t=1,\ldots,k\}$。若一个SSTable至多有$n$个KV数据，那么该操作的时间复杂度为$O((i-j)\cdot k\cdot n)$ 。根据实验数据分析可以看出，$k$的值不超过5[LOCS]，$i-j$的大小也不会超过6，每上升一层，CuckooFilter中存储的Key的个数$n$只会逐渐减少。
-
-#### 2. 数据上浮的层数？
-
-对于$L_i$层的文件M，将它移动到$L_j$层：
-
-设$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗。假设未来的$F$次访问中，文件M也将会被访问$f_{i,M}$次，同时文件M不会被Compaction，那么考虑移动与不移动分别产生的代价：
-
-- 不移动文件M：这$f_{i,M}$次访问所带来的时间消耗为：$T_1=f_{i,M}\times 3\times T_R\times (3 + i + i\times LIST\_MAX\_NUM)$。最坏情况下，在每一层（除$L_0$层外）的`file_`部分都需要查询一个文件，共计$i-1$个文件，$L_0$层每个文件都需要查询，共4个文件；每一层的`list_`部分的每个文件都需要查询，根据预设每层至多有$LIST\_MAX\_NUM$个文件存储在$list\_$中，所以总共有$4 + i-1 + i\times LIST\_MAX\_NUM$个文件需要查询，对于每个文件都需要进行3次IO读（读取FilterBlock，读取IndexBlock，读取DataBlock）。
-- 将文件M移动到$L_j$层，这$f_{i,M}$次访问所带来的时间消耗为：$T_2=f_{i,M}\times 3\times T_R \times (3+ j  + j\times LIST\_MAX\_NUM) + T_W+T_R\times( \sum^j_{k=i-1}c_k+1)$，其中$c_k$表示$L_k$层与文件M的键值范围有Overlap的文件个数。最坏情况下，$T_2$的前半部分为移动到$L_j$层后的查询文件$M$的代价，$T_W$为写入新的Filter的代价，$T_R\times (\sum^j_{k=i-1}c_k+1)$为读取文件$M$及从$L_{i-1}$层到$L_j$层与文件$M$存在Overlap的文件的Filter的代价。
-
-定义$T_{diff}=T_1-T_2$表示移动后相比移动前，能够减少的时间代价，若为负数，则表示增加时间代价，那么：
-$$
-T_{diff}=T_1-T_2=f_{i,M}\times 3\times T_R\times (3 + i + i\times LIST\_MAX\_NUM) \\- f_{i,M}\times 3\times T_R \times (3 + j + j\times LIST\_MAX\_NUM) \\- T_W -T_R\times( \sum^j_{k=i-1}c_k+1)
-\\
-T_{diff} = f_{i,M}\times 3\times T_R \times (i-j)\times(LIST\_MAX\_NUM + 1)\\-T_W-T_R\times( \sum^j_{k=i-1}c_k+1) \quad(3)
-$$
-因为$T_W\approx \alpha\times T_R$，所以公式（3）可以转换为
-$$
-T_{diff}=f_{I,m}\times 3\times (i-j)\times(LIST\_MAX\_NUM+1)- \sum^j_{k=i-1}c_k-1-\alpha \quad(4)
-$$
-其中$0\le j\le i-1$，$LIST\_MAX\_NUM$不超过10。
-
-因为$i$不超过6，那么依次枚举每个$j$，找到最大的$T_{diff}$，将文件M移动到$L_j$层。 
-
-#### 3. 哪些数据需要上浮？
-
-在外部存储器中，数据从高层到低层是按照新旧度依次递减的，$L_0$层的数据最新， $L_6$层的数据最旧。根据前文所叙述的访问机制来看，相比于高层的SSTable，查找低层的SSTable会消耗更多的时间。当一个低层的SSTable近期被频繁访问时，所产生的代价是很大的，因此我们认为**数据分布不仅仅需要考虑数据的新旧度，同时还需要考虑数据的访问频率**。当低层的某个SSTable的访问频率越来越高时，这个SSTable应该通过适当的调整，上浮到高层。
-
-我们对每个SSTable文件记录最近$F$次访问中的访问次数$f$，第$i$层的第$j$个SSTable的最近$F$次访问中的访问次数为$f_{i,j}$，若满足
-$$
-f_{i,j}\ge min(f_{i-1,k})  \times \beta (i > 0)\quad (2)
-$$
-其中$f_{i-1,k}$为第$i-1$层的第$k$个SSTable的最近$F$次访问中的访问次数，$\beta$为常数，那么这个SSTable文件需要进行上浮操作。
-
-### 例子
-
-
-
-### 算法
-
-#### 上浮后去除旧数据
 
 **Algorithm 3 维护最近$F$次访问频率**
 
