@@ -1,0 +1,2073 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 case1.svg Page-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="6.01334in" height="7.40514in"
+		viewBox="0 0 432.96 533.17" xml:space="preserve" color-interpolation-filters="sRGB" class="st14">
+	<v:documentProperties v:langID="2052" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {stroke:#000000;stroke-dasharray:7,5;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st2 {fill:#ffffff;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st3 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st4 {fill:#000000;font-family:Arial;font-size:1.16666em;font-weight:bold}
+		.st5 {font-size:1em}
+		.st6 {marker-start:url(#mrkr4-47);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st7 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.22222222222222}
+		.st8 {fill:none;stroke:#000000;stroke-dasharray:3.5,2.5;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st9 {fill:url(#ptrn5-83);shape-rendering:crispEdges;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st10 {fill:#000000;font-family:Arial;font-size:0.75em;font-weight:bold}
+		.st11 {marker-start:url(#mrkr4-47);stroke:#000000;stroke-dasharray:5.04,3.6;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st12 {fill:#000000;font-family:黑体;font-size:1.16666em;font-weight:bold}
+		.st13 {font-family:Arial;font-size:1em}
+		.st14 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Patterns_And_Gradients">
+		<pattern id="ptrn5-83" v:fillPattern="5" v:foreground="#7f7f7f" v:background="#ffffff" patternUnits="userSpaceOnUse"
+				width="6" height="6" viewBox="0 0 64 64">
+			<image x="0" y="0" width="64" height="64" image-rendering="optimizeSpeed"
+					xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA8SURBVChTfc+5DQAwCARB2r8qKQVrsWT5wWxwAZoEkxTuHlXcjemQMR1KQD+0AFXoAHSjB9CO8ouqiRQDr2bt8UQNqRoAAAAASUVORK5CYII="/>
+		</pattern>
+	</defs>
+	<defs id="Markers">
+		<g id="lend4">
+			<path d="M 2 1 L 0 0 L 2 -1 L 2 1 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr4-47" class="st7" v:arrowType="4" v:arrowSize="2" v:setback="8.5" refX="8.5" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend4" transform="scale(4.5) "/>
+		</marker>
+	</defs>
+	<g v:mID="0" v:index="1" v:groupContext="foregroundPage">
+		<title>页-1</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<v:layer v:name="连接线" v:index="0"/>
+		<g id="shape1-1" v:mID="1" v:groupContext="shape" v:layerMember="0" transform="translate(-328.782,507.724) rotate(-90)">
+			<title>多行.357</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0):26"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-2.1750157232):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.4582010303796):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.23920212945813):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(0.99999998513981):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.5707963267949):37"/>
+			</v:userDefs>
+			<path d="M0 533.17 L489.22 533.17" class="st1"/>
+		</g>
+		<g id="group5-4" transform="translate(67.2131,-423.709)" v:mID="5" v:groupContext="group">
+			<title>工作表.5</title>
+			<g id="shape3-5" v:mID="3" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape4-7" v:mID="4" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.4</title>
+				<desc>a, b, c, d</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="54.2" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>a, b, c, d</text>			</g>
+		</g>
+		<g id="group6-10" transform="translate(67.2131,-392.884)" v:mID="6" v:groupContext="group">
+			<title>工作表.6</title>
+			<g id="shape7-11" v:mID="7" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape8-13" v:mID="8" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.8</title>
+				<desc>e, f, g, h</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="55.76" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>e, f, g, h</text>			</g>
+		</g>
+		<g id="shape9-16" v:mID="9" v:groupContext="shape" transform="translate(18.4034,-426.546)">
+			<title>工作表.9</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape10-19" v:mID="10" v:groupContext="shape" transform="translate(18.4034,-395.651)">
+			<title>工作表.10</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="group11-23" transform="translate(67.1698,-298.345)" v:mID="11" v:groupContext="group">
+			<title>工作表.11</title>
+			<g id="shape12-24" v:mID="12" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape13-26" v:mID="13" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.13</title>
+				<desc>j</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="80.26" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>j</text>			</g>
+		</g>
+		<g id="group14-29" transform="translate(67.1698,-267.52)" v:mID="14" v:groupContext="group">
+			<title>工作表.14</title>
+			<g id="shape15-30" v:mID="15" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape16-32" v:mID="16" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.16</title>
+				<desc>a, b, c, d</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="54.2" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>a, b, c, d</text>			</g>
+		</g>
+		<g id="shape17-35" v:mID="17" v:groupContext="shape" transform="translate(18.4034,-301.182)">
+			<title>工作表.17</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape18-38" v:mID="18" v:groupContext="shape" transform="translate(18.4033,-270.358)">
+			<title>工作表.18</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="shape19-42" v:mID="19" v:groupContext="shape" v:layerMember="0" transform="translate(-419.328,97.7665) rotate(-90)">
+			<title>多行.386</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.78142705550321):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6072833912915):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.3276145874647):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19698150046903):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52470595338951):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5260120587279):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+			</v:userDefs>
+			<path d="M5.08 529.75 L5.38 529.55 C8.64 527.73 12.85 526.02 16.45 526.68 C19.98 527.33 22.93 530.25 24.4 531.71 C25.87
+						 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87
+						 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87
+						 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17" class="st6"/>
+		</g>
+		<g id="shape20-48" v:mID="20" v:groupContext="shape" transform="translate(97.7734,-464.107)">
+			<title>工作表.20</title>
+			<desc>1. read d 2. read f</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="14.82" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>1. read d<v:newlineChar/><tspan
+						x="16.77" dy="1.2em" class="st5">2. read f</tspan></text>		</g>
+		<g id="shape21-52" v:mID="21" v:groupContext="shape" v:layerMember="0"
+				transform="translate(181.184,624.711) rotate(178.429)">
+			<title>多行.21</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.59026070508854):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6450905785528):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(9.1087972959095):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19739491719758):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52069420363698):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5969747634138):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(2.1610570318834):32"/>
+			</v:userDefs>
+			<path d="M5.43 536 L5.75 536.16 C12.39 539.3 23.62 543.63 33.08 542.42 C40.32 541.49 46.54 537.33 49.64 535.25 C52.75
+						 533.17 52.75 533.17 52.75 533.17 C52.75 533.17 52.75 533.17 52.75 533.17 C52.75 533.17 52.75 533.17 52.75
+						 533.17 C52.75 533.17 52.75 533.17 52.75 533.17 C52.75 533.17 52.75 533.17 52.75 533.17 C52.75 533.17 52.75
+						 533.17 52.75 533.17 C52.75 533.17 52.75 533.17 52.75 533.17" class="st6"/>
+		</g>
+		<g id="shape22-57" v:mID="22" v:groupContext="shape" v:layerMember="0" transform="translate(-419.328,128.591) rotate(-90)">
+			<title>多行.22</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.64279640070622):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6142656606864):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.6118581664536):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19703652282001):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.47574469464176):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.6101798183911):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.92799992608868):32"/>
+			</v:userDefs>
+			<path d="M5.02 529.67 L5.32 529.47 C8.82 527.46 13.59 525.52 18.15 526.24 C22.5 526.94 26.66 530.05 28.74 531.61 C30.82
+						 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82
+						 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82
+						 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17" class="st6"/>
+		</g>
+		<g id="shape23-62" v:mID="23" v:groupContext="shape" v:layerMember="0"
+				transform="translate(281.514,635.214) rotate(164.113)">
+			<title>多行.23</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.63661625745466):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6026554321125):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(9.1590732542014):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695033779838):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.51118163821782):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5867816211476):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(2.2074125842496):32"/>
+			</v:userDefs>
+			<path d="M5.41 536.03 L5.73 536.2 C8.27 537.24 11.29 538.04 14.01 537.65 C17.13 537.2 19.86 535.19 21.22 534.18 C22.58
+						 533.17 22.58 533.17 22.58 533.17 C22.58 533.17 22.58 533.17 22.58 533.17 C22.58 533.17 22.58 533.17 22.58
+						 533.17 C22.58 533.17 22.58 533.17 22.58 533.17 C22.58 533.17 22.58 533.17 22.58 533.17 C22.58 533.17 22.58
+						 533.17 22.58 533.17 C22.58 533.17 22.58 533.17 22.58 533.17" class="st6"/>
+		</g>
+		<g id="shape24-67" v:mID="24" v:groupContext="shape" transform="translate(166.569,-425.839)">
+			<title>椭圆形</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape25-69" v:mID="25" v:groupContext="shape" transform="translate(133.97,-395.651)">
+			<title>椭圆形.25</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape26-71" v:mID="26" v:groupContext="shape" v:layerMember="0" transform="translate(-419.372,223.13) rotate(-90)">
+			<title>多行.26</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.84710274146951):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6027854076651):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.1917652319056):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695115529402):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52176120112412):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5258229812755):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+			</v:userDefs>
+			<path d="M4.88 529.48 L5.17 529.27 C7.96 527.55 11.43 526.05 14.42 526.68 C17.52 527.33 20.1 530.25 21.39 531.71 C22.68
+						 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68
+						 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68
+						 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17" class="st6"/>
+		</g>
+		<g id="shape27-76" v:mID="27" v:groupContext="shape" transform="translate(97.2832,-329.529)">
+			<title>工作表.27</title>
+			<desc>3. write j</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="15.6" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>3. write j</text>		</g>
+		<g id="group28-79" transform="translate(67.1698,-239.174)" v:mID="28" v:groupContext="group">
+			<title>工作表.28</title>
+			<g id="shape29-80" v:mID="29" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st9"/>
+			</g>
+			<g id="shape30-84" v:mID="30" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.30</title>
+				<desc>e, f, g, h</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="55.76" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>e, f, g, h</text>			</g>
+		</g>
+		<g id="shape31-87" v:mID="31" v:groupContext="shape" transform="translate(115.615,-212.954)">
+			<title>工作表.31</title>
+			<desc>Dump to disk / flash</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="29.6935" cy="524.313" width="59.39" height="17.7154"/>
+			<rect x="0" y="515.455" width="59.387" height="17.7154" class="st3"/>
+			<text x="11.45" y="521.61" class="st10" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Dump to <tspan
+						x="6.44" dy="1.2em" class="st5">disk / flash</tspan></text>		</g>
+		<g id="shape32-91" v:mID="32" v:groupContext="shape" v:layerMember="0"
+				transform="translate(-133.182,739.656) rotate(-142.947)">
+			<title>多行.32</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.72906670923946):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6113170647896):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.4363689534903):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19701211164019):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52700392959057):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5267046558399):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+			</v:userDefs>
+			<path d="M5.22 529.97 L5.52 529.78 C9.2 527.87 14.11 525.99 18.28 526.68 C22.19 527.33 25.46 530.25 27.1 531.71 C28.73
+						 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73
+						 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73
+						 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17" class="st6"/>
+		</g>
+		<g id="group33-96" transform="translate(67.1212,-113.206)" v:mID="33" v:groupContext="group">
+			<title>工作表.33</title>
+			<g id="shape34-97" v:mID="34" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape35-99" v:mID="35" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.35</title>
+				<desc>j</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="80.26" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>j</text>			</g>
+		</g>
+		<g id="group36-102" transform="translate(67.1212,-82.3816)" v:mID="36" v:groupContext="group">
+			<title>工作表.36</title>
+			<g id="shape37-103" v:mID="37" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape38-105" v:mID="38" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.38</title>
+				<desc>a, b, c, d</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="54.2" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>a, b, c, d</text>			</g>
+		</g>
+		<g id="shape39-108" v:mID="39" v:groupContext="shape" transform="translate(18.36,-116.044)">
+			<title>工作表.39</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape40-111" v:mID="40" v:groupContext="shape" transform="translate(18.36,-85.2191)">
+			<title>工作表.40</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="shape41-115" v:mID="41" v:groupContext="shape" v:layerMember="0" transform="translate(-419.42,408.269) rotate(-90)">
+			<title>多行.41</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.84710274146951):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6027854076651):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.1917652319056):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695115529402):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52176120112412):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5258229812755):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.7236935853254):32"/>
+			</v:userDefs>
+			<path d="M4.88 529.48 L5.17 529.27 C7.96 527.55 11.43 526.05 14.42 526.68 C17.52 527.33 20.1 530.25 21.39 531.71 C22.68
+						 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68
+						 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68
+						 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17" class="st6"/>
+		</g>
+		<g id="shape42-120" v:mID="42" v:groupContext="shape" transform="translate(97.7734,-151.477)">
+			<title>工作表.42</title>
+			<desc>4. read c 5. read e</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="15.2" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>4. read c<v:newlineChar/><tspan
+						x="15.2" dy="1.2em" class="st5">5. read e</tspan></text>		</g>
+		<g id="shape43-124" v:mID="43" v:groupContext="shape" v:layerMember="0" transform="translate(-419.42,439.094) rotate(-90)">
+			<title>多行.43</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.6942932818059):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6142656606864):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.5088644042542):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19703652282001):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52849323379432):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5274197055425):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.876503044989):32"/>
+			</v:userDefs>
+			<path d="M5.3 530.11 L5.61 529.94 C9.59 527.97 15.02 525.97 19.61 526.68 C23.81 527.33 27.32 530.25 29.07 531.71 C30.82
+						 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82
+						 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17 C30.82 533.17 30.82
+						 533.17 30.82 533.17 C30.82 533.17 30.82 533.17 30.82 533.17" class="st6"/>
+		</g>
+		<g id="shape44-129" v:mID="44" v:groupContext="shape" v:layerMember="0" transform="translate(-419.42,472.049) rotate(-90)">
+			<title>多行.44</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.66164954919746):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6172661245215):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.5771523333061):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19706312862248):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52985802506025):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5282692202817):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.90914677759744):32"/>
+			</v:userDefs>
+			<path d="M5.38 530.25 L5.69 530.08 C9.97 528.07 15.93 525.96 20.96 526.68 C25.46 527.33 29.21 530.25 31.08 531.71 C32.96
+						 533.17 32.96 533.17 32.96 533.17 C32.96 533.17 32.96 533.17 32.96 533.17 C32.96 533.17 32.96 533.17 32.96
+						 533.17 C32.96 533.17 32.96 533.17 32.96 533.17 C32.96 533.17 32.96 533.17 32.96 533.17 C32.96 533.17 32.96
+						 533.17 32.96 533.17 C32.96 533.17 32.96 533.17 32.96 533.17" class="st6"/>
+		</g>
+		<g id="shape45-134" v:mID="45" v:groupContext="shape" v:layerMember="0"
+				transform="translate(181.825,964.673) rotate(176.744)">
+			<title>多行.45</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.35523744716199):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6241648831941):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.6178250846976):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19713106169683):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.58645542079014):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.6245192460039):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.9260337739569):32"/>
+			</v:userDefs>
+			<path d="M5.98 534.47 L6.33 534.54 C11.61 535.56 19.2 536.7 25.12 536.33 C30.18 536.02 34.02 534.59 35.94 533.88 C37.86
+						 533.17 37.86 533.17 37.86 533.17 C37.86 533.17 37.86 533.17 37.86 533.17 C37.86 533.17 37.86 533.17 37.86
+						 533.17 C37.86 533.17 37.86 533.17 37.86 533.17 C37.86 533.17 37.86 533.17 37.86 533.17 C37.86 533.17 37.86
+						 533.17 37.86 533.17 C37.86 533.17 37.86 533.17 37.86 533.17" class="st6"/>
+		</g>
+		<g id="shape46-139" v:mID="46" v:groupContext="shape" transform="translate(150.978,-84.7922)">
+			<title>椭圆形.46</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape47-141" v:mID="47" v:groupContext="shape" transform="translate(111.434,-57.5796)">
+			<title>工作表.47</title>
+			<desc>Seek e from disk / flash</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="29.6935" cy="524.313" width="59.39" height="17.7154"/>
+			<rect x="0" y="515.455" width="59.387" height="17.7154" class="st3"/>
+			<text x="4.18" y="521.61" class="st10" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Seek e from <tspan
+						x="6.44" dy="1.2em" class="st5">disk / flash</tspan></text>		</g>
+		<g id="group48-145" transform="translate(250.191,-423.002)" v:mID="48" v:groupContext="group">
+			<title>工作表.48</title>
+			<g id="shape49-146" v:mID="49" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape50-148" v:mID="50" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.50</title>
+				<desc>a, b, c, d</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="54.2" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>a, b, c, d</text>			</g>
+		</g>
+		<g id="shape51-151" v:mID="51" v:groupContext="shape" transform="translate(216.829,-425.839)">
+			<title>工作表.51</title>
+			<desc>LRU2Q</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="19.89" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>LRU2Q</text>		</g>
+		<g id="group55-154" transform="translate(274.285,-392.814)" v:mID="55" v:groupContext="group">
+			<title>工作表.55</title>
+			<g id="shape56-155" v:mID="56" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape57-157" v:mID="57" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.57</title>
+				<desc>e, f</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="33.5" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>e, f</text>			</g>
+		</g>
+		<g id="shape58-160" v:mID="58" v:groupContext="shape" transform="translate(206.58,-395.722)">
+			<title>工作表.58</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape59-163" v:mID="59" v:groupContext="shape" transform="translate(206.58,-365.607)">
+			<title>工作表.59</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="group60-167" transform="translate(274.285,-362.769)" v:mID="60" v:groupContext="group">
+			<title>工作表.60</title>
+			<g id="shape61-168" v:mID="61" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape62-170" v:mID="62" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.62</title>
+				<desc>g, h</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="31.17" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>g, h</text>			</g>
+		</g>
+		<g id="group64-173" transform="translate(249.864,-299.694)" v:mID="64" v:groupContext="group">
+			<title>工作表.64</title>
+			<g id="shape65-174" v:mID="65" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape66-176" v:mID="66" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.66</title>
+				<desc>j, d, a, b</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="56.15" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>j, d, a, b</text>			</g>
+		</g>
+		<g id="shape67-179" v:mID="67" v:groupContext="shape" transform="translate(216.502,-302.531)">
+			<title>工作表.67</title>
+			<desc>LRU2Q</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="19.89" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>LRU2Q</text>		</g>
+		<g id="group68-182" transform="translate(273.958,-269.506)" v:mID="68" v:groupContext="group">
+			<title>工作表.68</title>
+			<g id="shape69-183" v:mID="69" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape70-185" v:mID="70" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.70</title>
+				<desc>c</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="39.72" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>c</text>			</g>
+		</g>
+		<g id="shape71-188" v:mID="71" v:groupContext="shape" transform="translate(206.254,-272.414)">
+			<title>工作表.71</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape72-191" v:mID="72" v:groupContext="shape" transform="translate(206.254,-242.299)">
+			<title>工作表.72</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="group73-195" transform="translate(273.958,-239.462)" v:mID="73" v:groupContext="group">
+			<title>工作表.73</title>
+			<g id="shape74-196" v:mID="74" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape75-198" v:mID="75" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.75</title>
+				<desc>e, f</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="33.5" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>e, f</text>			</g>
+		</g>
+		<g id="shape76-201" v:mID="76" v:groupContext="shape" v:layerMember="0" transform="translate(-236.351,98.4734) rotate(-90)">
+			<title>多行.76</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.78142705550321):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6072833912915):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.3276145874647):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19698150046903):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52470595338951):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5260120587279):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.78936927129169):32"/>
+			</v:userDefs>
+			<path d="M5.08 529.75 L5.38 529.55 C8.64 527.73 12.85 526.02 16.45 526.68 C19.98 527.33 22.93 530.25 24.4 531.71 C25.87
+						 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87
+						 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17 C25.87 533.17 25.87
+						 533.17 25.87 533.17 C25.87 533.17 25.87 533.17 25.87 533.17" class="st6"/>
+		</g>
+		<g id="shape77-206" v:mID="77" v:groupContext="shape" transform="translate(282.025,-464.817)">
+			<title>工作表.77</title>
+			<desc>1. read d 2. read f</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="14.82" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>1. read d<v:newlineChar/><tspan
+						x="16.77" dy="1.2em" class="st5">2. read f</tspan></text>		</g>
+		<g id="shape78-210" v:mID="78" v:groupContext="shape" v:layerMember="0"
+				transform="translate(384.156,623.89) rotate(176.217)">
+			<title>多行.78</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.3798523381869):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6446066514369):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.6874966349902):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19738783053935):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.54351353661664):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.6023823105023):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.9506486649818):32"/>
+			</v:userDefs>
+			<path d="M5.88 534.85 L6.23 534.95 C13.06 536.72 24.28 539.08 33.46 538.41 C40.59 537.89 46.5 535.53 49.45 534.35 C52.4
+						 533.17 52.4 533.17 52.4 533.17 C52.4 533.17 52.4 533.17 52.4 533.17 C52.4 533.17 52.4 533.17 52.4 533.17
+						 C52.4 533.17 52.4 533.17 52.4 533.17 C52.4 533.17 52.4 533.17 52.4 533.17 C52.4 533.17 52.4 533.17 52.4
+						 533.17 C52.4 533.17 52.4 533.17 52.4 533.17" class="st6"/>
+		</g>
+		<g id="shape79-215" v:mID="79" v:groupContext="shape" transform="translate(348.836,-425.982)">
+			<title>椭圆形.79</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape80-217" v:mID="80" v:groupContext="shape" v:layerMember="0"
+				transform="translate(327.447,-428.126) rotate(2.91775)">
+			<title>多行.80</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.40609702566814):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6492170397705):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.7445963982864):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19745724469732):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.53117627965663):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.595776331419):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.976893352463):32"/>
+			</v:userDefs>
+			<path d="M5.82 535.06 L6.16 535.17 C13.25 537.27 25.19 540.15 35.15 539.34 C42.77 538.72 49.23 535.95 52.46 534.56 C55.69
+						 533.17 55.69 533.17 55.69 533.17 C55.69 533.17 55.69 533.17 55.69 533.17 C55.69 533.17 55.69 533.17 55.69
+						 533.17 C55.69 533.17 55.69 533.17 55.69 533.17 C55.69 533.17 55.69 533.17 55.69 533.17 C55.69 533.17 55.69
+						 533.17 55.69 533.17 C55.69 533.17 55.69 533.17 55.69 533.17" class="st11"/>
+		</g>
+		<g id="shape82-222" v:mID="82" v:groupContext="shape" v:layerMember="0"
+				transform="translate(-236.475,126.385) rotate(-89.7553)">
+			<title>多行.82</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.70456887538781):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6133694151476):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.4874169715515):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19702892102638):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.5280566918477):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5271877145123):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+			</v:userDefs>
+			<path d="M5.28 530.07 L5.59 529.89 C9.48 527.94 14.74 525.98 19.2 526.68 C23.32 527.33 26.75 530.25 28.47 531.71 C30.19
+						 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19
+						 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19
+						 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17" class="st6"/>
+		</g>
+		<g id="shape83-227" v:mID="83" v:groupContext="shape" v:layerMember="0"
+				transform="translate(407.487,647.373) rotate(170.5)">
+			<title>多行.83</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.58116789563104):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6034027617493):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(9.048923860191):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695508373855):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.46227685045173):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5150410976352):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(2.1519642224259):32"/>
+			</v:userDefs>
+			<path d="M5.25 536.32 L5.55 536.51 C7.86 537.52 10.64 538.27 13.38 537.88 C16.66 537.41 19.89 535.29 21.5 534.23 C23.12
+						 533.17 23.12 533.17 23.12 533.17 C23.12 533.17 23.12 533.17 23.12 533.17 C23.12 533.17 23.12 533.17 23.12
+						 533.17 C23.12 533.17 23.12 533.17 23.12 533.17 C23.12 533.17 23.12 533.17 23.12 533.17 C23.12 533.17 23.12
+						 533.17 23.12 533.17 C23.12 533.17 23.12 533.17 23.12 533.17" class="st6"/>
+		</g>
+		<g id="shape84-232" v:mID="84" v:groupContext="shape" transform="translate(318.789,-395.935)">
+			<title>椭圆形.84</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape86-234" v:mID="86" v:groupContext="shape" transform="translate(342.54,-403.937)">
+			<title>工作表.86</title>
+			<desc>Move to head</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.877" cy="524.313" width="37.76" height="17.7154"/>
+			<rect x="0" y="515.455" width="37.754" height="17.7154" class="st3"/>
+			<text x="7.37" y="521.61" class="st10" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Move <tspan x="2.88"
+						dy="1.2em" class="st5">to head</tspan></text>		</g>
+		<g id="shape87-238" v:mID="87" v:groupContext="shape" v:layerMember="0" transform="translate(-236.678,221.781) rotate(-90)">
+			<title>多行.87</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.84710274146951):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6027854076651):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.1917652319056):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695115529402):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52176120112412):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5258229812755):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+			</v:userDefs>
+			<path d="M4.88 529.48 L5.17 529.27 C7.96 527.55 11.43 526.05 14.42 526.68 C17.52 527.33 20.1 530.25 21.39 531.71 C22.68
+						 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68
+						 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68
+						 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17" class="st6"/>
+		</g>
+		<g id="shape88-243" v:mID="88" v:groupContext="shape" transform="translate(281.372,-330.171)">
+			<title>工作表.88</title>
+			<desc>3. write j</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="15.6" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>3. write j</text>		</g>
+		<g id="group89-246" transform="translate(273.958,-209.417)" v:mID="89" v:groupContext="group">
+			<title>工作表.89</title>
+			<g id="shape90-247" v:mID="90" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st9"/>
+			</g>
+			<g id="shape91-250" v:mID="91" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.91</title>
+				<desc>g, h</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="31.17" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>g, h</text>			</g>
+		</g>
+		<g id="shape92-253" v:mID="92" v:groupContext="shape" transform="translate(281.512,-185.048)">
+			<title>工作表.92</title>
+			<desc>Dump to disk / flash</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="29.6935" cy="524.313" width="59.39" height="17.7154"/>
+			<rect x="0" y="515.455" width="59.387" height="17.7154" class="st3"/>
+			<text x="11.45" y="521.61" class="st10" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Dump to <tspan
+						x="6.44" dy="1.2em" class="st5">disk / flash</tspan></text>		</g>
+		<g id="shape93-257" v:mID="93" v:groupContext="shape" v:layerMember="0"
+				transform="translate(33.8095,770.244) rotate(-142.947)">
+			<title>多行.93</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.72906670923946):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6113170647896):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.4363689534903):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19701211164019):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52700392959057):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5267046558399):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.84172961755544):32"/>
+			</v:userDefs>
+			<path d="M5.22 529.97 L5.52 529.78 C9.2 527.87 14.11 525.99 18.28 526.68 C22.19 527.33 25.46 530.25 27.1 531.71 C28.73
+						 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73
+						 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17 C28.73 533.17 28.73
+						 533.17 28.73 533.17 C28.73 533.17 28.73 533.17 28.73 533.17" class="st6"/>
+		</g>
+		<g id="group94-262" transform="translate(249.864,-114.025)" v:mID="94" v:groupContext="group">
+			<title>工作表.94</title>
+			<g id="shape95-263" v:mID="95" v:groupContext="shape" transform="translate(46.6288,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.098822140498268):1"/>
+				</v:userDefs>
+				<path d="M7.12 533.17 L64.04 533.17 A7.11508 7.11508 -180 0 0 71.15 526.06 L71.15 516.9 A7.11508 7.11508 -180 0 0
+							 64.04 509.78 L7.12 509.78 A7.11508 7.11508 -180 0 0 0 516.9 L0 526.06 A7.11508 7.11508 -180 0 0 7.12
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape96-265" v:mID="96" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.96</title>
+				<desc>j, d, a, b</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="82.2047" cy="525.021" width="164.41" height="16.2981"/>
+				<rect x="0" y="516.872" width="164.409" height="16.2981" class="st3"/>
+				<text x="56.15" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>j, d, a, b</text>			</g>
+		</g>
+		<g id="shape97-268" v:mID="97" v:groupContext="shape" transform="translate(216.502,-116.863)">
+			<title>工作表.97</title>
+			<desc>LRU2Q</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="19.89" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>LRU2Q</text>		</g>
+		<g id="group98-271" transform="translate(273.958,-83.8374)" v:mID="98" v:groupContext="group">
+			<title>工作表.98</title>
+			<g id="shape99-272" v:mID="99" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape100-274" v:mID="100" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.100</title>
+				<desc>c</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="39.72" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>c</text>			</g>
+		</g>
+		<g id="shape101-277" v:mID="101" v:groupContext="shape" transform="translate(206.254,-86.7453)">
+			<title>工作表.101</title>
+			<desc>MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="9.38" y="528.51" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>MemTable</text>		</g>
+		<g id="shape102-280" v:mID="102" v:groupContext="shape" transform="translate(206.254,-56.6306)">
+			<title>工作表.102</title>
+			<desc>Immutable MemTable</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="8.6" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>Immutable <tspan
+						x="9.38" dy="1.2em" class="st5">MemTable</tspan></text>		</g>
+		<g id="group103-284" transform="translate(273.958,-53.7931)" v:mID="103" v:groupContext="group">
+			<title>工作表.103</title>
+			<g id="shape104-285" v:mID="104" v:groupContext="shape" transform="translate(22.4054,0)">
+				<title>圆角的矩形</title>
+				<v:userDefs>
+					<v:ud v:nameU="CTypeTopLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeTopRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotLeftSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CTypeBotRightSnip" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockHoriz" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockVert" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="CornerLockDiag" v:prompt="" v:val="VT0(0):5"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+					<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+					<v:ud v:nameU="TopLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="TopRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotLeftOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+					<v:ud v:nameU="BotRightOffset" v:prompt="" v:val="VT0(0.058902261547851):1"/>
+				</v:userDefs>
+				<path d="M4.24 533.17 L38.17 533.17 A4.24089 4.24089 -180 0 0 42.41 528.93 L42.41 514.02 A4.24089 4.24089 -180 0
+							 0 38.17 509.78 L4.24 509.78 A4.24089 4.24089 -180 0 0 0 514.02 L0 528.93 A4.24089 4.24089 -180 0 0 4.24
+							 533.17 Z" class="st2"/>
+			</g>
+			<g id="shape105-287" v:mID="105" v:groupContext="shape" transform="translate(0,-3.54619)">
+				<title>工作表.105</title>
+				<desc>e, f</desc>
+				<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+				<v:textRect cx="43.6102" cy="525.021" width="87.23" height="16.2981"/>
+				<rect x="0" y="516.872" width="87.2204" height="16.2981" class="st3"/>
+				<text x="33.5" y="529.22" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>e, f</text>			</g>
+		</g>
+		<g id="shape106-290" v:mID="106" v:groupContext="shape" v:layerMember="0"
+				transform="translate(-236.678,407.45) rotate(-90)">
+			<title>多行.106</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.84710274146951):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6027854076651):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.1917652319056):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19695115529402):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52176120112412):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5258229812755):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.72369358532539):32"/>
+			</v:userDefs>
+			<path d="M4.88 529.48 L5.17 529.27 C7.96 527.55 11.43 526.05 14.42 526.68 C17.52 527.33 20.1 530.25 21.39 531.71 C22.68
+						 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68
+						 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17 C22.68 533.17 22.68
+						 533.17 22.68 533.17 C22.68 533.17 22.68 533.17 22.68 533.17" class="st6"/>
+		</g>
+		<g id="shape108-295" v:mID="108" v:groupContext="shape" transform="translate(282.789,-151.112)">
+			<title>工作表.108</title>
+			<desc>4. read c 5. read e</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="15.2" y="520.11" class="st4" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>4. read c<v:newlineChar/><tspan
+						x="15.2" dy="1.2em" class="st5">5. read e</tspan></text>		</g>
+		<g id="shape109-299" v:mID="109" v:groupContext="shape" v:layerMember="0"
+				transform="translate(-236.802,435.361) rotate(-89.7553)">
+			<title>多行.109</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.70456887538781):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6133694151476):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.4874169715515):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19702892102638):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.5280566918477):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5271877145123):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.86622745140709):32"/>
+			</v:userDefs>
+			<path d="M5.28 530.07 L5.59 529.89 C9.48 527.94 14.74 525.98 19.2 526.68 C23.32 527.33 26.75 530.25 28.47 531.71 C30.19
+						 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19
+						 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17 C30.19 533.17 30.19
+						 533.17 30.19 533.17 C30.19 533.17 30.19 533.17 30.19 533.17" class="st6"/>
+		</g>
+		<g id="shape211-304" v:mID="211" v:groupContext="shape" v:layerMember="0"
+				transform="translate(-236.807,467.682) rotate(-90)">
+			<title>多行.211</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(-0.70692587270151):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6131668796383):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(6.4825004414148):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19702722516086):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.52795612263657):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.5271369304442):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(0.86387045409339):32"/>
+			</v:userDefs>
+			<path d="M5.27 530.06 L5.58 529.88 C9.45 527.94 14.68 525.98 19.11 526.68 C23.21 527.33 26.63 530.25 28.34 531.71 C30.04
+						 533.17 30.04 533.17 30.04 533.17 C30.04 533.17 30.04 533.17 30.04 533.17 C30.04 533.17 30.04 533.17 30.04
+						 533.17 C30.04 533.17 30.04 533.17 30.04 533.17 C30.04 533.17 30.04 533.17 30.04 533.17 C30.04 533.17 30.04
+						 533.17 30.04 533.17 C30.04 533.17 30.04 533.17 30.04 533.17" class="st6"/>
+		</g>
+		<g id="shape212-309" v:mID="212" v:groupContext="shape" v:layerMember="0"
+				transform="translate(387.821,988.423) rotate(171.207)">
+			<title>多行.212</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(1.1978222611248):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.5850070011317):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(10.263836830561):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.196870271679):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.59153010515106):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.8204667444244):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(2.7686185879197):32"/>
+			</v:userDefs>
+			<path d="M5.23 536.34 L5.54 536.53 C6.29 536.77 7 536.87 7.57 536.71 C8.83 536.35 9.45 534.76 9.76 533.97 C10.07 533.17
+						 10.07 533.17 10.07 533.17 C10.07 533.17 10.07 533.17 10.07 533.17 C10.07 533.17 10.07 533.17 10.07 533.17
+						 C10.07 533.17 10.07 533.17 10.07 533.17 C10.07 533.17 10.07 533.17 10.07 533.17 C10.07 533.17 10.07 533.17
+						 10.07 533.17 C10.07 533.17 10.07 533.17 10.07 533.17" class="st6"/>
+		</g>
+		<g id="shape213-314" v:mID="213" v:groupContext="shape" transform="translate(310.482,-86.675)">
+			<title>椭圆形.213</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape214-316" v:mID="214" v:groupContext="shape" transform="translate(304.571,-55.2104)">
+			<title>椭圆形.214</title>
+			<v:userDefs>
+				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
+			</v:userDefs>
+			<path d="M0 524.31 A7.08661 8.85771 0 0 1 14.17 524.31 A7.08661 8.85771 0 1 1 0 524.31 Z" class="st8"/>
+		</g>
+		<g id="shape215-318" v:mID="215" v:groupContext="shape" v:layerMember="0"
+				transform="translate(308.976,966.039) rotate(180)">
+			<title>多行.215</title>
+			<v:userDefs>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(4):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="DrawType" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="StartWidth" v:prompt="" v:val="VT0(0.15748031496063):24"/>
+				<v:ud v:nameU="EndWidth" v:prompt="" v:val="VT0(0.098425196850394):24"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(0.30740473958158):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.6848418692298):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(8.5828366555725):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19813752425262):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.3618647311596):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.4614082470262):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(0.73909384961246):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(1.436823758849):32"/>
+				<v:ud v:nameU="Joint3_4Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint4_5Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint5_6Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint6_7Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint7_8Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="Joint8_9Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(1.8782010663765):32"/>
+				<v:ud v:nameU="visVersion" v:prompt="" v:val="VT0(15):26"/>
+				<v:ud v:nameU="VertexCount" v:prompt="" v:val="VT0(3):26"/>
+				<v:ud v:nameU="SegmentType" v:prompt="" v:val="VT0(2):26"/>
+				<v:ud v:nameU="LastAngle" v:prompt="" v:val="VT0(1.0213992357637):32"/>
+				<v:ud v:nameU="CtrlAngle" v:prompt="" v:val="VT0(-1.5885922233644):32"/>
+				<v:ud v:nameU="ArrowFeatherAngle" v:prompt="" v:val="VT0(9.9145760020714):32"/>
+				<v:ud v:nameU="ArrowFeatherDist" v:prompt="" v:val="VT0(0.19688156847733):24"/>
+				<v:ud v:nameU="Joint1_2Pcnt" v:prompt="" v:val="VT0(0.57225822798092):26"/>
+				<v:ud v:nameU="Joint1_2Angle" v:prompt="" v:val="VT0(1.7358935869113):32"/>
+				<v:ud v:nameU="Joint2_3Pcnt" v:prompt="" v:val="VT0(1):26"/>
+				<v:ud v:nameU="Joint2_3Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint3_4Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint4_5Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint5_6Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint6_7Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint7_8Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+				<v:ud v:nameU="Joint8_9Angle" v:prompt="" v:val="VT0(2.5921955625586):32"/>
+			</v:userDefs>
+			<path d="M5.23 536.35 L5.53 536.54 C6.71 537 7.88 537.25 8.86 537.02 C10.49 536.63 11.55 534.9 12.08 534.04 C12.61 533.17
+						 12.61 533.17 12.61 533.17 C12.61 533.17 12.61 533.17 12.61 533.17 C12.61 533.17 12.61 533.17 12.61 533.17
+						 C12.61 533.17 12.61 533.17 12.61 533.17 C12.61 533.17 12.61 533.17 12.61 533.17 C12.61 533.17 12.61 533.17
+						 12.61 533.17 C12.61 533.17 12.61 533.17 12.61 533.17" class="st6"/>
+		</g>
+		<g id="shape216-323" v:mID="216" v:groupContext="shape" transform="translate(241.687,-18.36)">
+			<title>工作表.216</title>
+			<desc>b</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="25.28" y="528.86" class="st12" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>（<tspan class="st13">b</tspan>）</text>		</g>
+		<g id="shape217-327" v:mID="217" v:groupContext="shape" transform="translate(71.608,-18.36)">
+			<title>工作表.217</title>
+			<desc>a</desc>
+			<v:textBlock v:margins="rect(2,2,2,2)" v:tabSpace="42.5197"/>
+			<v:textRect cx="43.6102" cy="524.313" width="87.23" height="17.7154"/>
+			<rect x="0" y="515.455" width="87.2204" height="17.7154" class="st3"/>
+			<text x="25.66" y="528.86" class="st12" v:langID="2052"><v:paragraph v:horizAlign="1"/><v:tabList/>（<tspan class="st13">a</tspan>）</text>		</g>
+	</g>
+</svg>
