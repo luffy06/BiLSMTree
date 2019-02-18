@@ -7,7 +7,7 @@ namespace bilsmtree {
 
 class DataManager {
 public:
-  DataManager(FileSystem *filesystem);
+  DataManager(FileSystem *filesystem, LSMTreeResult* lsmtreeresult);
 
   ~DataManager();
   
@@ -23,6 +23,7 @@ private:
   size_t total_block_number_;
   std::vector<size_t> status_;
   FileSystem *filesystem_;
+  LSMTreeResult* lsmtreeresult_;
 
   std::string GetFilename();
 

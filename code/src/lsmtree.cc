@@ -9,7 +9,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   rollback_ = 0;
   ALPHA = 5.0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
-  datamanager_ = new DataManager(filesystem);
+  datamanager_ = new DataManager(filesystem, lsmtreeresult);
   filtermanager_ = new FilterManager(filesystem);
 
   std::string algo = Util::GetAlgorithm();

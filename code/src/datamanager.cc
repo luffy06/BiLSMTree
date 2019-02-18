@@ -2,12 +2,13 @@
 
 namespace bilsmtree {
 
-DataManager::DataManager(FileSystem *filesystem) {
+DataManager::DataManager(FileSystem *filesystem, LSMTreeResult* lsmtreeresult) {
   file_size_ = 0;
   total_block_number_ = 0;
   status_.clear();
   filesystem_ = filesystem;
   filesystem_->Create(GetFilename());
+  lsmtreeresult_ = lsmtreeresult;
 }
 
 DataManager::~DataManager() {
@@ -95,6 +96,7 @@ std::string DataManager::ReadBlock(const BlockMeta& bm) {
   filesystem_->Seek(filename, bm.offset_);
   std::string block_data_ = filesystem_->Read(filename, bm.block_size_);
   filesystem_->Close(filename);
+  lsmtreeresult_->Read(bm.block_size_, "DATA");
   return block_data_;
 }
 
@@ -124,6 +126,7 @@ std::vector<BlockMeta> DataManager::WriteBlocks(const std::vector<std::string>& 
   filesystem_->Open(filename, Config::FileSystemConfig::APPEND_OPTION);
   filesystem_->Write(filename, all_block_data.data(), all_block_data.size());
   filesystem_->Close(filename);
+  lsmtreeresult_->Write(all_block_data.size());
   return bms;
 }
 }
