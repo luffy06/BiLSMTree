@@ -116,8 +116,10 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   ss << Config::DATA_SEG;
   footer_block_ = ss.str();
 
+  // size_t data_size_sum_ = 0;
   // for (size_t i = 0; i < datas_.size(); ++ i)
-  //   std::cout << "DATA BLOCK SIZE:" << datas_[i].size() << std::endl;
+  //   data_size_sum_ = data_size_sum_ + datas_[i].size();
+  // std::cout << "DATA BLOCK SIZE:" << data_size_sum_ << std::endl;
   // std::cout << "INDEX BLOCK SIZE:" << index_block_.size() << std::endl;
   // std::cout << "FILTER BLOCK SIZE:" << filter_block_.size() << std::endl;
   // std::cout << "FOOTER BLOCK SIZE:" << footer_block_.size() << std::endl;
