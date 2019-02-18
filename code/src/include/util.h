@@ -530,11 +530,6 @@ public:
     delete memoryresult_;
   }
 
-  ~Result() {
-    delete flashresult_;
-    delete lsmtreeresult_;
-  }
-
   void StartRecord() {
     lsmtreeresult_->StartRecord();
     flashresult_->StartRecord();

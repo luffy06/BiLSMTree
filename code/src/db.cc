@@ -35,7 +35,7 @@ void DB::Put(const std::string key, const std::string value) {
 
 bool DB::Get(const std::string key, std::string& value) {
   // std::cout << "Get" << std::endl;
-  result_->lsmtreeresult_->RealRead(key_.size());
+  result_->lsmtreeresult_->RealRead(key.size());
   Slice value_;
   Slice key_ = Slice(key.data(), key.size());
   bool res = cacheserver_->Get(key_, value_);

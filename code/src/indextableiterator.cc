@@ -16,7 +16,7 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   std::string offset_data_ = filesystem->Read(filename, meta.footer_size_);
   // std::cout << "Offset In TableIterator:" << offset_data_ << std::endl;
   ss.str(offset_data_);
-  lsmtreeresult_->Read(offset_data_.size());
+  lsmtreeresult_->Read(offset_data_.size(), "FOOTER");
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss >> index_offset_;
@@ -28,7 +28,7 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   filesystem->Seek(filename, filter_offset_);
   std::string filter_data_ = filesystem->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
-  lsmtreeresult_->Read(filter_data_.size());
+  lsmtreeresult_->Read(filter_data_.size(), "FILTER");
   ss.str(filter_data_);
   std::vector<Filter*> filters;
   size_t numb_filter_;
@@ -46,7 +46,7 @@ IndexTableIterator::IndexTableIterator(const std::string filename, FileSystem* f
   // std::cout << "Load Index Data" << std::endl;
   filesystem->Seek(filename, index_offset_);
   std::string index_data_ = filesystem->Read(filename, filter_offset_ - index_offset_);
-  lsmtreeresult_->Read(index_data_.size());
+  lsmtreeresult_->Read(index_data_.size(), "INDEX");
   filesystem->Close(filename);
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
