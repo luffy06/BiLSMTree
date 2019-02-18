@@ -68,10 +68,10 @@ IndexTable::IndexTable(const std::vector<BlockMeta>& indexs_, size_t sequence_nu
       filesystem->Write(filename, buffer.data(), buffer.size());
       ss.str("");
     }
-    lsmtreeresult->Write(ready_to_write_[i].size()); 
   }
   filesystem->Close(filename);
   assert(file_size_ == filter_block_size_ + index_block_.size() + footer_block_.size());
+  lsmtreeresult->Write(file_size_);
   // create meta
   meta_ = Meta();
   meta_.smallest_ = indexs_[0].smallest_;

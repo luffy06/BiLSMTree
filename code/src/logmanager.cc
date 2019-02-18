@@ -31,7 +31,7 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     ss << ",";
     std::string value = ss.str();
     res.push_back(KV(kv.key_.ToString(), value));
-    lsmtreeresult_->Write(kv.size());
+    lsmtreeresult_->Write(data.size());
     record_count_ = record_count_ + 1;
     buffer_ = buffer_ + data;
     if (buffer_.size() >= Config::BUFFER_SIZE) {

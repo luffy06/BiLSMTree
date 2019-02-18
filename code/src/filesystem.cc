@@ -162,7 +162,6 @@ void FileSystem::Write(const std::string filename, const char* data, const size_
   }
   fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
 
-  fcbs_[filename].filesize_ = fcbs_[filename].filesize_ + write_size;
   assert(fs.offset_ < Config::FileSystemConfig::BLOCK_SIZE);
   size_t size_ = 0;
   if (fs.offset_ > 0) {
