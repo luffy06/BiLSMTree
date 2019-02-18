@@ -18,6 +18,7 @@ DB::~DB() {
 
 void DB::Put(const std::string key, const std::string value) {
   KV kv_ = KV(key, value);
+  result_->lsmtreeresult_->Write(kv_.size());
   result_->lsmtreeresult_->RealWrite(kv_.size());
   std::vector<SkipList*> skiplists = cacheserver_->Put(kv_);
   for (size_t i = 0; i < skiplists.size(); ++ i) {
@@ -35,6 +36,7 @@ void DB::Put(const std::string key, const std::string value) {
 
 bool DB::Get(const std::string key, std::string& value) {
   // std::cout << "Get" << std::endl;
+  result_->lsmtreeresult_->Read(key.size(), "MEMORY");
   result_->lsmtreeresult_->RealRead(key.size());
   Slice value_;
   Slice key_ = Slice(key.data(), key.size());
@@ -47,6 +49,7 @@ bool DB::Get(const std::string key, std::string& value) {
     result_->lsmtreeresult_->ReadInMemory();
   }
   if (res) {
+    result_->lsmtreeresult_->Read(value.size(), "MEMORY");
     result_->lsmtreeresult_->RealRead(value_.size());
     value = value_.ToString();
   }
