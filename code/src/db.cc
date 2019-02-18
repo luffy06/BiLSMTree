@@ -16,7 +16,7 @@ DB::~DB() {
   delete result_;
 }
 
-void DB::Pvoid DB::Put(const std::string key, const std::string value) {
+void DB::Put(const std::string key, const std::string value) {
   KV kv_ = KV(key, value);
   result_->lsmtreeresult_->Write(kv_.size());
   result_->lsmtreeresult_->RealWrite(kv_.size());
