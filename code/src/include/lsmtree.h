@@ -30,13 +30,16 @@ private:
   std::vector<Meta> buffer_[Config::LSMTreeConfig::MAX_LEVEL];
   std::vector<size_t> max_size_;
   std::vector<size_t> min_size_;
+  std::vector<size_t> buf_size_;
   VisitFrequency *recent_files_;
   DataManager *datamanager_;
+  FilterManager *filtermanager_;
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
   FileSystem *filesystem_;
   LSMTreeResult *lsmtreeresult_;
   size_t rollback_;
+  double ALPHA;
 
   size_t GetSequenceNumber();
 
@@ -49,6 +52,10 @@ private:
   std::vector<size_t> GetCheckFiles(std::string algo, size_t level, const Slice key);
 
   void GetOverlaps(std::vector<Meta>& src, std::vector<Meta>& des);
+
+  std::string GetFilterData(const std::string origin);
+
+  std::string WriteFilterData(const std::string filter_data);
 
   bool GetValueFromFile(const Meta meta, const Slice key, Slice& value);
 

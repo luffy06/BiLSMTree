@@ -13,7 +13,7 @@ class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
+  TableIterator(const std::string filename, FileSystem* filesystem, FilterManager* filtermanager, Meta meta, LSMTreeResult *lsmtreeresult_);
 
   ~TableIterator();
   

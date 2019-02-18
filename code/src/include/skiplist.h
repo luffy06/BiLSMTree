@@ -20,15 +20,26 @@ public:
   
   void Insert(const KV kv);
 
-  std::vector<KV> GetAll() const {
-    std::vector<KV> res_;
+  size_t GetAllSize() const {
+    size_t size_ = 0;
     ListNode *p = head_;
     for (size_t i = 0; i < data_numb_; ++ i) {
       KV kv = p->forward_[0]->kv_;
-      res_.push_back(kv);
+      size_ = size_ + kv.size();
       p = p->forward_[0];
     }
-    return res_;
+    return size_;
+  }
+
+  std::vector<KV> GetAll() const {
+    std::vector<KV> kvs;
+    ListNode *p = head_;
+    for (size_t i = 0; i < data_numb_; ++ i) {
+      KV kv = p->forward_[0]->kv_;
+      kvs.push_back(kv);
+      p = p->forward_[0];
+    }
+    return kvs;
   }
 
   void DisableWrite();

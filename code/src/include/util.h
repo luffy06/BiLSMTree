@@ -5,10 +5,12 @@
 #include <cassert>
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <algorithm>
 
 namespace bilsmtree {
@@ -57,6 +59,7 @@ public:
   static const bool FLASH_TRACE = false;
   static const size_t MAX_SCAN_NUMB = 100;
   static const size_t BUFFER_SIZE = 5000000;
+  static const bool WRITE_OUTPUT = false;
 
   struct FlashConfig {
     static const size_t READ_LATENCY = 50;            // 50us
@@ -64,13 +67,13 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 4096;
-    static const size_t PAGE_NUMS = 32;
+    static const size_t BLOCK_NUMS = 8192;
+    static const size_t PAGE_NUMS = 128;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
-    static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(BLOCK_NUMS * 0.2);
-    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(BLOCK_NUMS * 0.8);
+    static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(LBA_NUMS * 0.2);
+    static const size_t BLOCK_COLLECTION_THRESOLD = static_cast<size_t>(LBA_NUMS * 0.8);
   };
 
   struct FileSystemConfig {
@@ -88,22 +91,23 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 3;                     // max size of the number of immutable memtables
+    static const size_t MAXSIZE = 1;                     // max size of the number of immutable memtables
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 1024 * 1024;          // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 32 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M1_NUMB = 1000;                   // max number of lru
-    static const size_t M2_NUMB = 1000;                   // max number of fifo    
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 128;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 128;
+    static const size_t M1_NUMB = 100000;                   // max number of lru
+    static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };
 
   struct FilterConfig {
-    static const size_t BITS_PER_KEY = 10;
+    static const size_t BITS_PER_KEY = 12;
+    static const size_t MAXBUCKETSIZE = 4;
     static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
   };
@@ -121,8 +125,7 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static constexpr const double ALPHA = 1.;
-    static const size_t LISTSIZE = 10;
+    static const size_t LISTSIZE = 50;
   };
 
   struct TableConfig {
@@ -133,10 +136,6 @@ public:
   struct VisitFrequencyConfig {
     static const size_t MAXQUEUESIZE = 100000;
     static constexpr const char* FREQUENCYPATH = "../logs/frequency.log";
-  };
-
-  struct CuckooFilterConfig {
-    static const size_t MAXBUCKETSIZE = 4;
   };
 
 };
@@ -195,6 +194,14 @@ public:
   void StartRecord() {
     record_ = true;
   }
+
+  void ShowResult() {
+    std::cout << "LATENCY:" << GetLatency() << std::endl;
+    std::cout << "READ_TIMES:" << GetReadTimes() << std::endl;
+    std::cout << "WRITE_TIMES:" << GetWriteTimes() << std::endl;
+    std::cout << "ERASE_TIMES:" << GetEraseTimes() << std::endl;
+  }
+
 private:
   bool record_;
   size_t latency_;
@@ -208,24 +215,56 @@ public:
   LSMTreeResult() {
     read_files_ = 0;
     read_size_ = 0;
+    real_read_size_ = 0;
+    read_in_flash_ = 0;
+    read_in_memory_ = 0;
     write_files_ = 0;
     write_size_ = 0;
+    real_write_size_ = 0;
     minor_compaction_times_ = 0;
     minor_compaction_size_ = 0;
     major_compaction_times_ = 0;
     major_compaction_size_ = 0;
     check_times_.clear();
+    rollback_ = 0;
     record_ = false;
   }
 
   ~LSMTreeResult() {
-
   }
 
-  void Read(size_t size) {
+  void RealRead(size_t size) {
+    if (record_) {
+      real_read_size_ = real_read_size_ + size;
+    }
+  }
+
+  void ReadInFlash() {
+    if (record_) {
+      read_in_flash_ = read_in_flash_ + 1;
+    }
+  }
+
+  void ReadInMemory() {
+    if (record_) {
+      read_in_memory_ = read_in_memory_ + 1;
+    }
+  }
+
+  void Read(size_t size, const std::string type) {
     if (record_) {
       read_files_ = read_files_ + 1;
       read_size_ = read_size_ + size;
+      if (read_map_.find(type) != read_map_.end())
+        read_map_[type] = read_map_[type] + size;
+      else
+        read_map_[type] = size;
+    }
+  }
+
+  void RealWrite(size_t size) {
+    if (record_) {
+      real_write_size_ = real_write_size_ + size;
     }
   }
 
@@ -262,6 +301,12 @@ public:
     }
   }
 
+  void RollBack() {
+    if (record_) {
+      rollback_ = rollback_ + 1;
+    }
+  }
+
   size_t GetReadFiles() {
     return read_files_;
   }
@@ -288,6 +333,18 @@ public:
     return read_size_ * 1.0 / read_files_;
   }
 
+  size_t GetRealReadSize() {
+    return real_read_size_;
+  }
+
+  size_t GetReadInFlash() {
+    return read_in_flash_;
+  }
+
+  size_t GetReadInMemory() {
+    return read_in_memory_;
+  }
+
   size_t GetWriteSize() {
     return write_size_;
   }
@@ -296,6 +353,10 @@ public:
     if (write_files_ == 0)
       return 0;
     return write_size_ * 1.0 / write_files_;
+  }
+
+  size_t GetRealWriteSize() {
+    return real_write_size_;
   }
 
   size_t GetMinorCompactionSize() {
@@ -336,21 +397,123 @@ public:
     return (sum / still_rate_.size());
   }
 
+  size_t GetRollBack() {
+    return rollback_;
+  }
+
   void StartRecord() {
     record_ = true;
   }
+
+  void ShowResult() {
+    std::cout << "READ_FILES:" << GetReadFiles() << std::endl;
+    std::cout << "READ_SIZE:" << GetReadSize() << std::endl;
+    std::cout << "REAL_READ_SIZE:" << GetRealReadSize() << std::endl;
+    std::cout << "READ_AMPLIFICATION:" << 1.0 * GetReadSize() / GetRealReadSize() << std::endl;
+    std::cout << "AVG_READ_SIZE:" << std::setprecision(6) << GetAverageReadSize() << std::endl;
+    std::cout << "READ_IN_FLASH:" << GetReadInFlash() << std::endl;
+    std::cout << "READ_IN_MEMORY:" << GetReadInMemory() << std::endl;
+    std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
+    std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
+    std::cout << "REAL_WRITE_SIZE:" << GetRealWriteSize() << std::endl;
+    std::cout << "WRITE_AMPLIFICATION:" << 1.0 * GetWriteSize() / GetRealWriteSize() << std::endl;
+    std::cout << "AVG_WRITE_SIZE:" << GetAverageWriteSize() << std::endl;
+    std::cout << "MINOR_COMPACTION:" << GetMinorCompactionTimes() << std::endl;
+    std::cout << "MINOR_COMPACTION_SIZE:" << GetMinorCompactionSize() << std::endl;
+    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << GetAverageMinorCompactionSize() << std::endl;
+    std::cout << "MAJOR_COMPACTION:" << GetMajorCompactionTimes() << std::endl;
+    std::cout << "MAJOR_COMPACTION_SIZE:" << GetMajorCompactionSize() << std::endl;
+    std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
+    std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
+    std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
+    for (std::map<std::string, size_t>::iterator it = read_map_.begin(); it != read_map_.end(); ++ it)
+      std::cout << "TYPE_" << it->first << ":" << it->second << std::endl;
+  }
+
 private:
   bool record_;
-  double write_files_;
-  double write_size_;
-  double read_files_;
-  double read_size_;
+  size_t write_files_;
+  size_t write_size_;
+  size_t real_write_size_;
+  size_t read_files_;
+  size_t read_size_;
+  size_t real_read_size_;
+  size_t read_in_flash_;
+  size_t read_in_memory_;
   size_t minor_compaction_times_;
   size_t minor_compaction_size_;
   size_t major_compaction_times_;
   size_t major_compaction_size_;
   std::vector<size_t> check_times_;
   std::vector<double> still_rate_;
+  std::map<std::string, size_t> read_map_;
+  size_t rollback_;
+};
+
+class MemoryResult {
+public:
+  MemoryResult() {
+    hit_ = 0;
+    total_ = 0;
+    lru_size_ = 0;
+    mem_size_ = 0;
+    record_ = false;
+  }
+
+  ~MemoryResult() {
+
+  }
+
+  void Hit(size_t hit) {
+    if (record_) {
+      hit_ = hit_ + hit;
+      total_ = total_ + 1;
+    }
+  }
+
+  void SplitMemory(size_t lru_size, size_t mem_size) {
+    lru_size_ = lru_size;
+    mem_size_ = mem_size;
+  }
+
+  size_t GetHit() {
+    return hit_;
+  }
+
+  size_t GetTotalQuery() {
+    return total_;
+  }
+
+  double GetHitRate() {
+    if (total_ == 0)
+      return 0;
+    return (1. * hit_) / total_;
+  }
+
+  size_t GetLRU2QSize() {
+    return lru_size_;
+  }
+
+  size_t GetMemSize() {
+    return mem_size_;
+  }
+
+  void StartRecord() {
+    record_ = true;
+  }
+
+  void ShowResult() {
+    std::cout << "HIT:" << GetHit() << std::endl;
+    std::cout << "TOTAL_QUERY:" << GetTotalQuery() << std::endl;
+    std::cout << "HIT_RATE:" << GetHitRate() << std::endl;
+    std::cout << "MEMORY_RATE:" << (1. * GetLRU2QSize()) / GetMemSize() << std::endl;
+  }
+private:
+  bool record_;
+  size_t hit_;
+  size_t total_;
+  size_t lru_size_;
+  size_t mem_size_;
 };
 
 class Result {
@@ -358,6 +521,13 @@ public:
   Result() {
     flashresult_ = new FlashResult();
     lsmtreeresult_ = new LSMTreeResult();
+    memoryresult_ = new MemoryResult();
+  }
+
+  ~Result() {
+    delete flashresult_;
+    delete lsmtreeresult_;
+    delete memoryresult_;
   }
 
   ~Result() {
@@ -368,10 +538,18 @@ public:
   void StartRecord() {
     lsmtreeresult_->StartRecord();
     flashresult_->StartRecord();
+    memoryresult_->StartRecord();
+  }
+
+  void ShowResult() { 
+    flashresult_->ShowResult();
+    lsmtreeresult_->ShowResult();
+    memoryresult_->ShowResult();
   }
 
   LSMTreeResult *lsmtreeresult_;
   FlashResult *flashresult_;
+  MemoryResult *memoryresult_;
 };
 
 }

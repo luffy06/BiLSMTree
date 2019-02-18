@@ -8,7 +8,8 @@ namespace bilsmtree {
 
 class CacheServer {
 public:
-  CacheServer();
+  CacheServer(MemoryResult *memoryresult);
+
   ~CacheServer();
 
   std::vector<SkipList*> Put(const KV kv);
@@ -27,6 +28,7 @@ private:
   LRU2Q *lru_;
   SkipList *mem_;
   std::vector<ListNode> imms_;
+  MemoryResult *memoryresult_;
 };
 }
 

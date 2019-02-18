@@ -8,7 +8,7 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, FilterManager* filtermanager, Meta meta, LSMTreeResult *lsmtreeresult_) {
   // std::cout << "Read:" << filename << std::endl;
   // meta.Show();
   std::stringstream ss;
@@ -18,7 +18,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::string offset_data_ = filesystem->Read(filename, meta.footer_size_);
   // std::cout << "Offset In TableIterator:" << offset_data_ << std::endl;
   ss.str(offset_data_);
-  lsmtreeresult_->Read(offset_data_.size());
+  lsmtreeresult_->Read(offset_data_.size(), "FOOTER");
   size_t index_offset_ = 0;
   size_t filter_offset_ = 0;
   ss >> index_offset_;
@@ -30,9 +30,14 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   filesystem->Seek(filename, filter_offset_);
   std::string filter_data_ = filesystem->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
-  lsmtreeresult_->Read(filter_data_.size());
+  lsmtreeresult_->Read(filter_data_.size(), "FILTER");
   Filter *filter_ = NULL;
-  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
+    // ss.str(filter_data_);
+    // size_t offset_ = 0;
+    // size_t filter_size_ = 0;
+    // ss >> offset_ >> filter_size_;
+    // filter_data_ = filtermanager->Get(offset_, filter_size_);
     filter_ = new CuckooFilter(filter_data_);
   }
   else if (algo == std::string("Wisckey") || algo == std::string("LevelDB-Sep") || algo == std::string("LevelDB")) {
@@ -46,7 +51,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << "Load Index Data" << std::endl;
   filesystem->Seek(filename, index_offset_);
   std::string index_data_ = filesystem->Read(filename, filter_offset_ - index_offset_);
-  lsmtreeresult_->Read(index_data_.size());
+  lsmtreeresult_->Read(index_data_.size(), "INDEX");
   // std::cout << "Index Data:" << index_data_ << std::endl;
   // std::cout << "Load Data" << std::endl;
   ss.str(index_data_);
@@ -61,7 +66,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, block_size_);
-    lsmtreeresult_->Read(block_data.size());
+    lsmtreeresult_->Read(block_data.size(), "DATA");
     ParseBlock(block_data, filter_);
   }
   filesystem->Close(filename);

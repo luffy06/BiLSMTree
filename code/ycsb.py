@@ -4,19 +4,19 @@ from functools import reduce
 
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
 distribution = [(200000, 0.50, 0.50, 0.00, 0.00),  # 0  a 50% read 50% update
-                (200000, 0.95, 0.05, 0.00, 0.00),  # 1  b 95% read 5% update
-                (200000, 0.05, 0.95, 0.00, 0.00),  # 2    5% read 95% update
+                (200000, 0.90, 0.10, 0.00, 0.00),  # 1  b 90% read 10% update
+                (200000, 0.10, 0.90, 0.00, 0.00),  # 2    10% read 90% update
                 (200000, 1.00, 0.00, 0.00, 0.00),  # 3  c 100% read
                 (200000, 0.50, 0.50, 0.00, 0.00),  # 4    50% read 50% insert
-                (200000, 0.95, 0.00, 0.05, 0.00),  # 5  d 95% read 5% insert
-                (200000, 0.05, 0.00, 0.95, 0.00),  # 6  d 5% read 95% insert
+                (200000, 0.90, 0.00, 0.10, 0.00),  # 5    90% read 10% insert
+                (200000, 0.10, 0.00, 0.90, 0.00),  # 6    10% read 90% insert
                 (100000, 0.00, 1.00, 0.00, 0.01),  # 7    50% scan 50% update
-                (100000, 0.00, 0.50, 0.00, 0.01),  # 8    95% scan 5% update
-                (150000, 0.00, 1.90, 0.00, 0.001), # 9    5% scan 95% update
+                (10000, 0.00, 0.10, 0.00, 0.01),   # 8    90% scan 10% update
+                (150000, 0.00, 0.90, 0.00, 0.001), # 9    10% scan 90% update
                 (1000, 0.00, 0.00, 0.00, 1.00),    # 10   100% scan
                 (100000, 0.00, 0.00, 1.00, 0.01),  # 11   50% scan 50% insert
-                (100000, 0.00, 0.00, 0.50, 0.01),  # 12 e 95% scan 5% insert
-                (150000, 0.00, 0.00, 1.90, 0.001), # 13 e 5% scan 95% insert
+                (10000, 0.00, 0.00, 0.1, 0.01),    # 12 e 90% scan 10% insert
+                (150000, 0.00, 0.00, 0.90, 0.001), # 13 e 10% scan 90% insert
                 (100000, 1.00, 0.00, 0.00, 0.01)]  # 14   50% scan 50% read
 
 attributes = {
@@ -26,7 +26,7 @@ attributes = {
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-value_len_max = 1000
+value_len_max = 500
 
 def generate_workload(project_path):
   for i in range(workload_num):
@@ -91,7 +91,7 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      # value = value[:value_len_max]
+      value = value[:value_len_max]
       if op == 'SCAN':
         suffix = ls[3]
         value = key[:len(key) - len(suffix)]
