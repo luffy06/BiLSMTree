@@ -18,10 +18,10 @@ DB::~DB() {
 
 void DB::Put(const std::string key, const std::string value) {
   KV kv_ = KV(key, value);
+  result_->lsmtreeresult_->RealWrite(kv_.size());
   std::vector<SkipList*> skiplists = cacheserver_->Put(kv_);
   for (size_t i = 0; i < skiplists.size(); ++ i) {
     SkipList* sl = skiplists[i];
-    result_->lsmtreeresult_->RealWrite(sl->GetAllSize());
     // need compaction
     if (Config::TRACE_LOG)
       std::cout << "Ready to Minor Compaction" << std::endl;
@@ -35,20 +35,19 @@ void DB::Put(const std::string key, const std::string value) {
 
 bool DB::Get(const std::string key, std::string& value) {
   // std::cout << "Get" << std::endl;
+  result_->lsmtreeresult_->RealRead(key_.size());
   Slice value_;
   Slice key_ = Slice(key.data(), key.size());
   bool res = cacheserver_->Get(key_, value_);
   if (!res) {
     res = kvserver_->Get(key_, value_);
-    result_->lsmtreeresult_->RealRead(key_.size());
     result_->lsmtreeresult_->ReadInFlash();
-    if (res)
-      result_->lsmtreeresult_->RealRead(value_.size());
   }
   else {
     result_->lsmtreeresult_->ReadInMemory();
   }
   if (res) {
+    result_->lsmtreeresult_->RealRead(value_.size());
     value = value_.ToString();
   }
   return res;

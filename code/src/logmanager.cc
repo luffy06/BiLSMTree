@@ -31,6 +31,7 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
     ss << ",";
     std::string value = ss.str();
     res.push_back(KV(kv.key_.ToString(), value));
+    lsmtreeresult_->Write(kv.size());
     record_count_ = record_count_ + 1;
     buffer_ = buffer_ + data;
     if (buffer_.size() >= Config::BUFFER_SIZE) {
@@ -38,7 +39,6 @@ std::vector<KV> LogManager::Append(const std::vector<KV> kvs) {
         std::cout << "WRITE VLOG " << buffer_.size() << std::endl;
       filesystem_->Open(Config::LogManagerConfig::LOG_PATH, Config::FileSystemConfig::APPEND_OPTION);
       filesystem_->Write(Config::LogManagerConfig::LOG_PATH, buffer_.data(), buffer_.size());
-      lsmtreeresult_->Write(buffer_.size());
       filesystem_->Close(Config::LogManagerConfig::LOG_PATH);
       file_size_ = file_size_ + buffer_.size();
       buffer_ = "";

@@ -440,10 +440,8 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   filesystem_->Write(filename, new_filter_loc_data_.data(), new_filter_loc_data_.size());
   filesystem_->Write(filename, footer_data_.data(), footer_data_.size());
   filesystem_->SetFileSize(filename, meta.file_size_ - file_size_change_);
-  lsmtreeresult_->Write(filter_data_.size() + footer_data_.size());
-  if (new_filter_loc_data_.size() != filter_data_.size())
-    lsmtreeresult_->Write(new_filter_loc_data_.size());
   filesystem_->Close(filename);
+  lsmtreeresult_->Write(new_filter_loc_data_.size() + footer_data_.size());
   delete filter;
 
   Meta new_meta;
