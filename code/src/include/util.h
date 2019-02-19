@@ -95,8 +95,8 @@ public:
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 64;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 64;
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 128;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 128;
     static const size_t M1_NUMB = 100000;                   // max number of lru
     static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };
