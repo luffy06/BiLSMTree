@@ -8,7 +8,7 @@ suffix=".in"
 algos=('LevelDB-Sep' 'LevelDB' 'Wisckey')
 tracepath="trace"
 temppath="trace.in"
-if [[ ! -d ${tracepath} ]]; then
+if [[ -d ${tracepath} ]]; then
   rm -rf ${tracepath}
   mkdir ${tracepath}
 fi
