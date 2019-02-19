@@ -67,8 +67,8 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 8192;
-    static const size_t PAGE_NUMS = 128;
+    static const size_t BLOCK_NUMS = 4096;
+    static const size_t PAGE_NUMS = 32;
     static const size_t PAGE_SIZE = 8 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
@@ -95,18 +95,18 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 32 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 1024 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE * 128;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE * 128;
+    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
+    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
     static const size_t M1_NUMB = 100000;                   // max number of lru
     static const size_t M2_NUMB = 100000;                   // max number of fifo    
   };
 
   struct FilterConfig {
-    static const size_t BITS_PER_KEY = 12;
+    static const size_t BITS_PER_KEY = 10;
     static const size_t MAXBUCKETSIZE = 4;
     static const size_t PADDING = 1000000007;
     static const size_t SEED = 0xbc91f1d34;
@@ -125,7 +125,7 @@ public:
     static const size_t MAX_LEVEL = 7;
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
-    static const size_t LISTSIZE = 50;
+    static const size_t LISTSIZE = 10;
   };
 
   struct TableConfig {

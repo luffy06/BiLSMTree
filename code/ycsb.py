@@ -28,7 +28,7 @@ attributes = {
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-value_len_max = 500
+value_len_max = 1000
 
 def generate_workload(project_path):
   for i in range(workload_num):
@@ -93,7 +93,7 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      value = value[:value_len_max]
+      # value = value[:value_len_max]
       if op == 'SCAN':
         suffix = ls[3]
         value = key[:len(key) - len(suffix)]
