@@ -7,7 +7,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   lsmtreeresult_ = lsmtreeresult;
   total_sequence_number_ = 0;
   rollback_ = 0;
-  ALPHA = 5.0;
+  ALPHA = 3.0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
   filtermanager_ = new FilterManager(filesystem);
 
@@ -521,11 +521,14 @@ void LSMTree::CompactList(size_t level) {
   buffer_[level].clear();
   GetOverlaps(file_[level], wait_queue_);
   std::vector<TableIterator*> tables_;
+  size_t total_size_ = 0;
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
+    total_size_ = total_size_ + wait_queue_[i].file_size_;
     tables_.push_back(new TableIterator(filename, filesystem_, filtermanager_, wait_queue_[i], lsmtreeresult_));
     filesystem_->Delete(filename);
   }
+  lsmtreeresult_->MajorCompaction(total_size_);
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
