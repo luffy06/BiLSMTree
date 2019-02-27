@@ -15,6 +15,8 @@ public:
   std::vector<SkipList*> Put(const KV kv);
 
   bool Get(const Slice key, Slice& value);
+
+  void ShowAll();
 private:
   struct ListNode {
     SkipList* imm_;

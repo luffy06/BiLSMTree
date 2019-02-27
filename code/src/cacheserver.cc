@@ -89,4 +89,27 @@ bool CacheServer::Get(const Slice key, Slice& value) {
   return true;
 }
 
+void CacheServer::ShowAll() {
+  std::vector<KV> data = lru_->GetAll();
+  std::cout << std::string(20, '#') << std::endl;
+  std::cout << "LRU2Q" << std::endl;
+  for (size_t k = 0; k < data.size(); ++ k)
+    std::cout << data[k].key_.ToString() << ", ";
+  std::cout << std::endl << std::string(20, '#') << std::endl;
+  data = mem_->GetAll();
+  std::cout << std::string(20, '#') << std::endl;
+  std::cout << "MemTable" << std::endl;
+  for (size_t k = 0; k < data.size(); ++ k)
+    std::cout << data[k].key_.ToString() << ", ";
+  std::cout << std::endl << std::string(20, '#') << std::endl;
+  for (size_t i = 0; i < imms_.size(); ++ i) {
+    data = imms_[i].imm_->GetAll();
+    std::cout << std::string(20, '#') << std::endl;
+    std::cout << "Immutable MemTable " << i + 1 << std::endl;
+    for (size_t k = 0; k < data.size(); ++ k)
+      std::cout << data[k].key_.ToString() << ", ";
+    std::cout << std::endl << std::string(20, '#') << std::endl;
+  }
+}
+
 }

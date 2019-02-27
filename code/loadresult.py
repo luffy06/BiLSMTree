@@ -6,9 +6,9 @@ resultexcel = 'result.xlsx'
 algorithms = ['LevelDB-Sep', 'Wisckey', 'LevelDB']
 attributes = ['READ', 'UPDATE', 'INSERT', 'SCAN_READ', 'READ_RATIO', 'WRITE_RATIO']
 metrics = ['LATENCY', 'READ_TIMES', 'WRITE_TIMES', 'ERASE_TIMES', 
-            'READ_AMPLIFICATION', 'READ_SIZE', 'EXPECTED_READ', 
+            'READ_AMPLIFICATION', 'READ_SIZE', 'REAL_READ_SIZE',
             'READ_IN_FLASH', 'READ_IN_MEMORY', 
-            'WRITE_AMPLIFICATION', 'WRITE_SIZE', 'EXPECTED_WRITE', 
+            'WRITE_AMPLIFICATION', 'WRITE_SIZE', 'REAL_WRITE_SIZE',
             'MINOR_COMPACTION', 'MINOR_COMPACTION_SIZE', 
             'MAJOR_COMPACTION', 'MAJOR_COMPACTION_SIZE', 
             'AVERAGE_CHECK_TIMES'];

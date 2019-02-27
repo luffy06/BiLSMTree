@@ -107,7 +107,7 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
 void TestBiList(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST BiList" << seg << std::endl;
   std::string msg = "SUCCESS";
-  bilsmtree::BiList *bilist = new bilsmtree::BiList(10);
+  bilsmtree::BiList *bilist = new bilsmtree::BiList(10, 2000);
   std::vector<bilsmtree::KV> kv_data;
   for (size_t i = 1; i <= 10; ++ i) {
     bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
@@ -115,61 +115,49 @@ void TestBiList(const std::vector<bilsmtree::KV>& data) {
   }
   std::cout << "TEST Append & Insert" << std::endl;
   for (size_t i = 0; i < 10; ++ i) {
-    bilsmtree::KV pop_kv;
+    std::vector<bilsmtree::KV> pop;
     if (i < 5) {
-      if (bilist->Append(kv_data[i], pop_kv))
+      pop = bilist->Append(kv_data[i]);
+      if (pop.size() > 0)
         msg = "Append error! Pop data";
     }
     else {
-      if (bilist->Insert(kv_data[i], pop_kv))
+      pop = bilist->Insert(kv_data[i]);
+      if (pop.size() > 0)
         msg = "Insert error! Pop data";
     }
   }
   bilist->Show();
   std::cout << seg << std::endl;
 
-  std::cout << "TEST Set" << std::endl;
-  for (size_t i = 0; i < 10; ++ i)
-    bilist->Set(i + 1, kv_data[10 - i - 1]);
-  bilist->Show();
-  std::cout << seg << std::endl;
-
   std::cout << "TEST Append" << std::endl;
   for (size_t i = 0; i < 10; ++ i) {
-    bilsmtree::KV pop_kv;
-    if (bilist->Append(kv_data[i], pop_kv))
-      std::cout << "POP:" << pop_kv.key_.ToString() << std::endl;
-    else 
+    std::vector<bilsmtree::KV> pop = bilist->Append(kv_data[i]);
+    if (pop.size() > 0) {
+      for (size_t j = 0; j < pop.size(); ++ j)
+      std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
+    }
+    else {
       msg = "Append error! Pop data";
+    }
   }
   bilist->Show();
   std::cout << seg << std::endl;
 
   std::cout << "TEST Insert" << std::endl;
   for (size_t i = 0; i < 10; ++ i) {
-    bilsmtree::KV pop_kv;
-    if (bilist->Insert(kv_data[i], pop_kv))
-      std::cout << "POP:" << pop_kv.key_.ToString() << std::endl;
-    else 
+    std::vector<bilsmtree::KV> pop = bilist->Insert(kv_data[i]);
+    if (pop.size() > 0) {
+      for (size_t j = 0; j < pop.size(); ++ j)
+      std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
+    }
+    else {
       msg = "Insert error! Pop data";
+    }
   }
   bilist->Show();
   std::cout << seg << std::endl;
 
-  std::cout << "TEST MoveToHead" << std::endl;
-  for (size_t i = 0; i < 5; ++ i) {
-    size_t tail = bilist->Tail();
-    bilist->MoveToHead(tail);
-  }
-
-  bilist->Show();
-  std::cout << seg << std::endl;
-
-  std::cout << "TEST Delete" << std::endl;
-  for (size_t i = 0; i < 10; ++ i) {
-    bilsmtree::KV kv = bilist->Delete(i + 1);
-    std::cout << "Delete:" << kv.key_.ToString() << std::endl;
-  }
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
@@ -229,8 +217,8 @@ void TestLRU2Q(const std::vector<bilsmtree::KV>& data) {
 
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < kv_data.size(); ++ i) {
-    bilsmtree::KV pop_kv;
-    if (lru2q->Put(kv_data[i], pop_kv)) {
+    std::vector<bilsmtree::KV> pop = lru2q->Put(kv_data[i]);
+    if (pop.size() > 0) {
       msg = "Put error";
     }
   }
@@ -348,14 +336,14 @@ void TestDB(const std::vector<bilsmtree::KV>& data) {
   bilsmtree::DB *db = new bilsmtree::DB();
   std::cout << "TEST Put" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
-    std::cout << "Put " << i + 1 << std::endl;
+    std::cout << "Put " << data[i].key_.ToString() << std::endl;
     db->Put(data[i].key_.ToString(), data[i].value_.ToString());
   }
   std::cout << "TEST Get" << std::endl;
   for (size_t i = 0; i < data.size(); ++ i) {
     std::string db_value;
     size_t r = rand() % 2;
-    std::cout << "RUN " << i + 1 << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
+    std::cout << "RUN " << data[i].key_.ToString() << "\tOp:" << (r == 0 ? "Put" : "Get") << std::endl;
     if (r == 0) {
       db->Put(data[i].key_.ToString(), data[i].value_.ToString());
     }
@@ -381,7 +369,7 @@ int main() {
   srand(seed);
   // std::vector<bilsmtree::KV> data = GenerateRandomKVPairs();
   std::vector<bilsmtree::KV> small_data;
-  for (size_t i = 1; i <= 20000; ++ i) {
+  for (size_t i = 1; i <= 5000; ++ i) {
     std::string key = bilsmtree::Util::IntToString(i);
     std::string value = std::string(i, '@');
     bilsmtree::KV kv = bilsmtree::KV(key, value);

@@ -79,7 +79,7 @@ bool DataManager::Get(const Slice key, Slice& value, size_t offset, size_t block
   ss >> n;
   for (size_t i = 0; i < n; ++ i) {
     std::string key_str, value_str;
-    ss << key_str << value_str;
+    ss >> key_str >> value_str;
     Slice key_ = Slice(key_str.data(), key_str.size());
     Slice value_ = Slice(value_str.data(), value_str.size());
     if (key.compare(key_) == 0) {
