@@ -21,7 +21,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
     max_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     min_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     buf_size_[i] = 0;
-    if (algo == std::string("BiLSMTree"))
+    if (Util::CheckAlgorithm(algo, variable_tree_algos))
       buf_size_[i] = max_size_[i] / 2 < Config::LSMTreeConfig::LISTSIZE ? max_size_[i] / 2 : Config::LSMTreeConfig::LISTSIZE;
     max_size_[i] = max_size_[i] - buf_size_[i];
   }
@@ -43,7 +43,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
   size_t checked = 0;
   for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     std::vector<size_t> check_files_ = GetCheckFiles(algo, i, key);
-    if (algo == std::string("BiLSMTree")) {
+    if (Util::CheckAlgorithm(algo, rollback_algos)) {
       for (size_t j = 0; j < buffer_[i].size(); ++ j)
         if (key.compare(buffer_[i][j].smallest_) >= 0 && key.compare(buffer_[i][j].largest_) <= 0)
           check_files_.push_back(j + file_[i].size());
@@ -57,7 +57,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (Config::TRACE_READ_LOG)
         std::cout << "Check SEQ:" << meta.sequence_number_ << "[" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
       if (GetValueFromFile(meta, key, value)) {
-        if (algo == std::string("BiLSMTree")) {
+        if (Util::CheckAlgorithm(algo, rollback_algos)) {
           UpdateFrequency(meta.sequence_number_);
           if (i > 0) {
             size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
@@ -88,7 +88,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
     total_size_ = total_size_ + kvs[i].size();
   size_t sequence_number_ = GetSequenceNumber();
   std::string filename = GetFilename(sequence_number_);
-  Table *table_ = new Table(kvs, sequence_number_, filename, filesystem_, lsmtreeresult_);
+  Table *table_ = new Table(kvs, sequence_number_, filename, filesystem_, lsmtreeresult_, bloom_algos, cuckoo_algos);
   UpdateFrequency(sequence_number_);
   Meta meta = table_->GetMeta();
   meta.level_ = 0;
@@ -98,7 +98,7 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
     std::cout << "DUMP L0:" << filename << "\tRange:[" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << "]" << std::endl;
   lsmtreeresult_->MinorCompaction(total_size_);
   std::string algo = Util::GetAlgorithm();
-  if (algo == std::string("BiLSMTree")) {
+  if (Util::CheckAlgorithm(algo, rollback_algos)) {
     buffer_[0].insert(buffer_[0].begin(), meta);
     if (buffer_[0].size() > min_size_[0])
       CompactList(0);
@@ -157,7 +157,7 @@ void LSMTree::UpdateFrequency(size_t sequence_number) {
 std::vector<size_t> LSMTree::GetCheckFiles(std::string algo, size_t level, const Slice key) {
   std::vector<size_t> check_files_;
   if (level == 0) {
-    if (algo == std::string("BiLSMTree")) {
+    if (Util::CheckAlgorithm(algo, rollback_algos)) {
       int index = BinarySearch(level, key);
       if (index != -1)
         check_files_.push_back(index);
@@ -233,10 +233,10 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
   std::string algo = Util::GetAlgorithm();
   if (Config::TRACE_READ_LOG)
     std::cout << "Create Filter" << std::endl;
-  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
+  if (Util::CheckAlgorithm(algo, bloom_algos)) {
     filter = new BloomFilter(filter_data_);
   }
-  else if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
+  else if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
     filter = new CuckooFilter(filter_data_);
   }
   else {
@@ -336,7 +336,7 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
 
 void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   std::string algo = Util::GetAlgorithm();
-  assert(algo == std::string("BiLSMTree"));
+  assert(Util::CheckAlgorithm(algo, rollback_algos));
   if (now_level == 0)
     return ;
   size_t to_level = GetTargetLevel(now_level, meta);
@@ -463,7 +463,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
       if (buffer_size_ >= table_size_) {
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
-        Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+        Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_, bloom_algos, cuckoo_algos);
         UpdateFrequency(sequence_number_);
         result_.push_back(t);
         buffers_.clear();
@@ -476,7 +476,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
   if (buffer_size_ > 0) {
     size_t sequence_number_ = GetSequenceNumber();
     std::string filename = GetFilename(sequence_number_);
-    Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_);
+    Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_, bloom_algos, cuckoo_algos);
     UpdateFrequency(sequence_number_);
     result_.push_back(t);
   }
@@ -501,7 +501,7 @@ void LSMTree::CompactList(size_t level) {
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
     total_size_ = total_size_ + wait_queue_[i].file_size_;
-    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
+    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
   lsmtreeresult_->MajorCompaction(total_size_);
@@ -563,7 +563,7 @@ void LSMTree::MajorCompaction(size_t level) {
   }
 
   // select overlap files from Li+1
-  if (algo == std::string("BiLSMTree"))
+  if (Util::CheckAlgorithm(algo, rollback_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
   // select from file_
   GetOverlaps(file_[level + 1], wait_queue_);
@@ -573,7 +573,7 @@ void LSMTree::MajorCompaction(size_t level) {
   for (size_t i = 0; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
     total_size_ = total_size_ + wait_queue_[i].file_size_;
-    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_));
+    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
   lsmtreeresult_->MajorCompaction(total_size_);

@@ -35,6 +35,10 @@ private:
   LSMTreeResult *lsmtreeresult_;
   size_t rollback_;
   double ALPHA;
+  const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
+  const std::vector<std::string> rollback_algos = {"BiLSMTree"};
+  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB"};
+  const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
 
   size_t GetSequenceNumber();
 

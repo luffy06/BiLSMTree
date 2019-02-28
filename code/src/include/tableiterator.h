@@ -13,7 +13,10 @@ class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_);
+  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, 
+                LSMTreeResult *lsmtreeresult_, 
+                const std::vector<std::string> &bloom_algos, 
+                const std::vector<std::string> &cuckoo_algos);
 
   ~TableIterator();
   

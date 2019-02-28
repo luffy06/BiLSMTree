@@ -9,7 +9,10 @@ Table::Table() {
 * DATA BLOCK: key,\t,value,\t
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
-Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
+Table::Table(const std::vector<KV>& kvs, size_t sequence_number, 
+            std::string filename, FileSystem* filesystem, 
+            LSMTreeResult* lsmtreeresult, const std::vector<std::string> &bloom_algos, 
+            const std::vector<std::string> &cuckoo_algos) {
   if (Config::TRACE_LOG)
     std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
@@ -88,11 +91,11 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   // write filter block
   std::string algo = Util::GetAlgorithm();
   Filter *filter_ = NULL;
-  if (algo == std::string("LevelDB") || algo == std::string("Wisckey")) {
+  if (Util::CheckAlgorithm(algo, bloom_algos)) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
     filter_block_ = filter_->ToString();
   }
-  else if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
+  else if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
     filter_ = new CuckooFilter(keys_for_filter_);
     filter_block_ = filter_->ToString();
   }

@@ -60,7 +60,9 @@ class Table {
 public:
   Table();
 
-  Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult);
+  Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, 
+        FileSystem* filesystem, LSMTreeResult* lsmtreeresult, const std::vector<std::string> &bloom_algos, 
+        const std::vector<std::string> &cuckoo_algos);
   
   ~Table();
 

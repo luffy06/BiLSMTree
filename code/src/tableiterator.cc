@@ -8,7 +8,10 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, 
+                            Meta meta, LSMTreeResult *lsmtreeresult_, 
+                            const std::vector<std::string> &bloom_algos, 
+                            const std::vector<std::string> &cuckoo_algos) {
   // std::cout << "Read:" << filename << std::endl;
   // meta.Show();
   std::stringstream ss;
@@ -32,10 +35,10 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read(filter_data_.size(), "FILTER");
   Filter *filter_ = NULL;
-  if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
+  if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
     filter_ = new CuckooFilter(filter_data_);
   }
-  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
+  else if (Util::CheckAlgorithm(algo, bloom_algos)) {
     filter_ = new BloomFilter(filter_data_);
   }
   else {

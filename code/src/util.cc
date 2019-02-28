@@ -64,7 +64,7 @@ size_t Util::GetBlockSize() {
   return table_size_ / Config::TableConfig::BLOCK_SIZE;
 }
 
-size_t Util::CheckAlgorithm(const std::string &algo, const std::vector<std::string> &algos) {
+bool Util::CheckAlgorithm(const std::string &algo, const std::vector<std::string> &algos) {
   for (size_t i = 0; i < algos.size(); ++ i)
     if (algo == algos[i])
       return true;
