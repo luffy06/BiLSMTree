@@ -32,7 +32,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read(filter_data_.size(), "FILTER");
   Filter *filter_ = NULL;
-  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
+  if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
     // ss.str(filter_data_);
     // size_t offset_ = 0;
     // size_t filter_size_ = 0;
@@ -88,7 +88,7 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
     std::string key_str, value_str;
     ss >> key_str >> value_str;    
     
-    if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+    if (algo == std::string("BiLSMTree")) {
       if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))
         kvs_.push_back(KV(key_str, value_str));
     }
