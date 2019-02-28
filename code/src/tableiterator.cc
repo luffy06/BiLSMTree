@@ -8,7 +8,7 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, FilterManager* filtermanager, Meta meta, LSMTreeResult *lsmtreeresult_) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, LSMTreeResult *lsmtreeresult_) {
   // std::cout << "Read:" << filename << std::endl;
   // meta.Show();
   std::stringstream ss;
@@ -33,11 +33,6 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   lsmtreeresult_->Read(filter_data_.size(), "FILTER");
   Filter *filter_ = NULL;
   if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
-    // ss.str(filter_data_);
-    // size_t offset_ = 0;
-    // size_t filter_size_ = 0;
-    // ss >> offset_ >> filter_size_;
-    // filter_data_ = filtermanager->Get(offset_, filter_size_);
     filter_ = new CuckooFilter(filter_data_);
   }
   else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {

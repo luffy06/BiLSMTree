@@ -9,7 +9,7 @@ Table::Table() {
 * DATA BLOCK: key,\t,value,\t
 * INDEX BLOCK: last_key,\t,offset\t,data_block_size\t
 */
-Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, FilterManager* filtermanager, LSMTreeResult* lsmtreeresult) {
+Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string filename, FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   if (Config::TRACE_LOG)
     std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
@@ -95,10 +95,6 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number, std::string fil
   else if (algo == std::string("BiLSMTree") || algo == std::string("Cuckoo")) {
     filter_ = new CuckooFilter(keys_for_filter_);
     filter_block_ = filter_->ToString();
-    // std::pair<size_t, size_t> loc = filtermanager->Append(filter_->ToString());
-    // ss.str("");
-    // ss << loc.first << Config::DATA_SEG << loc.second << Config::DATA_SEG;
-    // filter_block_ = ss.str();
   }
   else {
     filter_ = NULL;

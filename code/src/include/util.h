@@ -34,6 +34,8 @@ public:
 
   static size_t GetBlockSize();
 
+  static size_t CheckAlgorithm(const std::string &algo, const std::vector<std::string> &algos);
+
   static void Test(std::string msg) {
     std::string k;
     std::cout << msg << ":";

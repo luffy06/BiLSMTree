@@ -19,7 +19,7 @@ CacheServer::~CacheServer() {
 std::vector<SkipList*> CacheServer::Put(const KV kv) {
   std::string algo = Util::GetAlgorithm();
   std::vector<SkipList*> res;
-  if (algo == std::string("BiLSMTree")) {
+  if (Util::CheckAlgorithm(algo, lru2q_algos)) {
     std::vector<KV> lru_pop = lru_->Put(kv);
     for (size_t i = 0; i < lru_pop.size(); ++ i) {
       KV pop_kv = lru_pop[i];
@@ -50,7 +50,7 @@ std::vector<SkipList*> CacheServer::Put(const KV kv) {
       mem_->Insert(pop_kv);
     }
   }
-  else if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("Cuckoo")) {
+  else if (Util::CheckAlgorithm(algo, base_algos)) {
     if (mem_->IsFull()) {
       if (imms_.size() != 0) {
         res.push_back(imms_[0].imm_);
@@ -88,5 +88,4 @@ bool CacheServer::Get(const Slice key, Slice& value) {
   }
   return true;
 }
-
 }
