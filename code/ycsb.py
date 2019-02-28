@@ -18,8 +18,8 @@ distribution = [(200000, 0.50, 0.50, 0.00, 0.00),  # 0  a 50% read 50% update
                 (100000, 0.00, 0.00, 0.50, 0.01),  # 12 e 90% scan 10% insert
                 (150000, 0.00, 0.00, 1.90, 0.001), # 13 e 10% scan 90% insert
                 (100000, 1.00, 0.00, 0.00, 0.01),  # 14   50% scan 50% read
-                (200000, 0.00, 0.00, 1.00, 0.00),  # 15   100% insert
-                (200000, 0.00, 0.50, 0.50, 0.00)]  # 16   50% insert 50% update
+                (20000, 0.00, 0.00, 1.00, 0.00),   # 15   100% insert
+                (20000, 0.00, 0.50, 0.50, 0.00)]   # 16   50% insert 50% update
 
 attributes = {
   'recordcount': 50000,
@@ -28,7 +28,8 @@ attributes = {
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-value_len_max = 1000
+key_v_value = 64
+padding = '&'
 
 def generate_workload(project_path):
   for i in range(workload_num):
@@ -93,7 +94,11 @@ def read(in_filename, out_filename):
       value = value.strip()
       for k in replace_key:
         value = value.replace(k, '0')
-      # value = value[:value_len_max]
+      if len(value) < len(key) * key_v_value:
+        for u in range(len(key) * key_v_value - len(value)):
+          value = value + padding
+      else:
+        value = value[:len(key) * key_v_value]
       if op == 'SCAN':
         suffix = ls[3]
         value = key[:len(key) - len(suffix)]

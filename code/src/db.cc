@@ -53,9 +53,6 @@ bool DB::Get(const std::string key, std::string& value) {
     result_->lsmtreeresult_->RealRead(value_.size());
     value = value_.ToString();
   }
-  else {
-    std::cout << "Key:" << key << " NOT HIT" << std::endl;
-  }
   return res;
 }
 
