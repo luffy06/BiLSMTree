@@ -36,8 +36,9 @@ private:
   size_t rollback_;
   double ALPHA;
   const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
-  const std::vector<std::string> rollback_algos = {"BiLSMTree"};
-  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB"};
+  const std::vector<std::string> rollback_buffer_algos = {"BiLSMTree"};
+  const std::vecotr<std::string> rollback_base_algos = {"BiLSMTree-Direct"};
+  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree-Direct"};
   const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
 
   size_t GetSequenceNumber();
@@ -57,6 +58,8 @@ private:
   size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
   void RollBack(const size_t now_level, const Meta meta);
+
+  void RollBackBase(const size_t now_level, const Meta meta);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
