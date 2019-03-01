@@ -34,7 +34,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::string filter_data_ = filesystem->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read(filter_data_.size(), "FILTER");
-  Filter *filter_ = NULL;
+  Filter* filter_ = NULL;
   if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
     filter_ = new CuckooFilter(filter_data_);
   }
@@ -76,7 +76,7 @@ TableIterator::~TableIterator() {
   kvs_.clear();
 }
 
-void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
+void TableIterator::ParseBlock(const std::string block_data, Filter* filter) {
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   ss.str(block_data);

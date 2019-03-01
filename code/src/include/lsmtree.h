@@ -37,7 +37,7 @@ private:
   double ALPHA;
   const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
   const std::vector<std::string> rollback_buffer_algos = {"BiLSMTree"};
-  const std::vecotr<std::string> rollback_base_algos = {"BiLSMTree-Direct"};
+  const std::vector<std::string> rollback_base_algos = {"BiLSMTree-Direct"};
   const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree-Direct"};
   const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
 

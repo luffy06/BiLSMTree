@@ -352,91 +352,93 @@ void LSMTree::RollBackBase(const size_t now_level, const Meta meta) {
     std::cout << "RollBackBase Now Level:" << now_level << " To Level:" << to_level << std::endl;
     std::cout << "SEQ:" << meta.sequence_number_ << " [" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
   }
-  // std::stringstream ss;
-  // std::string filename = GetFilename(meta.sequence_number_);
-  // filesystem_->Open(filename, Config::FileSystemConfig::READ_OPTION | Config::FileSystemConfig::WRITE_OPTION);
-  // filesystem_->Seek(filename, meta.file_size_ - meta.footer_size_);
-  // std::string footer_data_ = filesystem_->Read(filename, meta.footer_size_);
-  // lsmtreeresult_->Read(footer_data_.size(), "FOOTER");
 
-  // ss.str(footer_data_);
-  // size_t index_offset_ = 0;
-  // size_t filter_offset_ = 0;
-  // ss >> index_offset_;
-  // ss >> filter_offset_;
-  // assert(index_offset_ != 0);
-  // assert(filter_offset_ != 0);
+  TableIterator* ti = new TableIterator(GetFilename(meta.sequence_number_), filesystem_, meta, lsmtreeresult_, bloom_algos, cuckoo_algos);
+  filesystem_->Delete(GetFilename(meta.sequence_number_));
+  std::vector<KV> kvs;
+  std::vector<bool> drop;
+  while (ti->HasNext()) {
+    KV kv = ti->Next();
+    kvs.push_back(kv);
+    drop.push_back(false);
+  }
+  for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
+    int l = 0;
+    int r = static_cast<int>(file_[i].size()) - 1;
+    while (l < static_cast<int>(file_[i].size()) && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
+    while (r >= 0 && meta.largest_.compare(file_[i][r].smallest_) < 0) -- r;
+    if (l > r)
+      continue;
 
-  // // MEGER FILTER
-  // filesystem_->Seek(filename, filter_offset_);
-  // std::string filter_data_ = filesystem_->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
-  // lsmtreeresult_->Read(filter_data_.size(), "FILTER");
-  // CuckooFilter *filter = new CuckooFilter(filter_data_);
-  // if (Config::TRACE_LOG)
-  //   std::cout << "Get Complement Filter" << std::endl;
-  // for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
-  //   int l = 0;
-  //   int r = static_cast<int>(file_[i].size()) - 1;
-  //   while (l < static_cast<int>(file_[i].size()) && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
-  //   while (r >= 0 && meta.largest_.compare(file_[i][r].smallest_) < 0) -- r;
-  //   if (l > r)
-  //     continue;
+    size_t k = 0;
+    for (int j = l; j <= r; ++ j) {
+      TableIterator* nti = new TableIterator(GetFilename(file_[i][j].sequence_number_), filesystem_, file_[i][j], lsmtreeresult_, bloom_algos, cuckoo_algos);
+      while (k < kvs.size() && nti->HasNext()) {
+        KV cur = nti->Current();
+        while (k < kvs.size() && drop[k] == true)
+          ++ k;
+        if (k == kvs.size())
+          break;
+        int com = cur.key_.compare(kvs[k].key_);
+        if (com == 0) {
+          drop[k] = true;
+          ++ k;
+          nti->Next();
+        }
+        else if (com < 0) {
+          nti->Next();
+        }
+        else {
+          ++ k;
+        }
+      }
+    }
+  }
 
-  //   for (int j = l; j <= r; ++ j) {
-  //     Meta to_meta = file_[i][j];
-  //     std::string to_filename = GetFilename(to_meta.sequence_number_);
-  //     filesystem_->Open(to_filename, Config::FileSystemConfig::READ_OPTION);
-  //     filesystem_->Seek(to_filename, to_meta.file_size_ - to_meta.footer_size_);
-  //     std::string to_offset_data_ = filesystem_->Read(to_filename, to_meta.footer_size_);
-  //     lsmtreeresult_->Read(to_offset_data_.size(), "FOOTER");
+  std::vector<KV> data;
+  for (size_t i = 0; i < kvs.size(); ++ i) {
+    if (!drop[i])
+      data.push_back(kvs[i]);
+  }
+  ti->SetData(data);
 
-  //     ss.str(to_offset_data_);
-  //     size_t to_index_offset_ = 0;
-  //     size_t to_filter_offset_ = 0;
-  //     ss >> to_index_offset_;
-  //     ss >> to_filter_offset_;
-  //     assert(to_index_offset_ != 0);
-  //     assert(to_filter_offset_ != 0);
+  std::vector<Meta> wait_queue_;
+  Meta fake_meta = Meta();
+  fake_meta.largest_ = ti->Max().key_;
+  fake_meta.smallest_ = ti->Min().key_;
+  wait_queue_.push_back(fake_meta);
+  GetOverlaps(file_[to_level], wait_queue_);
 
-  //     filesystem_->Seek(to_filename, to_filter_offset_);
-  //     std::string to_filter_data_ = filesystem_->Read(to_filename, to_meta.file_size_ - to_filter_offset_ - to_meta.footer_size_);
-  //     lsmtreeresult_->Read(to_filter_data_.size(), "FILTER");
-  //     CuckooFilter *to_filter = new CuckooFilter(to_filter_data_);
+  std::vector<TableIterator*> tables_;
+  tables_.push_back(ti);
+  for (size_t i = 1; i < wait_queue_.size(); ++ i) {
+    std::string filename = GetFilename(wait_queue_[i].sequence_number_);
+    tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
+    filesystem_->Delete(filename);
+  }
 
-  //     filter->Diff(to_filter);
-  //     delete to_filter;
-  //     filesystem_->Close(to_filename);
-  //   }
-  // }
-  // if (Config::TRACE_LOG)
-  //   std::cout << "Get Complement Filter Success" << std::endl;
-  
-  // filesystem_->Seek(filename, filter_offset_);
-  // std::string new_filter_data_ = filter->ToString();
+  std::vector<Table*> merged_tables = MergeTables(tables_);
+  for (size_t i = 0; i < merged_tables.size(); ++ i) {
+    Meta meta = merged_tables[i]->GetMeta();
+    delete merged_tables[i];
+    meta.level_ = to_level;
+    
+    bool inserted = false;
+    for (size_t j = 0; j < file_[to_level].size(); ++ j) {
+      if (meta.largest_.compare(file_[to_level][j].smallest_) <= 0) {
+        file_[to_level].insert(file_[to_level].begin() + j, meta);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) {
+      file_[to_level].insert(file_[to_level].end(), meta);
+    }
+  }
+  assert(CheckFileList(to_level));
 
-  // int file_size_change_ = filter_data_.size() - new_filter_data_.size();
-  // if (Config::WRITE_OUTPUT)
-  //   std::cout << "WRITE FILTER ROLLBACK " << new_filter_data_.size() << std::endl;
-  // filesystem_->Write(filename, new_filter_data_.data(), new_filter_data_.size());
-  // filesystem_->Write(filename, footer_data_.data(), footer_data_.size());
-  // filesystem_->SetFileSize(filename, meta.file_size_ - file_size_change_);
-  // filesystem_->Close(filename);
-  // lsmtreeresult_->Write(new_filter_data_.size() + footer_data_.size());
-  // delete filter;
-
-  // Meta new_meta;
-  // new_meta.Copy(meta);
-  // new_meta.file_size_ = meta.file_size_ - file_size_change_;
-  // new_meta.level_ = to_level;
-
-  // // add to buffer_
-  // buffer_[to_level].push_back(new_meta);
-  // if (buffer_[to_level].size() > buf_size_[to_level]) {
-  //   max_size_[to_level] = max_size_[to_level] + buf_size_[to_level] * 2;
-  //   CompactList(to_level);
-  // }
   if (Config::TRACE_LOG)
-    std::cout << "RollBack Success" << std::endl;
+    std::cout << "RollBackBase Success" << std::endl;
 }
 
 void LSMTree::RollBack(const size_t now_level, const Meta meta) {
