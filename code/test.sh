@@ -11,8 +11,8 @@ tracepath="trace"
 temppath="trace.in"
 if [[ -d ${tracepath} ]]; then
   rm -rf ${tracepath}
-  mkdir ${tracepath}
 fi
+mkdir ${tracepath}
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
