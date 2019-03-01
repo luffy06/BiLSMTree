@@ -2,11 +2,11 @@
 
 set -e  # fail and exit on any command erroring
 
-testids=(13 15)
+testids=(0)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('LevelDB-Sep')
+algos=('LevelDB-Sep' 'Wisckey')
 tracepath="trace"
 temppath="trace.in"
 if [[ -d ${tracepath} ]]; then

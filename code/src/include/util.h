@@ -406,26 +406,20 @@ public:
   }
 
   void ShowResult() {
-    std::cout << "READ_FILES:" << GetReadFiles() << std::endl;
     std::cout << "READ_SIZE:" << GetReadSize() << std::endl;
     std::cout << "REAL_READ_SIZE:" << GetRealReadSize() << std::endl;
     std::cout << "READ_AMPLIFICATION:" << 1.0 * GetReadSize() / GetRealReadSize() << std::endl;
-    std::cout << "AVG_READ_SIZE:" << std::setprecision(6) << GetAverageReadSize() << std::endl;
     std::cout << "READ_IN_FLASH:" << GetReadInFlash() << std::endl;
     std::cout << "READ_IN_MEMORY:" << GetReadInMemory() << std::endl;
-    std::cout << "WRITE_FILES:" << GetWriteFiles() << std::endl;
     std::cout << "WRITE_SIZE:" << GetWriteSize() << std::endl;
     std::cout << "REAL_WRITE_SIZE:" << GetRealWriteSize() << std::endl;
     std::cout << "WRITE_AMPLIFICATION:" << 1.0 * GetWriteSize() / GetRealWriteSize() << std::endl;
-    std::cout << "AVG_WRITE_SIZE:" << GetAverageWriteSize() << std::endl;
     std::cout << "MINOR_COMPACTION:" << GetMinorCompactionTimes() << std::endl;
     std::cout << "MINOR_COMPACTION_SIZE:" << GetMinorCompactionSize() << std::endl;
-    std::cout << "AVG_MINOR_COMPACTION_SIZE:" << GetAverageMinorCompactionSize() << std::endl;
     std::cout << "MAJOR_COMPACTION:" << GetMajorCompactionTimes() << std::endl;
     std::cout << "MAJOR_COMPACTION_SIZE:" << GetMajorCompactionSize() << std::endl;
-    std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
     std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
-    std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
+    std::cout << "STILL_RATE:" << GetStillRateAvg() << std::endl;
     for (std::map<std::string, size_t>::iterator it = read_map_.begin(); it != read_map_.end(); ++ it)
       std::cout << "TYPE_" << it->first << ":" << it->second << std::endl;
   }
