@@ -4,60 +4,34 @@ namespace bilsmtree {
 CacheServer::CacheServer(MemoryResult *memoryresult) {
   lru_ = new LRU2Q();
   mem_ = new SkipList();
-  imms_.clear();
+  imm_ = NULL;
   memoryresult_ = memoryresult;
-  memoryresult_->SplitMemory(Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2, Config::ImmutableMemTableConfig::MEM_SIZE * (Config::CacheServerConfig::MAXSIZE + 1));
 }
 
 CacheServer::~CacheServer() {
   delete lru_;
   delete mem_;
-  for (size_t i = 0; i < imms_.size(); ++ i)
-    delete imms_[i].imm_;
+  if (imm_ != NULL)
+    delete imm_;
 }
 
-std::vector<SkipList*> CacheServer::Put(const KV kv) {
+std::vector<KV> CacheServer::Put(const KV kv) {
   std::string algo = Util::GetAlgorithm();
-  std::vector<SkipList*> res;
+  std::vector<KV> res;
   if (Util::CheckAlgorithm(algo, lru2q_algos)) {
-    std::vector<KV> lru_pop = lru_->Put(kv);
-    for (size_t i = 0; i < lru_pop.size(); ++ i) {
-      KV pop_kv = lru_pop[i];
-      // lru2q is full
-      if (mem_->IsFull()) {
-        // immutable memtable is full
-        if (imms_.size() == Config::CacheServerConfig::MAXSIZE) {
-          // the size of immutable memtables is full
-          // record tail position
-          size_t min_fre = imms_[0].fre_;
-          size_t index = 0;
-          for (size_t k = 1; k < imms_.size(); ++ k) {
-            if (imms_[k].fre_ < min_fre) {
-              min_fre = imms_[k].fre_;
-              index = k;
-            }
-          }
-          res.push_back(imms_[index].imm_);
-          imms_.erase(imms_.begin() + index);
-        }
-        mem_->DisableWrite();
-        // create a new listnode
-        imms_.push_back(ListNode(mem_));
-        // create a new immutable memtable
-        mem_ = new SkipList();
-      }
-      // insert memtable
-      mem_->Insert(pop_kv);
-    }
+    res = lru_->Put(kv);
+    sort(res.begin(), res.end(), [](KV a, KV b) {
+      return a.key_.compare(b.key_) < 0;
+    });
   }
   else if (Util::CheckAlgorithm(algo, base_algos)) {
     if (mem_->IsFull()) {
-      if (imms_.size() != 0) {
-        res.push_back(imms_[0].imm_);
-        imms_.clear();
+      if (imm_ != NULL) {
+        res = imm_->GetAll();
+        delete imm_;
       }
-      mem_->DisableWrite();
-      imms_.push_back(ListNode(mem_));
+      imm_ = mem_;
+      imm_->DisableWrite();
       mem_ = new SkipList();
     }
     mem_->Insert(kv);
@@ -66,26 +40,21 @@ std::vector<SkipList*> CacheServer::Put(const KV kv) {
     std::cout << "Algorithm Error" << std::endl;
     assert(false);
   }
-  assert(res.size() < 2);
   return res;
 }
 
 bool CacheServer::Get(const Slice key, Slice& value) {
-  bool lru_result_ = lru_->Get(key, value);
-  memoryresult_->Hit((lru_result_ ? 1 : 0));
-  if (!lru_result_) {
-    bool imm_res = mem_->Find(key, value);
-    if (!imm_res) {
-      for (size_t i = 0; i < imms_.size(); ++ i) {
-        imm_res = imms_[i].imm_->Find(key, value);
-        if (imm_res) {
-          imms_[i].fre_ = imms_[i].fre_ + 1;
-          break;
-        }
-      }
-    }
-    return imm_res;
+  bool res = false;
+  std::string algo = Util::GetAlgorithm();
+  if (Util::CheckAlgorithm(algo, lru2q_algos)) {
+    res = lru_->Get(key, value);
   }
-  return true;
+  else if (Util::CheckAlgorithm(algo, base_algos)) {
+    res = mem_->Find(key, value);
+    if (!res)
+      res = imm_->Find(key, value);
+  }
+  memoryresult_->Hit((res ? 1 : 0));
+  return res;
 }
 }

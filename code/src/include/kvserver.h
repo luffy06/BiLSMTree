@@ -5,7 +5,6 @@
 
 #include "lsmtree.h"
 #include "logmanager.h"
-#include "skiplist.h"
 
 namespace bilsmtree {
 
@@ -17,7 +16,7 @@ public:
 
   bool Get(const Slice key, Slice& value);
 
-  void MinorCompact(const SkipList* sl);
+  void MinorCompact(const std::vector<KV> &data);
 private:
   LSMTree *lsmtree_;
   LogManager *logmanager_;

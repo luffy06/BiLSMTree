@@ -16,25 +16,33 @@ std::vector<KV> LRU2Q::Put(const KV kv) {
   // std::map<Slice, size_t>::iterator it = map_.find(kv.key_);
   std::vector<KV> res;
   // insert key into lru
-  std::vector<KV> lru_pop;
-  lru_pop = lru_->Insert(kv);
-  // lru is full
-  if (lru_pop.size() > 0) {
-    // append data to fifo
-    for (size_t i = 0; i < lru_pop.size(); ++ i) {
-      std::vector<KV> fifo_pop = fifo_->Append(lru_pop[i]);
-      // fifo is full
-      for (size_t j = 0; j < fifo_pop.size(); ++ j)
-        res.push_back(fifo_pop[j]);
-    }
+  lru_->Insert(kv);
+  std::vector<KV> lru_pop = lru_->Pop();
+  // lru is full, append data to fifo
+  for (size_t i = 0; i < lru_pop.size(); ++ i) {
+    // fifo is full
+    if (fifo_->IsFull())
+      res = fifo_->DropAll();
+    fifo_->Append(lru_pop[i]);
   }
   return res;
 }
 
 bool LRU2Q::Get(const Slice key, Slice& value) {
-  if (!lru_->Get(key, value))
-    return fifo_->Get(key, value);
-  return true;
+  bool res = lru_->Get(key, value);
+  if (!res) {
+    res = fifo_->Get(key, value);
+    if (res) {
+      KV kv = fifo_->DropHead();
+      lru_->Insert(kv);
+      std::vector<KV> lru_pop = lru_->Pop();
+      for (size_t i = 0; i < lru_pop.size(); ++ i) {
+        assert(!fifo_->IsFull());
+        fifo_->Append(lru_pop[i]);
+      }
+    }
+  }
+  return res;
 }
 
 }

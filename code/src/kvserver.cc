@@ -17,7 +17,6 @@ bool KVServer::Get(const Slice key, Slice& value) {
   if (Util::CheckAlgorithm(algo, kvsep_algos)) {
     Slice location_;
     if (lsmtree_->Get(key, location_)) {
-      // std::cout << "Get Location " << location_.ToString() << std::endl;
       value = logmanager_->Get(location_);
       return true;
     }
@@ -33,19 +32,18 @@ bool KVServer::Get(const Slice key, Slice& value) {
   return false;
 }
 
-void KVServer::MinorCompact(const SkipList* sl) {
-  std::vector<KV> data_ = sl->GetAll();
+void KVServer::MinorCompact(const std::vector<KV> &data) {
   std::string algo = Util::GetAlgorithm();
   if (Config::TRACE_LOG)
-    std::cout << "Get All data in Immutable Memtable:" << data_.size() << std::endl;
+    std::cout << "Get All data in Immutable Memtable:" << data.size() << std::endl;
   if (Util::CheckAlgorithm(algo, kvsep_algos)) {
-    std::vector<KV> kvs_ = logmanager_->Append(data_);
+    std::vector<KV> kvs_ = logmanager_->Append(data);
     if (Config::TRACE_LOG)
       std::cout << "Get Locations From LogManager" << std::endl;
     lsmtree_->AddTableToL0(kvs_);
   }
   else if (Util::CheckAlgorithm(algo, base_algos)) {
-    lsmtree_->AddTableToL0(data_);
+    lsmtree_->AddTableToL0(data);
   }
   else {
     std::cout << "Algorithm Error" << std::endl;

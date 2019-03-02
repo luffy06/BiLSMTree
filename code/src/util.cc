@@ -41,12 +41,8 @@ std::string Util::GetAlgorithm() {
 
 size_t Util::GetMemTableSize() {
   std::string algo = Util::GetAlgorithm();
-  size_t table_size_ = Config::ImmutableMemTableConfig::MEM_SIZE;
-  if (algo == std::string("LevelDB") || algo == std::string("Wisckey") || algo == std::string("Cuckoo")) {
-    table_size_ = Config::ImmutableMemTableConfig::MEM_SIZE * (Config::CacheServerConfig::MAXSIZE + 1) + Config::LRU2QConfig::M1 + Config::LRU2QConfig::M2;
-    table_size_ = table_size_ / 2;
-  }
-  return table_size_;
+  assert(algo != std::string("BiLSMTree"));
+  return Config::ImmutableMemTableConfig::MEM_SIZE;
 }
 
 size_t Util::GetSSTableSize() {
