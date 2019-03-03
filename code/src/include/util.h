@@ -67,9 +67,9 @@ public:
     static const size_t ERASE_LATENCY = 2000;         // 2ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
-    static const size_t BLOCK_NUMS = 16384;
-    static const size_t PAGE_NUMS = 32;
-    static const size_t PAGE_SIZE = 8 * 1024; // 8KB
+    static const size_t BLOCK_NUMS = 8192;
+    static const size_t PAGE_NUMS = 64;
+    static const size_t PAGE_SIZE = 16 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
     static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(LBA_NUMS * 0.2);
@@ -95,7 +95,7 @@ public:
   };
 
   struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 1024 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
+    static const size_t MEM_SIZE = 256 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
   };
 
   struct LRU2QConfig {
@@ -129,8 +129,8 @@ public:
   };
 
   struct TableConfig {
-    static const size_t TABLE_SIZE = 512;
-    static const size_t BLOCK_SIZE = 16;
+    static const size_t TABLE_SIZE = 1;
+    static const size_t BLOCK_SIZE = 32;
   };
 
   struct VisitFrequencyConfig {

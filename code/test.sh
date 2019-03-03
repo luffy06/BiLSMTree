@@ -2,7 +2,7 @@
 
 set -e  # fail and exit on any command erroring
 
-testids=(0)
+testids=(0 1 2 3)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
