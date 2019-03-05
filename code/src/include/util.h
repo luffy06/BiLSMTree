@@ -30,6 +30,8 @@ public:
 
   static size_t GetMemTableSize();
 
+  static size_t GetLRU2QSize();
+
   static size_t GetSSTableSize();
 
   static size_t GetBlockSize();
@@ -88,15 +90,11 @@ public:
     static const size_t MAXLEVEL = 4096;
   };
 
-  struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 4 * 1024 * 1024;      // 1MB the number of <key, value> stored in immutable memetable
-  };
-
-  struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M1_NUMB = 100000;                   // max number of lru
-    static const size_t M2_NUMB = 100000;                   // max number of fifo    
+  struct CacheServerConfig {
+    static const size_t IMM_NUMB = 3;
+    static const size_t MEMORY_SIZE = 8 * 1024 * 1024;
+    static const size_t LRU2Q_RATE = 3;
+    static const size_t LRU_RATE = 1;
   };
 
   struct FilterConfig {

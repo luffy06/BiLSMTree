@@ -13,7 +13,7 @@ public:
 
   ~LRU2Q();
 
-  std::vector<KV> Put(const KV kv);
+  std::vector<KV> Put(const KV kv, const std::vector<std::string> &lru2q_algos, const std::vector<std::string> &lru2q_imm_algos);
 
   bool Get(const Slice key, Slice& value);
 
@@ -27,6 +27,8 @@ public:
 private:
   BiList *lru_;
   BiList *fifo_;
+  const std::vector<std::string> lru2q_imm_algos = {"BiLSMTree"};
+  const std::vector<std::string> lru2q_algos = {"BiLSMTree-Direct"};
 };
 
 }

@@ -18,10 +18,14 @@ public:
 private:
   LRU2Q *lru_;
   SkipList *mem_;
+  std::vector<SkipList*> imm_list_;
   SkipList *imm_;
   MemoryResult *memoryresult_;
-  const std::vector<std::string> lru2q_algos = {"BiLSMTree"};
-  const std::vector<std::string> base_algos = {"BiLSMTree-Direct", "Wisckey", "LevelDB", "Cuckoo"};
+  const std::vector<std::string> lru2q_imm_algos = {"BiLSMTree"};
+  const std::vector<std::string> lru2q_algos = {"BiLSMTree-Direct"};
+  const std::vector<std::string> base_algos = {"Wisckey", "LevelDB", "Cuckoo"};
+
+  void ShowMemory();
 };
 }
 

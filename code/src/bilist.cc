@@ -2,7 +2,8 @@
 
 namespace bilsmtree {
 
-BiList::BiList(size_t size, size_t numb) {
+BiList::BiList(size_t size) {
+  size_t numb = 500000;
   Init(size, numb);
 }
 
@@ -70,7 +71,7 @@ void BiList::Insert(const KV kv) {
   assert(data_[head_].prev_ == -1);
 }
 
-std::vector<KV> BiList::Pop() {
+std::vector<KV> BiList::PopTail() {
   std::vector<KV> res;
   while (IsFull()) {
     KV pop_kv = Delete(tail_);

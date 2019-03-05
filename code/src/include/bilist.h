@@ -13,7 +13,7 @@ namespace bilsmtree {
 */
 class BiList {
 public:
-  BiList(size_t size, size_t numb);
+  BiList(size_t size);
   
   ~BiList();
 
@@ -29,7 +29,7 @@ public:
   // false: no key pop  
   void Insert(const KV kv);
 
-  std::vector<KV> Pop();
+  std::vector<KV> PopTail();
 
   std::vector<KV> DropAll();
 
