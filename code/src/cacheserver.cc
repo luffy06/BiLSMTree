@@ -90,8 +90,8 @@ void CacheServer::ShowMemory() {
   size_t m1 = lru2q_size_ * Config::CacheServerConfig::LRU_RATE / (Config::CacheServerConfig::LRU_RATE + 1);
   size_t m2 = lru2q_size_ - m1;
   std::cout << "MEMORY:" << memory << std::endl;
-  std::cout << "LRU:" << m1 << "\tFIFO" << m2 << std::endl;
+  std::cout << "LRU:" << m1 << "\tFIFO:" << m2 << std::endl;
   std::cout << "MEM:" << mem_size_ << std::endl;
-  std::cout << "IMM_NUMB:" << (mem_size_ == 0 ? 0 : (memory - lru2q_size_) / mem_size_) << std::endl;
+  std::cout << "IMM_NUMB:" << Util::GetMemTableNumb() << std::endl;
 }
 }

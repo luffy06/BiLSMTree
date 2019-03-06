@@ -28,6 +28,8 @@ public:
 
   static std::string GetAlgorithm();
 
+  static size_t GetMemTableNumb();
+
   static size_t GetMemTableSize();
 
   static size_t GetLRU2QSize();

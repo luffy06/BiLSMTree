@@ -45,7 +45,7 @@ size_t Util::GetMemTableSize() {
   if (algo == std::string("BiLSMTree")) {
     size_t lru_size_ = mem_size_ * Config::CacheServerConfig::LRU2Q_RATE / (Config::CacheServerConfig::LRU2Q_RATE + 1);
     mem_size_ = mem_size_ - lru_size_;
-    mem_size_ = mem_size_ / (Config::CacheServerConfig::IMM_NUMB + 1);
+    mem_size_ = mem_size_ / Util::GetMemTableNumb();
   }
   else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
     mem_size_ = mem_size_ / 2;
@@ -57,8 +57,18 @@ size_t Util::GetMemTableSize() {
 }
 
 size_t Util::GetLRU2QSize() {
-  size_t lru2q_size_ = Config::CacheServerConfig::MEMORY_SIZE - (Util::GetMemTableSize() * (Config::CacheServerConfig::IMM_NUMB + 1));
+  size_t lru2q_size_ = Config::CacheServerConfig::MEMORY_SIZE - (Util::GetMemTableSize() * Util::GetMemTableNumb());
   return lru2q_size_;
+}
+
+size_t Util::GetMemTableNumb() {
+  std::string algo = Util::GetAlgorithm();
+  size_t numb = 0;
+  if (algo == std::string("BiLSMTree"))
+    numb = Config::CacheServerConfig::IMM_NUMB + 1;
+  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB"))
+    numb = 2;
+  return numb;
 }
 
 size_t Util::GetSSTableSize() {
