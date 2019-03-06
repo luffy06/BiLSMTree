@@ -8,11 +8,15 @@ TableIterator::TableIterator() {
   iter_ = 0;
 }
 
-TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, FilterManager* filtermanager, Meta meta, LSMTreeResult *lsmtreeresult_) {
+TableIterator::TableIterator(const std::string filename, FileSystem* filesystem, 
+                            Meta meta, LSMTreeResult *lsmtreeresult_, 
+                            const std::vector<std::string> &bloom_algos, 
+                            const std::vector<std::string> &cuckoo_algos) {
   // std::cout << "Read:" << filename << std::endl;
   // meta.Show();
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
+  assert(algo != std::string("LevelDB-Sep"));
   filesystem->Open(filename, Config::FileSystemConfig::READ_OPTION);
   filesystem->Seek(filename, meta.file_size_ - meta.footer_size_);
   std::string offset_data_ = filesystem->Read(filename, meta.footer_size_);
@@ -31,16 +35,11 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
   std::string filter_data_ = filesystem->Read(filename, meta.file_size_ - filter_offset_ - meta.footer_size_);
   // std::cout << filter_data_ << std::endl;
   lsmtreeresult_->Read(filter_data_.size(), "FILTER");
-  Filter *filter_ = NULL;
-  if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2") || algo == std::string("Cuckoo")) {
-    // ss.str(filter_data_);
-    // size_t offset_ = 0;
-    // size_t filter_size_ = 0;
-    // ss >> offset_ >> filter_size_;
-    // filter_data_ = filtermanager->Get(offset_, filter_size_);
+  Filter* filter_ = NULL;
+  if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
     filter_ = new CuckooFilter(filter_data_);
   }
-  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB-Sep") || algo == std::string("LevelDB")) {
+  else if (Util::CheckAlgorithm(algo, bloom_algos)) {
     filter_ = new BloomFilter(filter_data_);
   }
   else {
@@ -67,7 +66,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, block_size_);
     lsmtreeresult_->Read(block_data.size(), "DATA");
-    ParseBlock(block_data, filter_);
+    ParseBlock(block_data, filter_, bloom_algos, cuckoo_algos);
   }
   filesystem->Close(filename);
   id_ = 0;
@@ -79,7 +78,9 @@ TableIterator::~TableIterator() {
   kvs_.clear();
 }
 
-void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
+void TableIterator::ParseBlock(const std::string block_data, Filter* filter, 
+                              const std::vector<std::string> &bloom_algos, 
+                              const std::vector<std::string> &cuckoo_algos) {
   std::stringstream ss;
   std::string algo = Util::GetAlgorithm();
   ss.str(block_data);
@@ -89,12 +90,16 @@ void TableIterator::ParseBlock(const std::string block_data, Filter *filter) {
     std::string key_str, value_str;
     ss >> key_str >> value_str;
     
-    if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree2")) {
+    if (Util::CheckAlgorithm(algo, cuckoo_algos)) {
       if (key_str.size() > 0 && filter->KeyMatch(Slice(key_str.data(), key_str.size())))
         kvs_.push_back(KV(key_str, value_str));
     }
-    else {
+    else if (Util::CheckAlgorithm(algo, bloom_algos)) {
       kvs_.push_back(KV(key_str, value_str));
+    }
+    else {
+      std::cout << "Algorithm Error" << std::endl;
+      assert(false);     
     }
   }
 }

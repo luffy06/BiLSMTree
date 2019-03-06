@@ -13,9 +13,19 @@ class TableIterator {
 public:
   TableIterator();
 
-  TableIterator(const std::string filename, FileSystem* filesystem, FilterManager* filtermanager, Meta meta, LSMTreeResult *lsmtreeresult_);
+  TableIterator(const std::string filename, FileSystem* filesystem, Meta meta, 
+                LSMTreeResult *lsmtreeresult_, 
+                const std::vector<std::string> &bloom_algos, 
+                const std::vector<std::string> &cuckoo_algos);
 
   ~TableIterator();
+
+  void SetData(const std::vector<KV> &data) {
+    kvs_.clear();
+    for (size_t i = 0; i < data.size(); ++ i)
+      kvs_.push_back(data[i]);
+    ResetIter();
+  }
   
   void ResetIter() { iter_ = 0; }
 
@@ -33,6 +43,14 @@ public:
     return kvs_[iter_];
   }
 
+  KV Max() const {
+    return *kvs_.rbegin();
+  }
+
+  KV Min() const {
+    return *kvs_.begin();
+  }
+
   void SetId(size_t id) { id_ = id; }
 
   size_t DataSize() { return kvs_.size(); }
@@ -42,7 +60,9 @@ private:
   std::vector<KV> kvs_;
   size_t iter_;
 
-  void ParseBlock(const std::string block_data, Filter *filter_);
+  void ParseBlock(const std::string block_data, Filter* filter, 
+                  const std::vector<std::string> &bloom_algos, 
+                  const std::vector<std::string> &cuckoo_algos);
 };
 
 struct TableComparator {

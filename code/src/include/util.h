@@ -28,13 +28,19 @@ public:
 
   static std::string GetAlgorithm();
 
+  static size_t GetMemTableNumb();
+
   static size_t GetMemTableSize();
+
+  static size_t GetLRU2QSize();
 
   static size_t GetSSTableSize();
 
   static size_t GetBlockSize();
 
   static void WriteLog(std::string data);
+
+  static bool CheckAlgorithm(const std::string &algo, const std::vector<std::string> &algos);
 
   static void Test(std::string msg) {
     std::string k;
@@ -91,18 +97,10 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t MAXSIZE = 1;                     // max size of the number of immutable memtables
-  };
-
-  struct ImmutableMemTableConfig {
-    static const size_t MEM_SIZE = 256 * 1024;            // 1MB the number of <key, value> stored in immutable memetable
-  };
-
-  struct LRU2QConfig {
-    static const size_t M1 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M2 = ImmutableMemTableConfig::MEM_SIZE;
-    static const size_t M1_NUMB = 100000;                   // max number of lru
-    static const size_t M2_NUMB = 100000;                   // max number of fifo    
+    static const size_t IMM_NUMB = 3;
+    static const size_t MEMORY_SIZE = 8 * 1024 * 1024;
+    static const size_t LRU2Q_RATE = 3;
+    static const size_t LRU_RATE = 1;
   };
 
   struct FilterConfig {
@@ -449,8 +447,6 @@ public:
   MemoryResult() {
     hit_ = 0;
     total_ = 0;
-    lru_size_ = 0;
-    mem_size_ = 0;
     record_ = false;
   }
 
@@ -463,11 +459,6 @@ public:
       hit_ = hit_ + hit;
       total_ = total_ + 1;
     }
-  }
-
-  void SplitMemory(size_t lru_size, size_t mem_size) {
-    lru_size_ = lru_size;
-    mem_size_ = mem_size;
   }
 
   size_t GetHit() {
@@ -484,14 +475,6 @@ public:
     return (1. * hit_) / total_;
   }
 
-  size_t GetLRU2QSize() {
-    return lru_size_;
-  }
-
-  size_t GetMemSize() {
-    return mem_size_;
-  }
-
   void StartRecord() {
     record_ = true;
   }
@@ -500,14 +483,11 @@ public:
     std::cout << "HIT:" << GetHit() << std::endl;
     std::cout << "TOTAL_QUERY:" << GetTotalQuery() << std::endl;
     std::cout << "HIT_RATE:" << GetHitRate() << std::endl;
-    std::cout << "MEMORY_RATE:" << (1. * GetLRU2QSize()) / GetMemSize() << std::endl;
   }
 private:
   bool record_;
   size_t hit_;
   size_t total_;
-  size_t lru_size_;
-  size_t mem_size_;
 };
 
 class Result {

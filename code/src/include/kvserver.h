@@ -5,7 +5,6 @@
 
 #include "lsmtree.h"
 #include "logmanager.h"
-#include "skiplist.h"
 
 namespace bilsmtree {
 
@@ -17,10 +16,12 @@ public:
 
   bool Get(const Slice key, Slice& value);
 
-  void MinorCompact(const SkipList* sl);
+  void MinorCompact(const std::vector<KV> &data);
 private:
   LSMTree *lsmtree_;
   LogManager *logmanager_;
+  const std::vector<std::string> kvsep_algos = {"BiLSMTree-Direct", "LevelDB-Sep", "Wisckey", "BiLSMTree", "Cuckoo"};
+  const std::vector<std::string> base_algos = {"LevelDB"};
 };
 
 }

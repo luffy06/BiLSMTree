@@ -78,7 +78,6 @@ public:
     return ss.str();
   }
 
-
 private:
   size_t k_;
   size_t *array_;

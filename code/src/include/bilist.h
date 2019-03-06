@@ -13,7 +13,7 @@ namespace bilsmtree {
 */
 class BiList {
 public:
-  BiList(size_t size, size_t numb);
+  BiList(size_t size);
   
   ~BiList();
 
@@ -22,19 +22,27 @@ public:
   // insert after tail, pop head
   // true: has key pop
   // false: no key pop
-  std::vector<KV> Append(const KV kv);
+  void Append(const KV kv);
 
   // insert before head, pop tail
   // true: has key pop
   // false: no key pop  
-  std::vector<KV> Insert(const KV kv);
+  void Insert(const KV kv);
+
+  std::vector<KV> PopTail();
+
+  std::vector<KV> DropAll();
+
+  KV DropHead();
+
+  int GetSize() { return data_numb_; }
 
   bool Get(const Slice key, Slice& value);
 
   std::vector<KV> GetAll() {
     std::vector<KV> res;
-    size_t p = data_[head_].next_;
-    while (p) {
+    int p = data_[head_].next_;
+    while (p != -1) {
       res.push_back(data_[p].kv_);
       p = data_[p].next_;
     }
@@ -42,9 +50,9 @@ public:
   }
 
   void Show() {
-    size_t p = data_[head_].next_;
+    int p = data_[head_].next_;
     size_t i = 1;
-    while (p) {
+    while (p != -1) {
       std::cout << "Num: " << i++ << " Index: " << p << std::endl;
       std::cout << "Key:" << data_[p].kv_.key_.ToString() << std::endl;
       std::cout << "value:" << data_[p].kv_.value_.ToString() << std::endl;
@@ -55,25 +63,27 @@ public:
 private:
   struct ListNode {
     KV kv_;
-    size_t next_, prev_;
+    int next_, prev_;
 
     ListNode() { }
 
     ListNode(const Slice key, const Slice value) : kv_(key, value) { }
   };
 
-  size_t head_;        // refer to the head of list which doesn't store data
-  size_t tail_;        // refer to last data's position
+  int head_;        // refer to the head of list which doesn't store data
+  int tail_;        // refer to last data's position
   size_t max_size_;
-  size_t data_size_;
+  int data_size_;
   size_t max_numb_;
-  size_t data_numb_;
+  int data_numb_;
   std::queue<size_t> free_;
   std::vector<ListNode> data_;
 
+  void Init(size_t size, size_t numb);
+
   int ExistAndUpdate(const KV kv);
 
-  KV Delete(size_t pos);
+  KV Delete(int pos);
 };
 
 }

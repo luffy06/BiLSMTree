@@ -22,12 +22,6 @@ enum PageStatus {
   PageInvalid
 };
 
-enum BlockStatus {
-  FreeBlock,
-  PrimaryBlock,
-  ReplaceBlock
-};
-
 struct PBA {
   size_t block_num_;
   size_t page_num_;

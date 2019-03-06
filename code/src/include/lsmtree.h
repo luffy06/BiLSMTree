@@ -33,13 +33,18 @@ private:
   std::vector<size_t> buf_size_;
   VisitFrequency *recent_files_;
   DataManager *datamanager_;
-  FilterManager *filtermanager_;
   std::vector<size_t> frequency_;
   size_t total_sequence_number_;
   FileSystem *filesystem_;
   LSMTreeResult *lsmtreeresult_;
   size_t rollback_;
   double ALPHA;
+  const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
+  const std::vector<std::string> rollback_buffer_algos = {"BiLSMTree"};
+  const std::vector<std::string> rollback_base_algos = {"BiLSMTree-Direct"};
+  const std::vector<std::string> bloom_algos = {"LevelDB-Sep", "Wisckey", "LevelDB", "BiLSMTree-Direct"};
+  const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
+  const std::vector<std::string> keep_block_algos = {"LevelDB-Sep"};
 
   size_t GetSequenceNumber();
 
@@ -53,15 +58,13 @@ private:
 
   void GetOverlaps(std::vector<Meta>& src, std::vector<Meta>& des);
 
-  std::string GetFilterData(const std::string origin);
-
-  std::string WriteFilterData(const std::string filter_data);
-
   bool GetValueFromFile(const Meta meta, const Slice key, Slice& value);
 
   size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
   void RollBack(const size_t now_level, const Meta meta);
+
+  void RollBackBase(const size_t now_level, const Meta meta);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
