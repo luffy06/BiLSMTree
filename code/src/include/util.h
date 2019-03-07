@@ -98,7 +98,7 @@ public:
 
   struct CacheServerConfig {
     static const size_t IMM_NUMB = 3;
-    static const size_t MEMORY_SIZE = 8 * 1024;
+    static const size_t MEMORY_SIZE = 8 * 1024 * 1024;
     static const size_t LRU2Q_RATE = 3;
     static const size_t LRU_RATE = 1;
   };
