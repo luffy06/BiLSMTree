@@ -343,7 +343,8 @@ void LSMTree::RollBackBase(const size_t now_level, const Meta meta) {
   assert(Util::CheckAlgorithm(algo, rollback_base_algos));
   if (now_level == 0)
     return ;
-  size_t to_level = GetTargetLevel(now_level, meta);
+  // size_t to_level = GetTargetLevel(now_level, meta);
+  size_t to_level = 0;
   assert(to_level <= now_level);
   if (to_level == now_level)
     return ;
@@ -669,6 +670,8 @@ void LSMTree::MajorCompaction(size_t level) {
     file_[level].erase(file_[level].begin() + p - i);
   }
 
+  if (level == 0)
+    GetOverlaps(file_[level], wait_queue_);
   // select overlap files from Li+1
   if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
