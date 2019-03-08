@@ -79,7 +79,7 @@ bool CacheServer::Get(const Slice key, Slice& value) {
         res = imm_list_[i]->Find(key, value);
     }
   }
-  if (Util::CheckAlgorithm(algo, lru2q_algos)) {
+  else if (Util::CheckAlgorithm(algo, lru2q_algos)) {
     res = lru_->Get(key, value);
   }
   else if (Util::CheckAlgorithm(algo, base_algos)) {
@@ -88,7 +88,7 @@ bool CacheServer::Get(const Slice key, Slice& value) {
       res = imm_->Find(key, value);
   }
   else {
-    std::cout << "Algorithm Error" << std::endl;
+    std::cout << "Algorithm: " << algo << " Error" << std::endl;
     assert(false);
   }
   memoryresult_->Hit((res ? 1 : 0));
