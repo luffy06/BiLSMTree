@@ -43,6 +43,23 @@ std::vector<KV> LRU2Q::Put(const KV kv, const std::vector<std::string> &lru2q_al
     }
     fifo_->Append(lru_pop[i]);
   }
+  // fifo is full
+  if (fifo_->IsFull()) {
+    if (Util::CheckAlgorithm(algo, lru2q_algos)) {
+      std::vector<KV> tmp = fifo_->DropAll();
+      for (size_t j = 0; j < tmp.size(); ++ j)
+        res.push_back(tmp[j]);
+    }
+    else if (Util::CheckAlgorithm(algo, lru2q_imm_algos)) {
+      std::vector<KV> tmp = fifo_->PopTail();
+      for (size_t j = 0; j < tmp.size(); ++ j)
+        res.push_back(tmp[j]);
+    }
+    else {
+      std::cout << "Algorithm Error" << std::endl;
+      assert(false);
+    }
+  }
   return res;
 }
 
@@ -52,6 +69,7 @@ bool LRU2Q::Get(const Slice key, Slice& value) {
     res = fifo_->Get(key, value);
     if (res) {
       KV kv = fifo_->DropHead();
+      assert(kv.key_.compare(key) == 0);
       lru_->Insert(kv);
       std::vector<KV> lru_pop = lru_->PopTail();
       for (size_t i = 0; i < lru_pop.size(); ++ i) {

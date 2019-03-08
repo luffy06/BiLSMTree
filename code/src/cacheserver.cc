@@ -71,13 +71,25 @@ std::vector<KV> CacheServer::Put(const KV kv) {
 bool CacheServer::Get(const Slice key, Slice& value) {
   bool res = false;
   std::string algo = Util::GetAlgorithm();
-  if (Util::CheckAlgorithm(algo, lru2q_algos)) {
+  if (Util::CheckAlgorithm(algo, lru2q_imm_algos)) {
+    res = lru_->Get(key, value);
+    if (!res) {
+      res = mem_->Find(key, value);
+      for (size_t i = 0; i < imm_list_.size() && !res; ++ i)
+        res = imm_list_[i]->Find(key, value);
+    }
+  }
+  else if (Util::CheckAlgorithm(algo, lru2q_algos)) {
     res = lru_->Get(key, value);
   }
   else if (Util::CheckAlgorithm(algo, base_algos)) {
     res = mem_->Find(key, value);
     if (!res)
       res = imm_->Find(key, value);
+  }
+  else {
+    std::cout << "Algorithm: " << algo << " Error" << std::endl;
+    assert(false);
   }
   memoryresult_->Hit((res ? 1 : 0));
   return res;

@@ -59,7 +59,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (Config::TRACE_READ_LOG)
         std::cout << "Check SEQ:" << meta.sequence_number_ << "[" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
       if (GetValueFromFile(meta, key, value)) {
-        if (Util::CheckAlgorithm(algo, rollback_buffer_algos)) {
+        if (Util::CheckAlgorithm(algo, rollback_base_algos)) {
           UpdateFrequency(meta.sequence_number_);
           if (i > 0) {
             size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
@@ -74,9 +74,8 @@ bool LSMTree::Get(const Slice key, Slice& value) {
                 buffer_[i].erase(buffer_[i].begin() + p - file_[i].size());
               if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
                 RollBack(i, meta);
-              else if (Util::CheckAlgorithm(algo, rollback_base_algos))
+              else if (Util::CheckAlgorithm(algo, rollback_direct_algos))
                 RollBackBase(i, meta);
-
             }
           }
         }
@@ -387,10 +386,11 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
 
 void LSMTree::RollBackBase(const size_t now_level, const Meta meta) {
   std::string algo = Util::GetAlgorithm();
-  assert(Util::CheckAlgorithm(algo, rollback_base_algos));
+  assert(Util::CheckAlgorithm(algo, rollback_direct_algos));
   if (now_level == 0)
     return ;
-  size_t to_level = GetTargetLevel(now_level, meta);
+  // size_t to_level = GetTargetLevel(now_level, meta);
+  size_t to_level = 0;
   assert(to_level <= now_level);
   if (to_level == now_level)
     return ;
