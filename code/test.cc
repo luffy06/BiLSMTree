@@ -104,62 +104,62 @@ void TestFileSystem(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
-void TestBiList(const std::vector<bilsmtree::KV>& data) {
-  std::cout << seg << "TEST BiList" << seg << std::endl;
-  std::string msg = "SUCCESS";
-  bilsmtree::BiList *bilist = new bilsmtree::BiList(10, 2000);
-  std::vector<bilsmtree::KV> kv_data;
-  for (size_t i = 1; i <= 10; ++ i) {
-    bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
-    kv_data.push_back(kv);
-  }
-  std::cout << "TEST Append & Insert" << std::endl;
-  for (size_t i = 0; i < 10; ++ i) {
-    std::vector<bilsmtree::KV> pop;
-    if (i < 5) {
-      pop = bilist->Append(kv_data[i]);
-      if (pop.size() > 0)
-        msg = "Append error! Pop data";
-    }
-    else {
-      pop = bilist->Insert(kv_data[i]);
-      if (pop.size() > 0)
-        msg = "Insert error! Pop data";
-    }
-  }
-  bilist->Show();
-  std::cout << seg << std::endl;
+// void TestBiList(const std::vector<bilsmtree::KV>& data) {
+//   std::cout << seg << "TEST BiList" << seg << std::endl;
+//   std::string msg = "SUCCESS";
+//   bilsmtree::BiList *bilist = new bilsmtree::BiList(1000);
+//   std::vector<bilsmtree::KV> kv_data;
+//   for (size_t i = 1; i <= 10; ++ i) {
+//     bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
+//     kv_data.push_back(kv);
+//   }
+//   std::cout << "TEST Append & Insert" << std::endl;
+//   for (size_t i = 0; i < 10; ++ i) {
+//     std::vector<bilsmtree::KV> pop;
+//     if (i < 5) {
+//       bilist->Append(kv_data[i]);
+//       if (bilist->IsFull())
+//         msg = "Append error! Pop data";
+//     }
+//     else {
+//       bilist->Insert(kv_data[i]);
+//       if (bilist->IsFull())
+//         msg = "Insert error! Pop data";
+//     }
+//   }
+//   bilist->Show();
+//   std::cout << seg << std::endl;
 
-  std::cout << "TEST Append" << std::endl;
-  for (size_t i = 0; i < 10; ++ i) {
-    std::vector<bilsmtree::KV> pop = bilist->Append(kv_data[i]);
-    if (pop.size() > 0) {
-      for (size_t j = 0; j < pop.size(); ++ j)
-      std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
-    }
-    else {
-      msg = "Append error! Pop data";
-    }
-  }
-  bilist->Show();
-  std::cout << seg << std::endl;
+//   std::cout << "TEST Append" << std::endl;
+//   for (size_t i = 0; i < 10; ++ i) {
+//     std::vector<bilsmtree::KV> pop = bilist->Append(kv_data[i]);
+//     if (pop.size() > 0) {
+//       for (size_t j = 0; j < pop.size(); ++ j)
+//       std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
+//     }
+//     else {
+//       msg = "Append error! Pop data";
+//     }
+//   }
+//   bilist->Show();
+//   std::cout << seg << std::endl;
 
-  std::cout << "TEST Insert" << std::endl;
-  for (size_t i = 0; i < 10; ++ i) {
-    std::vector<bilsmtree::KV> pop = bilist->Insert(kv_data[i]);
-    if (pop.size() > 0) {
-      for (size_t j = 0; j < pop.size(); ++ j)
-      std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
-    }
-    else {
-      msg = "Insert error! Pop data";
-    }
-  }
-  bilist->Show();
-  std::cout << seg << std::endl;
+//   std::cout << "TEST Insert" << std::endl;
+//   for (size_t i = 0; i < 10; ++ i) {
+//     std::vector<bilsmtree::KV> pop = bilist->Insert(kv_data[i]);
+//     if (pop.size() > 0) {
+//       for (size_t j = 0; j < pop.size(); ++ j)
+//       std::cout << "POP:" << pop[j].key_.ToString() << std::endl;
+//     }
+//     else {
+//       msg = "Insert error! Pop data";
+//     }
+//   }
+//   bilist->Show();
+//   std::cout << seg << std::endl;
 
-  std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
-}
+//   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
+// }
 
 void TestSkipList(const std::vector<bilsmtree::KV>& kv_data) {
   std::cout << seg << "TEST SkipList" << seg << std::endl;
@@ -205,64 +205,64 @@ void TestSkipList(const std::vector<bilsmtree::KV>& kv_data) {
   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
 }
 
-void TestLRU2Q(const std::vector<bilsmtree::KV>& data) {
-  std::cout << seg << "TEST LRU2Q" << seg << std::endl;
-  std::string msg = "SUCCESS";  
-  std::vector<bilsmtree::KV> kv_data;
-  bilsmtree::LRU2Q *lru2q = new bilsmtree::LRU2Q();
-  for (size_t i = 1; i <= 20; ++ i) {
-    bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
-    kv_data.push_back(kv);
-  }
+// void TestLRU2Q(const std::vector<bilsmtree::KV>& data) {
+//   std::cout << seg << "TEST LRU2Q" << seg << std::endl;
+//   std::string msg = "SUCCESS";  
+//   std::vector<bilsmtree::KV> kv_data;
+//   bilsmtree::LRU2Q *lru2q = new bilsmtree::LRU2Q();
+//   for (size_t i = 1; i <= 20; ++ i) {
+//     bilsmtree::KV kv = bilsmtree::KV(std::string(i, '@'), std::string(i, '@'));
+//     kv_data.push_back(kv);
+//   }
 
-  std::cout << "TEST Put" << std::endl;
-  for (size_t i = 0; i < kv_data.size(); ++ i) {
-    std::vector<bilsmtree::KV> pop = lru2q->Put(kv_data[i]);
-    if (pop.size() > 0) {
-      msg = "Put error";
-    }
-  }
+//   std::cout << "TEST Put" << std::endl;
+//   for (size_t i = 0; i < kv_data.size(); ++ i) {
+//     std::vector<bilsmtree::KV> pop = lru2q->Put(kv_data[i]);
+//     if (pop.size() > 0) {
+//       msg = "Put error";
+//     }
+//   }
 
-  std::vector<bilsmtree::KV> res = lru2q->GetAll();
-  std::cout << "Data Size:" << res.size() << std::endl;
-  for (size_t i = 0; i < res.size(); ++ i) 
-    std::cout << res[i].key_.ToString() << std::endl;
+//   std::vector<bilsmtree::KV> res = lru2q->GetAll();
+//   std::cout << "Data Size:" << res.size() << std::endl;
+//   for (size_t i = 0; i < res.size(); ++ i) 
+//     std::cout << res[i].key_.ToString() << std::endl;
 
-  std::cout << "TEST Get 1" << std::endl;
-  for (size_t i = 0; i < kv_data.size() / 2; ++ i) {
-    bilsmtree::Slice value;
-    if (!lru2q->Get(kv_data[i].key_, value)) {
-      msg = "Value doesn't exist";
-    }
-    else if (value.compare(kv_data[i].value_) != 0) {
-      msg = "Value doesn't match";
-    }
-  }
+//   std::cout << "TEST Get 1" << std::endl;
+//   for (size_t i = 0; i < kv_data.size() / 2; ++ i) {
+//     bilsmtree::Slice value;
+//     if (!lru2q->Get(kv_data[i].key_, value)) {
+//       msg = "Value doesn't exist";
+//     }
+//     else if (value.compare(kv_data[i].value_) != 0) {
+//       msg = "Value doesn't match";
+//     }
+//   }
 
-  res = lru2q->GetAll();
-  std::cout << "Data Size:" << res.size() << std::endl;
-  for (size_t i = 0; i < res.size(); ++ i)
-    std::cout << res[i].key_.ToString() << std::endl;
+//   res = lru2q->GetAll();
+//   std::cout << "Data Size:" << res.size() << std::endl;
+//   for (size_t i = 0; i < res.size(); ++ i)
+//     std::cout << res[i].key_.ToString() << std::endl;
 
-  std::cout << "TEST Get 2" << std::endl;
-  for (size_t i = 0; i < kv_data.size(); i += 2) {
-    bilsmtree::Slice value;
-    if (!lru2q->Get(kv_data[i].key_, value)) {
-      msg = "Value doesn't exist";
-    }
-    else if (value.compare(kv_data[i].value_) != 0) {
-      msg = "Value doesn't match";
-    }
-  }
+//   std::cout << "TEST Get 2" << std::endl;
+//   for (size_t i = 0; i < kv_data.size(); i += 2) {
+//     bilsmtree::Slice value;
+//     if (!lru2q->Get(kv_data[i].key_, value)) {
+//       msg = "Value doesn't exist";
+//     }
+//     else if (value.compare(kv_data[i].value_) != 0) {
+//       msg = "Value doesn't match";
+//     }
+//   }
 
-  res = lru2q->GetAll();
-  std::cout << "Data Size:" << res.size() << std::endl;
-  for (size_t i = 0; i < res.size(); ++ i)
-    std::cout << res[i].key_.ToString() << std::endl;
+//   res = lru2q->GetAll();
+//   std::cout << "Data Size:" << res.size() << std::endl;
+//   for (size_t i = 0; i < res.size(); ++ i)
+//     std::cout << res[i].key_.ToString() << std::endl;
 
-  delete lru2q;
-  std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
-}
+//   delete lru2q;
+//   std::cout << seg << "TEST RESULT: " << msg << seg << std::endl;
+// }
 
 void TestCuckooFilter(const std::vector<bilsmtree::KV>& data) {
   std::cout << seg << "TEST CuckooFilter" << seg << std::endl;
