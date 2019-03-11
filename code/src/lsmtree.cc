@@ -684,8 +684,8 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
         continue ;
     }
     
-    if (Config::TRACE_LOG)
-      std::cout << (overlaps.size() == 1 ? "Keep Blocks" : "Merge Blocks") << std::endl;
+    // if (Config::TRACE_LOG)
+    //   std::cout << (overlaps.size() == 1 ? "Keep Blocks" : "Merge Blocks") << std::endl;
     first = true;
     // merge all overlaped files
     if (overlaps.size() == 1) {
@@ -757,6 +757,8 @@ std::vector<Table*> LSMTree::MergeIndexTables(const std::vector<IndexTableIterat
   }
   for (size_t i = 0; i < tables.size(); ++ i)
     delete tables[i];
+  if (Config::TRACE_LOG)
+    std::cout << "Total Blocks:" << total_blocks_ << "\tStill Blocks:" << still_blocks_ << std::endl;
   lsmtreeresult_->KeepBlock((still_blocks_ * 1.0) / total_blocks_);
   if (Config::TRACE_LOG)
     std::cout << "MergeIndexTables End:" << result_.size() << std::endl;
@@ -833,30 +835,33 @@ void LSMTree::MajorCompaction(size_t level) {
 
   size_t select_numb_Li = file_[level].size() - max_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
-  max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
-  // select from files from Li
-  std::vector<std::pair<size_t, size_t>> indexs;
-  std::vector<size_t> select_indexs;
-  for (size_t i = 0; i < file_[level].size(); ++ i)
-    indexs.push_back(std::make_pair(i, frequency_[file_[level][i].sequence_number_]));
-  std::sort(indexs.begin(), indexs.end(), [](std::pair<size_t, size_t> a, std::pair<size_t, size_t> b) {
-    if (a.second != b.second)
-      return a.second < b.second;
-    return a.first < b.first;
-  });
-  for (size_t i = 0; i < select_numb_Li; ++ i)
-    select_indexs.push_back(indexs[i].first);
-  sort(select_indexs.begin(), select_indexs.end(), [](size_t a, size_t b) {
-    return a < b;
-  });
-  for (size_t i = 0; i < select_indexs.size(); ++ i) {
-    size_t p = select_indexs[i];
-    wait_queue_.push_back(file_[level][p - i]);
-    file_[level].erase(file_[level].begin() + p - i);
-  }
-
-  if (level == 0)
-    GetOverlaps(file_[level], wait_queue_);
+  // if (Util::CheckAlgorithm(algo, keep_block_algos) && level == 0) {
+  //   for (size_t i = 0; i < file_[level].size(); ++ i)
+  //     wait_queue_.push_back(file_[level][i]);
+  //   file_[level].clear();
+  // }
+  // else {
+    max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
+    std::vector<std::pair<size_t, size_t>> indexs;
+    std::vector<size_t> select_indexs;
+    for (size_t i = 0; i < file_[level].size(); ++ i)
+      indexs.push_back(std::make_pair(i, frequency_[file_[level][i].sequence_number_]));
+    std::sort(indexs.begin(), indexs.end(), [](std::pair<size_t, size_t> a, std::pair<size_t, size_t> b) {
+      if (a.second != b.second)
+        return a.second < b.second;
+      return a.first < b.first;
+    });
+    for (size_t i = 0; i < select_numb_Li; ++ i)
+      select_indexs.push_back(indexs[i].first);
+    sort(select_indexs.begin(), select_indexs.end(), [](size_t a, size_t b) {
+      return a < b;
+    });
+    for (size_t i = 0; i < select_indexs.size(); ++ i) {
+      size_t p = select_indexs[i];
+      wait_queue_.push_back(file_[level][p - i]);
+      file_[level].erase(file_[level].begin() + p - i);
+    }
+  // }
   // select overlap files from Li+1
   if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
@@ -881,6 +886,8 @@ void LSMTree::MajorCompaction(size_t level) {
     merged_tables = MergeIndexTables(index_tables_);
   else
     merged_tables = MergeTables(tables_); 
+  if (Config::TRACE_LOG)
+    std::cout << "After Merge:" << merged_tables.size() << std::endl;
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
     delete merged_tables[i];

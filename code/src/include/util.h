@@ -127,8 +127,8 @@ public:
   };
 
   struct TableConfig {
-    static const size_t TABLE_SIZE = 1;
-    static const size_t BLOCK_SIZE = 32;
+    static const size_t TABLE_SIZE = 128;
+    static const size_t BLOCK_SIZE = 256;
   };
 
   struct VisitFrequencyConfig {

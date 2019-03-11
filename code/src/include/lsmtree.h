@@ -42,11 +42,11 @@ private:
   const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
   const std::vector<std::string> rollback_base_algos = {"BiLSMTree-Direct", "BiLSMTree"};
   const std::vector<std::string> rollback_buffer_algos = {"BiLSMTree"};
-  const std::vector<std::string> rollback_base_algos = {"BiLSMTree-Direct", "BiLSMTree"};
   const std::vector<std::string> rollback_direct_algos = {"BiLSMTree-Direct"};
   const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree-Direct"};
   const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
   const std::vector<std::string> keep_block_algos = {"LevelDB-Sep"};
+  const std::vector<std::string> tiered_algos = {};
 
   size_t GetSequenceNumber();
 

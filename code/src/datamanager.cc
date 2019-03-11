@@ -31,7 +31,7 @@ std::vector<BlockMeta> DataManager::Append(const std::vector<KV>& kvs) {
   for (size_t i = 0; i < kvs.size(); ++ i) {
     KV kv_ = kvs[i];
     keys_for_filter_.push_back(kv_.key_);
-    size_ = size_ + kv_.size() + 2 * sizeof(Config::DATA_SEG);
+    size_ = size_ + kv_.size();
     numb_ = numb_ + 1;
     ss << kv_.key_.ToString() << Config::DATA_SEG << kv_.value_.ToString() << Config::DATA_SEG;
     if (smallest_ == "" || kv_.key_.compare(Slice(smallest_.data(), smallest_.size())) < 0)
