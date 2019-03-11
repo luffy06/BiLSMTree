@@ -46,7 +46,7 @@ private:
   const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree-Direct"};
   const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
   const std::vector<std::string> keep_block_algos = {"LevelDB-Sep"};
-  const std::vector<std::string> tiered_algos = {};
+  const std::vector<std::string> tiered_algos = {"LevelDB-Sep"};
 
   size_t GetSequenceNumber();
 

@@ -15,8 +15,8 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   buf_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
-  max_size_[0] = Config::LSMTreeConfig::L0SIZE;
-  min_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  max_size_[0] = (Util::CheckAlgorithm(algo, tiered_algos) ? Config::LSMTreeConfig::L0SIZE : Config::LSMTreeConfig::L0BASESIZE);
+  min_size_[0] = (Util::CheckAlgorithm(algo, tiered_algos) ? Config::LSMTreeConfig::L0SIZE : Config::LSMTreeConfig::L0BASESIZE);
   buf_size_[0] = Config::LSMTreeConfig::L0SIZE;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     max_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
@@ -835,12 +835,12 @@ void LSMTree::MajorCompaction(size_t level) {
 
   size_t select_numb_Li = file_[level].size() - max_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
-  // if (Util::CheckAlgorithm(algo, keep_block_algos) && level == 0) {
-  //   for (size_t i = 0; i < file_[level].size(); ++ i)
-  //     wait_queue_.push_back(file_[level][i]);
-  //   file_[level].clear();
-  // }
-  // else {
+  if (Util::CheckAlgorithm(algo, tiered_algos) && level == 0) {
+    for (size_t i = 0; i < file_[level].size(); ++ i)
+      wait_queue_.push_back(file_[level][i]);
+    file_[level].clear();
+  }
+  else {
     max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
     std::vector<std::pair<size_t, size_t>> indexs;
     std::vector<size_t> select_indexs;
@@ -861,7 +861,7 @@ void LSMTree::MajorCompaction(size_t level) {
       wait_queue_.push_back(file_[level][p - i]);
       file_[level].erase(file_[level].begin() + p - i);
     }
-  // }
+  }
   // select overlap files from Li+1
   if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
