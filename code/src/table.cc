@@ -78,6 +78,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
     ss.str("");
     ss << numb_ << Config::DATA_SEG;
     datas_.push_back(ss.str() + block_data_);
+    smallest_keys.push_back(smallest_);
     largest_keys.push_back(largest_);
   }
   
@@ -90,9 +91,9 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
     size_t data_block_size_ = datas_[i].size();
     data_size_ = data_size_ + datas_[i].size();
 
-    ss << largest_keys[i];
-    ss << Config::DATA_SEG;
     ss << smallest_keys[i];
+    ss << Config::DATA_SEG;
+    ss << largest_keys[i];
     ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;

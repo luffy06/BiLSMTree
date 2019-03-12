@@ -61,7 +61,7 @@ TableIterator::TableIterator(const std::string filename, FileSystem* filesystem,
     size_t block_size_ = 0;
     std::string smallest_str;
     std::string largest_str;
-    ss >> largest_str >> offset_ >> block_size_;
+    ss >> smallest_str >> largest_str >> offset_ >> block_size_;
     // std::cout << "Index:" << key_size_ << "\t" << key_ << "\t" << offset_ << "\t" << data_block_size_ << std::endl;
     filesystem->Seek(filename, offset_);
     std::string block_data = filesystem->Read(filename, block_size_);
