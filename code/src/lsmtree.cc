@@ -309,7 +309,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
     if (Util::CheckAlgorithm(algo, keep_block_algos))
       ss >> smallest_str >> largest_str >> offset_ >> block_size_ >> block_numb_;
     else
-      ss >> largest_str >> offset_ >> block_size_;
+      ss >> smallest_str >> largest_str >> offset_ >> block_size_;
     Slice largest_ = Slice(largest_str.data(), largest_str.size());
     if (key.compare(largest_) <= 0) {
       found = true;

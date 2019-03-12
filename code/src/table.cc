@@ -13,6 +13,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
             std::string filename, FileSystem* filesystem, 
             LSMTreeResult* lsmtreeresult, const std::vector<std::string> &bloom_algos, 
             const std::vector<std::string> &cuckoo_algos) {
+  std::string algo = Util::GetAlgorithm();
+  assert(algo != std::string("LevelDB-Sep"));
   if (Config::TRACE_LOG)
     std::cout << "Create Table:" << filename << std::endl;
   assert(kvs.size() > 0);
@@ -61,6 +63,7 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
       // a data block finish
       datas_.push_back(ss.str() + block_data_);
       // record index for data block
+      smallest_keys.push_back(smallest_);
       largest_keys.push_back(largest_);
       // create a new block
       size_ = 0;
@@ -89,6 +92,8 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
 
     ss << largest_keys[i];
     ss << Config::DATA_SEG;
+    ss << smallest_keys[i];
+    ss << Config::DATA_SEG;
     ss << last_offset;
     ss << Config::DATA_SEG;
     ss << data_block_size_;
@@ -98,8 +103,6 @@ Table::Table(const std::vector<KV>& kvs, size_t sequence_number,
   index_block_ = ss.str();
 
   // write filter block
-  std::string algo = Util::GetAlgorithm();
-  assert(algo != std::string("LevelDB-Sep"));
   Filter *filter_ = NULL;
   if (Util::CheckAlgorithm(algo, bloom_algos)) {
     filter_ = new BloomFilter(keys_for_filter_); // 10 bits per key 
