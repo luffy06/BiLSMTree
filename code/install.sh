@@ -3,6 +3,7 @@ buildpath="build"
 datapath="data"
 logpath="logs"
 blockpath="blocks"
+tracepath="trace"
 libpath="lib"
 if [[ -d ${logpath} ]]; then
   rm -rf ${logpath}
@@ -12,6 +13,10 @@ mkdir ${logpath}/${blockpath}
 if [[ ! -d ${datapath} ]]; then
   mkdir ${datapath}
 fi
+if [[ -d ${tracepath} ]]; then
+  rm -rf ${tracepath}
+fi
+mkdir ${tracepath}
 if [[ -d ${buildpath} ]]; then
   rm -rf ${buildpath}
 fi
