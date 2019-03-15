@@ -1,4 +1,5 @@
 #!/bin/bash
+buildpath="build"
 datapath="data"
 logpath="logs"
 blockpath="blocks"
@@ -11,6 +12,13 @@ mkdir ${logpath}/${blockpath}
 if [[ ! -d ${datapath} ]]; then
   mkdir ${datapath}
 fi
+if [[ -d ${buildpath} ]]; then
+  rm -rf ${buildpath}
+fi
+mkdir ${buildpath}
+cd ${buildpath}
+cmake .. && cmake --build .
+cd ..
 if [[ ! -d ${libpath} ]]; then
   mkdir ${libpath}
 fi
