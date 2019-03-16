@@ -5,4 +5,5 @@
 * Java
 * Maven
 * Python3
-* Numpy
+* xlwt
+* XlsxWriter
