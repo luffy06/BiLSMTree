@@ -1,4 +1,5 @@
 import os
+import random as rd
 from functools import reduce
 
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
