@@ -28,3 +28,5 @@ if [[ ! -d YCSB ]]; then
 fi
 cd YCSB
 bin/ycsb.sh load basic -P workloads/workloada
+cd ../../
+python3 ycsb.py

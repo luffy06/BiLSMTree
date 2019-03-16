@@ -1,5 +1,5 @@
 import os
-import numpy as np
+import random as rd
 from functools import reduce
 
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
@@ -68,7 +68,12 @@ def clean_data(project_path, dirname, prefix, suffix):
     os.system(cmd)
 
 def shuffle(arr):
-  np.random.shuffle(arr)
+  n = len(arr)
+  for i in range(n):
+    j = rd.randint(i, n)
+    v = arr[i]
+    arr[i] = arr[j]
+    arr[j] = v
 
 def read(in_filename, out_filename):
   print('Process ' + in_filename)
