@@ -72,7 +72,7 @@ def clean_data(project_path, dirname, prefix, suffix):
 def shuffle(arr):
   n = len(arr)
   for i in range(n):
-    j = rd.randint(i, n)
+    j = rd.randint(i, n - 1)
     v = arr[i]
     arr[i] = arr[j]
     arr[j] = v
@@ -114,7 +114,7 @@ def read(in_filename, out_filename):
           key = value
           value = t
       result.append([op, key, value])
-  shuffle(result)
+  # shuffle(result)
   f = open(out_filename, 'a')
   for i, l in enumerate(result):
     line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
