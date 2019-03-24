@@ -28,7 +28,7 @@ attributes = {
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-key_v_value = 64
+key_v_value = 4
 padding = '&'
 
 def generate_workload(project_path):

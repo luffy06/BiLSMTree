@@ -98,7 +98,7 @@ public:
 
   struct CacheServerConfig {
     static const size_t IMM_NUMB = 3;
-    static const size_t MEMORY_SIZE = 8 * 1024 * 1024;
+    static const size_t MEMORY_SIZE = 128 * 1024;
     static const size_t LRU2Q_RATE = 3;
     static const size_t LRU_RATE = 1;
   };
@@ -121,15 +121,15 @@ public:
 
   struct LSMTreeConfig {
     static const size_t MAX_LEVEL = 7;
-    static const size_t L0SIZE = 8;
+    static const size_t L0SIZE = 4;
     static const size_t L0BASESIZE = 4;
     static const size_t LIBASE = 10;
     static const size_t LISTSIZE = 10;
   };
 
   struct TableConfig {
-    static const size_t TABLE_SIZE = 128;
-    static const size_t BLOCK_SIZE = 256;
+    static const size_t TABLE_SIZE = 1;
+    static const size_t BLOCK_SIZE = 16;
   };
 
   struct VisitFrequencyConfig {
