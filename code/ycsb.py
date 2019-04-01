@@ -70,7 +70,7 @@ def clean_data(project_path, dirname, prefix, suffix):
 def shuffle(arr):
   n = len(arr)
   for i in range(n):
-    j = rd.randint(i, n)
+    j = rd.randint(i, n - 1)
     v = arr[i]
     arr[i] = arr[j]
     arr[j] = v

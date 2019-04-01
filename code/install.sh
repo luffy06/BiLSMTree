@@ -9,9 +9,10 @@ if [[ -d ${logpath} ]]; then
 fi
 mkdir ${logpath}
 mkdir ${logpath}/${blockpath}
-if [[ ! -d ${datapath} ]]; then
-  mkdir ${datapath}
+if [[ -d ${datapath} ]]; then
+  rm -rf ${datapath}
 fi
+mkdir ${datapath}
 if [[ -d ${buildpath} ]]; then
   rm -rf ${buildpath}
 fi
