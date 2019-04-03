@@ -669,8 +669,8 @@ void LSMTree::MajorCompaction(size_t level) {
     file_[level].erase(file_[level].begin() + p - i);
   }
 
-  if (level == 0 && !Util::CheckAlgorithm(algo, rollback_base_algos))
-    GetOverlaps(file_[level], wait_queue_);
+  // if (level == 0 && !Util::CheckAlgorithm(algo, rollback_base_algos))
+  //   GetOverlaps(file_[level], wait_queue_);
   // select overlap files from Li+1
   if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
