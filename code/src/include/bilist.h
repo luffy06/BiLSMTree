@@ -22,16 +22,20 @@ public:
   // insert after tail, pop head
   // true: has key pop
   // false: no key pop
-  void Append(const KV kv);
+  int Append(const KV kv);
 
   // insert before head, pop tail
   // true: has key pop
   // false: no key pop  
-  void Insert(const KV kv);
+  int Insert(const KV kv);
 
   std::vector<KV> PopTail();
 
+  std::vector<KV> PopHead();
+
   std::vector<KV> DropAll();
+
+  KV Delete(int pos);
 
   KV DropHead();
 
@@ -82,8 +86,6 @@ private:
   void Init(size_t size, size_t numb);
 
   int ExistAndUpdate(const KV kv);
-
-  KV Delete(int pos);
 };
 
 }

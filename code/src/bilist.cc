@@ -36,10 +36,11 @@ std::vector<KV> BiList::DropAll() {
   return res;
 }
 
-void BiList::Append(const KV kv) {
-  assert(!IsFull());
-  if (ExistAndUpdate(kv) != -1)
-    return ;
+int BiList::Append(const KV kv) {
+  // assert(!IsFull());
+  int p = ExistAndUpdate(kv);
+  if (p != -1)
+    return p;
   size_t pos = free_.front();
   free_.pop();
   data_size_ = data_size_ + kv.size();
@@ -50,12 +51,14 @@ void BiList::Append(const KV kv) {
   data_[tail_].next_ = pos;
   tail_ = pos;
   assert(data_[head_].prev_ == -1);
+  return -1;
 }
 
-void BiList::Insert(const KV kv) {
-  assert(!IsFull());
-  if (ExistAndUpdate(kv) != -1)
-    return ;
+int BiList::Insert(const KV kv) {
+  // assert(!IsFull());
+  int p = ExistAndUpdate(kv);
+  if (p != -1)
+    return p;
   size_t pos = free_.front();
   free_.pop();
   data_size_ = data_size_ + kv.size();
@@ -69,12 +72,22 @@ void BiList::Insert(const KV kv) {
   if (tail_ == head_)
     tail_ = pos;
   assert(data_[head_].prev_ == -1);
+  return -1;
 }
 
 std::vector<KV> BiList::PopTail() {
   std::vector<KV> res;
   while (IsFull()) {
     KV pop_kv = Delete(tail_);
+    res.push_back(pop_kv);
+  }
+  return res;
+}
+
+std::vector<KV> BiList::PopHead() {
+  std::vector<KV> res;
+  while (IsFull()) {
+    KV pop_kv = Delete(data_[head_].next_);
     res.push_back(pop_kv);
   }
   return res;

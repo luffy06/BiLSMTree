@@ -16,7 +16,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   buf_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   max_size_[0] = Config::LSMTreeConfig::L0SIZE;
   min_size_[0] = Config::LSMTreeConfig::L0SIZE;
-  buf_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  buf_size_[0] = Config::LSMTreeConfig::L0SIZE * 5;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     max_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     min_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
