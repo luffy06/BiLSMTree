@@ -5,8 +5,8 @@
 major contribution：
 
 1. 重新设计了内存的存储结构；
-2. 用CuckooFilter替换BloomFilter；
-3. 增加了数据上浮的操作；
+2. 增加了数据上浮的操作；
+3. 可以改变LSMTree的形状
 
 ## 结构
 
@@ -34,15 +34,13 @@ major contribution：
 
 当内存大小大于$g(\beta)$时，分配$\beta$个大小为$\theta$MB的Immutable MemTable，一个$\theta$MB的MemTable，剩下空间全分配给LRU2Q。
 
-### 外存：上浮缓冲区
+### 外存：上浮和变形
 
-如图1中的Disk/Flash部分，因为直接上浮合并的代价较大，我们为每层额外增加了一个Buffer用于存放被上浮的文件。
+如图1中的Disk/Flash部分，当一个文件被频繁访问时，我们将其上浮到高层。
 
-如图1（a），当$L_5$层中的一个文件被访问后，通过计算得出将其移动到$L_1$层。为了不引起键值范围重叠，将其先放在$L_1$层的`buffer`中，随后在$L_1$层进行Compaction的时候将其合并到`file`中。
+如图1（a）和（b），当$L_6$层中的一个文件$SST_8$被访问后，通过计算得出将其移动到$L_1$层。为了去除$SST_8$中的旧数据，并不引起键值范围重叠，首先依次将$L_i(2\le i \le 5)$层中的有键值范围重叠的文件读进内存，删去$SST_8$中与它们重复的数据。
 
-如图1（b），当$L_5$层的`buffer`中的一个文件被访问后，同样的通过计算将其移动到$L_0$层，等待合并。
-
-如图1（c），当$L_1$层中的缓冲区满了之后，其中的所有文件通过Compaction的形式加入$L_1$层的`file`中。
+如图1（c）和（d），在$L_1$层，$SST_3$与去除重复数据后的$SST_8$存在键值范围重叠，将它们都读入内存，通过合并操作，划分为新的$SST_{10}$和$SST_{11}$，再将它们插入$L_1$层。上浮完成后，增加$L_1$层的最大文件个数。
 
 #### 1. 确定需要上浮的数据
 
@@ -58,54 +56,55 @@ $$
 
 若$L_i$层的第$t$个文件需要移动，假设移动到$L_j$层：
 
-用$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗，$b_l$表示第$l$层的SSTable Buffer最大大小。
+用$T_R,T_W$分别表示Flash读一个页和写一个页的时间消耗。
 
 假设未来的$F​$次访问中，该文件也将会被访问$f_{i,t}​$次，那么分别计算移动与不移动产生的代价：
 
 - **若不移动文件**：这$f_{i,t}$次访问所带来的时间消耗为：
   $$
-  T_1=3\times f_{i,t}\times T_R\times (3 + i + \sum^{i-1}_{l=0}b_l)
+  T_1=3\times f_{i,t}\times T_R\times (3 + i)
   $$
-  考虑最坏情况，在每一层（除$L_0$层外）的`file`部分都需要查询一个文件，共计$i-1$个文件，$L_0$层每个文件都需要查询，共4个文件；第$l$层的`buffer`部分的有$b_l$个文件需要查询，所以总共有$4 + i-1 + \sum^{i-1}_{l=0}b_l$个文件需要查询。对于每个文件都需要进行3次IO读（读取FilterBlock，读取IndexBlock，读取DataBlock）。
+  考虑最坏情况，在每一层（除$L_0$层外）的`file`部分都需要查询一个文件，共计$i-1$个文件，$L_0$层每个文件都需要查询，共4个文件；所以总共有$4 + i-1$个文件需要查询。对于每个文件都需要进行3次IO读（读取FilterBlock，读取IndexBlock，读取DataBlock）。
 
 - **若移动文件**：移动到$L_j​$层，这$f_{i,t}​$次访问所带来的时间消耗为：
   $$
-  T_2=3\times f_{i,t}\times T_R \times (3+ j + \sum^{j-1}_{l=0}b_l) + T_W+T_R\times( \sum^{i-1}_{l=j}c_l+1)
+  T_2=3\times f_{i,t}\times T_R \times (3+ j) + T_W+T_R\times( \sum^{i-1}_{l=j}c_l+1)
   $$
   
 
-  其中$c_l​$表示$L_l​$层与该文件的键值范围有重叠的文件个数。考虑最坏情况，$T_2​$的前半部分为移动到$L_j​$层后的查询该文件的代价，$T_W​$为写入新的Filter的代价，$T_R\times (\sum^{i-1}_{l=j}c_l+1)​$为读取该文件​和读取从$L_{i-1}​$层到$L_j​$层与该文件存在键值范围重叠的文件的Filter的代价。
+  其中$c_l$表示$L_l$层与该文件的键值范围有重叠的文件个数。考虑最坏情况，$T_2$的前半部分为移动到$L_j$层后的查询该文件的代价，$T_W$为写入新的SSTable的代价，$T_R\times (\sum^{i-1}_{l=j}c_l+1)$为读取该文件​和读取从$L_{i-1}$层到$L_j$层与该文件存在键值范围重叠的文件的代价。
 
 定义$T_{diff}=T_1-T_2​$表示移动后相比移动前，能够减少的时间代价，若为负数，则表示增加时间代价，那么：
 $$
-T_{diff} = 3\times f_{i,t}\times T_R \times (i-j + \sum^{i-1}_{l=j} b_l)-T_W-T_R\times( \sum^{i-1}_{l=j}c_l+1) \quad(2)
+T_{diff} = 3\times f_{i,t}\times T_R \times (i-j)-T_W-T_R\times( \sum^{i-1}_{l=j}c_l+1) \quad(2)
 $$
-因为$T_W\approx h\times T_R$，所以公式（3）可以转换为
+因为$T_W\approx h\times T_R​$，所以公式（3）可以转换为
 $$
-T_{diff}=3\times f_{i,t}\times T_R \times \left(i - j - h - 1 +\sum^{i-1}_{l=j} (b_l -c_l)\right) \quad(3)
+T_{diff}=3\times f_{i,t}\times T_R \times \left(i - j - h - 1 -\sum^{i-1}_{l=j} c_l\right) \quad(3)
 $$
 其中$0\le j\le i-1​$。
 
-因为总共只有7层，那么可以通过枚举找到最大的$T_{diff}​$，将该文件移动到对应的层。 
+因为总共只有7层，那么可以通过枚举$j$找到最大的$T_{diff}$，将该文件移动到对应的层。 
 
 #### 3. 数据上浮
 
 ##### 两个性质
 
 1. **除了$L_0$层以外，其他层中的SSTable之间的键值范围不存在重叠**。
-2. **数据从$L_0$层到$L_6$层的新旧度逐渐降低，$i$越小的$L_i$层的文件中的数据越新。**
+2. **数据从$L_0​$层到$L_6​$层的新旧度逐渐降低，$i​$越小的$L_i​$层的文件中的数据越新。**
 
 某个文件需要上浮的主要原因是它拥有了高层所不拥有的数据，并且该数据在最近一段时间的访问频率十分高。文件上浮后，为了避免在读取该文件中的其他数据时，读取到旧数据，所以需要上浮的过程去除该文件中的旧数据。
 
-如果直接将上浮时有键值范围重叠的所有SSTable全部读出来，分别和上浮的SSTable比较去重，这个不仅不能减少读的量，反而会增加因上浮所引起的额外的读。所以如何既要不破坏原有2个性质，又不产生很大的额外代价，是上浮操作的关键。
+SSTable的上浮过程可以被分为两步：
 
-通过对LevelDB查找Key的机制可以发现，当一个SSTable的Filter显示一个Key不存在时，则将不会继续查找数据区域（DataBlock），转而对下一个SSTable查找。
+1. 分别与上浮过程中跨越的层中的文件，进行删除旧数据操作。
+2. 与上浮的层进行Compaction合并操作。
 
-由此我们提出上浮时，仅仅删除Filter中的旧数据，保留数据区域的旧数据，这样只需要修改Filter部分，不会产生大量的额外读。为了能够保持键值范围不重叠的性质，我们提出让上浮的SSTable先暂存在每层设定的缓冲`buffer`中，等`buffer`满了以后，再统一做合并。
+#### 4. 变形树
 
-#### 4. 使用CuckooFilter
+为了避免因上浮操作所引起的频繁Compaction操作，我们打破了原有的LevelDB中LSMTree的固定结构，允许LSMTree能够根据当前的访问序列的特点自适应的修改自身的形状。因为不同层次的文件对于flash而言都是一样的，读写$L_0$层中文件的速度和读写$L_6$层中文件的速度是一样的，所以当有很多最近都是频繁访问的文件时，我们应该将他们都放在同一个层次访问，而不应该受到默认结构的限制而造成不同的访问时间。
 
-因为LevelDB中使用的BloomFilter，具有一定的错误率，也无法支持删除操作，对上浮操作是十分不利的。所以我们使用空间利用率更高，无错误率且支持删除操作的CuckooFilter替换BloomFilter。
+当SSTable上浮到$L_i​$层时，我们认为将来也会有一部分文件上浮到$L_i​$层，所以此时增加$L_i​$层的文件个数上限。当$L_i​$层发生Compaction时，我们认为已经有一段时间没有文件上浮到$L_i​$层了，所以我们减少$L_i​$层的文件个数上限。通过上述两个操作，我们可以实现LSMTree的自适应变形操作。
 
 # 例子
 
@@ -127,11 +126,11 @@ $$
 
 【图3：例子2】
 
-图3（a）展示了一个外存中读的例子。首先读键d​对应的value，在$L_0$层的SSTable范围是a到f，包括了键d，所以需要对这个SSTable进行检查。因为只包含了键a和键f，所以继续向下一层查找。在$L_1$层的第一个SSTable范围是b到f，也包括了键d，所以也需要对这个SSTable进行检查。同样的因为不包括键d，继续向下一层查找。在$L_2$层的第一个SSTable范围是c到e，包括了键d，同样对这个SSTable进行检查，最终读取到了键d对应的value，结束查找。接下来读键e对应的value，同样的依次检查了$L_0$层，$L_1$层，$L_2$层的SSTable，最终在$L_2$层中读取到键e对应的value。
+图3（a）展示了一个外存中读的例子。首先读键d​对应的value，在$L_0​$层的SSTable范围是a到f，包括了键d，所以需要对这个SSTable进行检查。因为只包含了键a和键f，所以继续向下一层查找。在$L_1​$层的第一个SSTable范围是b到f，也包括了键d，所以也需要对这个SSTable进行检查。同样的因为不包括键d，继续向下一层查找。在$L_2​$层的第一个SSTable范围是c到e，包括了键d，同样对这个SSTable进行检查，最终读取到了键d对应的value，结束查找。接下来读键e和键d对应的value，同样的依次检查了$L_0​$层，$L_1​$层，$L_2​$层的SSTable，最终在$L_2​$层中读取到键e和键d对应的value。
 
 因为内存中使用了LRU2Q机制，能够使的访问频率相近的键尽可能的存在了同一个SSTable中，所以读取了一个SSTable中的键d，在未来不久也将会读取同一个SSTable中的键e。那么如果将低层最近比较频繁访问的文件上浮到高层，那么将会有效的减少额外的读尝试。
 
-图3（b）展示了带上浮机制的读的例子。首先同样的也是读键d对应的value，依次检查了$L_0$层，$L_1$层，$L_2$层的SSTable，最终在$L_2$层中读取到键d对应的value。此时认为，这个SSTable在未来的操作中可能会被再次访问到，所以将它上浮到$L_0$层中的缓冲SSTable Buffer中。上浮的过程中，因为这个SSTable包含了旧数据键c，与$L_1$层中的第一个SSTable有冲突，所以去除了上浮SSTable的Filter中的键c对应的部分。接下来读取键e对应的value。因为$L_0$层的SSTable范围是a到f，包括了键e，所以对这个SSTable进行检查，发现不包含键d，继续查找。因为$L_0$层的缓冲Buffer不为空，并且缓冲Buffer中的SSTable范围是d到e，包括了键e。对这个SSTable进行检查，读取到了键e对应的value，结束查找。
+图3（b）展示了带上浮机制的读的例子。首先同样的也是读键d对应的value，依次检查了$L_0​$层，$L_1​$层，$L_2​$层的SSTable，最终在$L_2​$层中读取到键d对应的value。此时认为，这个SSTable在未来的操作中可能会被再次访问到，所以将它上浮到$L_0​$层。上浮的过程中，因为这个SSTable包含了旧数据键c，与$L_1​$层中的第一个SSTable有冲突，所以去除了上浮SSTable中的键c。同时它也与$L_0​$层的文件，键值范围有重叠，所以进行合并，最后留下了两个新的文件。接下来读取键e和键d对应的value，在$L_0​$层新生成的两个文件中分别读取到键e和键d对应的value。
 
 对比（a）和（b），当SSTable中包括的键更多，且最近访问频率很高时，这种方法提升的效果更为明显。
 
@@ -141,30 +140,19 @@ $$
 
 ![algo1](pic/algo1.png)
 
-算法1展示在新增LRU2Q的内存结构中如何查询一个key对应的value的过程。首先在LRU2Q中通过$get(key)$方法查询对应的value，若找到，则直接返回结果。若未找到，在缓冲的immutable Memtable中通过$get(key)​$方法查找。同样的，若找到，则直接返回结果。若未找到，在immutable MemTable的LRU2Q队列中，从队首到队尾，依次在每个immutable MemTable中查找，若找到，则直接返回结果，否则继续查找。若在内存中，都未找到，则返回NULL。
+算法1展示在新增LRU2Q的内存结构中如何查询一个key对应的value的过程。首先在LRU2Q中通过$get(key)​$方法查询对应的value，若找到，则直接返回结果。若未找到，在缓冲的immutable Memtable中通过$get(key)​$方法查找。同样的，若找到，则直接返回结果。若未找到，在immutable MemTable的LRU2Q队列中，从队首到队尾，依次在每个immutable MemTable中查找，若找到，则直接返回结果，否则继续查找。若在内存中，都未找到，则返回NULL。
 
 **Algorithm 2 内存存储数据**
 
 ![algo2](pic/algo2.png)
 
-算法2展示在新的内存结构中如何存储一对key和value。首先在LRU2Q中通过$put(key, value)$的方法将key和value存储在LRU2Q的中LRU队列的队首，若$key$已经存在了，则直接更新$value$。同时，该方法还会返回从LRU2Q中淘汰的数据$key_{pop}, value_{pop}$。若有数据被淘汰，则需要将其加入到缓冲的MemTable $mem$中。若$mem$已经满了，则将它转换成Immutable MemTable，再加入到Immutable MemTable List $imms$的尾部。然后重新分配一个新的MemTable给$mem$。同时，在将$mem$加入$imms$时，若$imms$中Immutable MemTable的个数已经达到上限，则踢出头部的Immutable MemTable，用指针$imm_{dump}$指向淘汰的Immutable MemTable，将其返回，等待DUMP到$L_0$层。
+算法2展示在新的内存结构中如何存储一对key和value。首先在LRU2Q中通过$put(key, value)$的方法将key和value存储在LRU2Q的中LRU队列的队首，若$key$已经存在了，则直接更新$value$。同时，该方法还会返回从LRU2Q中淘汰的数据$key_{pop}, value_{pop}$。若有数据被淘汰，则需要将其加入到缓冲的MemTable $mem$中。若$mem$已经满了，则将它转换成Immutable MemTable，再加入到Immutable MemTable List $imms$的尾部。然后重新分配一个新的MemTable给$mem$。同时，在将$mem$加入$imms$时，若$imms$中Immutable MemTable的个数已经达到上限，则踢出频率最低的Immutable MemTable，用指针$imm_{dump}$指向淘汰的Immutable MemTable，将其返回，等待DUMP到$L_0$层。
 
 **Algorithm 3上浮文件**
 
 ![algo3](pic/algo3.png)
 
-算法3 展示将$L_i$层的SSTable $M$上浮到$L_j$层的过程。读取$M$的Filter data $S_M$。依次从$L_{i-1}$层到$L_j$层，读出每层所有与SSTable $M$存在键值范围重叠的SSTable的Filter data $S^u_t(i-1\le u\le j)$，将$S_M$求$S_t^u$的相对补集，$S_M \leftarrow S_M-S^u_t$。全部更新完成后，将最终的Filter data 重新写入SSTable $M$中。从$L_i$层删除SSTable$M$的meta信息，并将其加入$L_j$层的$buffer$中。最后检查$buffer[j]$中的SSTable个数是否达到上限，若已经达到上限，则将这些SSTable合并到$file[j]$部分，清空$buffer[j]$。
+算法3 展示将$L_i$层的SSTable $S_i$上浮到$L_j$层的过程。读取$S_i$的所有键值对，存储在一个$data$数组中，并删除SSTable $S_i$。依次从$L_{i-1}$层到$L_{j+1}$层，读出每层所有与数组$data$存储的键值范围存在重叠的SSTable的所有键值对，存储在一个$temp$数组中，然后去除$data$数组中与$temp$数组中重复的键值对。在$L_j$层，对剩余的$data$数组进行一次Compaction操作：读取存在键值重叠的SSTable，进行多路合并，划分新的SSTable，插入$L_j$层。增加$L_j$层的SSTable个数上限，每次增加的个数为参数$\eta$。最后判断，$L_j$层SSTable文件个数是否超过上限，若超过上限，对$L_j$进行Compaction操作。
 
-**Algorithm 4 从外存查询一个key**
+**在外存中查找一个key的方法与原来一样。每次完成Compaction后，减少对应层的SSTable文件个数上限。**
 
-![algo4](pic/algo4.png)
-
-算法4展示了如何从外存中查询一个key。从$L_0​$层依次到$L_6​$层，首先从$file[i]​$数组中选择包含$key​$的meta信息加入$check\_files​$备选，然后再从$buffer[i]​$中选择包含$key​$的meta信息加入$check\_files​$。当$L_i​$层的备选meta信息全部选择完毕后，依次检查每个meta信息对应的文件是否包含$key​$。检查的步骤是，首先读取Filter信息，检查$key​$是否存在于Filter中。若不存在继续检查下一个meta信息，若存在读取index块信息，并根据index块信息读取data块信息，查找$key​$是否存在。若找到，返回对应的$value​$，否则继续检查下一个meta信息。若所有层都没有找到$key​$，返回NULL。
-
-**Algorithm 5 改进的Compaction**
-
-![algo5](pic/algo5.png)
-
-算法5展示了在外存中如何做Compaction。因为Compaction的时候可能也会将同层$buffer$中的SSTable DUMP到下一层或者合并部分下一层$buffer$中的文件，所以对于下一层来说，每次Compaction后相比于原来增加的文件数数量可能会超过一个。那么在选择文件时，不再是选择一个文件向下DUMP，而是根据当前层的文件数量阈值$10^{level}$，选择超出阈值数量的文件数$over\_numb$，按照文件新旧程度依次加入$merge\_files$。考虑到选择$n$个文件同时向下Compaction，那么在判断Overlap时，需要和这$n$个文件组成的大区间$[key_{min}, key_{max}]$比较。又因为同一层中$buffer$中的文件可能与$file$中的文件存在Overlap，所以先从$file$中选择Overlap的文件，后更新$key_{min}$和$key_{max}$，再从$buffer$中选择Overlap的文件，将他们均加入$merge\_files$。
-
-选择了所有待合并的文件后，用和原来相同的多路合并策略进行多路合并。需要注意的是，对于每路的SSTable，每当从flash中读出一个$key$准备合并时，先判断该$key$是否存在于该SSTable的Filter中，若不存在直接舍弃这个$key$。最后合并完成后，将合并后的新的SSTable文件加入下一层的$file$数组中。
