@@ -27,8 +27,6 @@ public:
 private:
   BiList *lru_;
   BiList *fifo_;
-  const std::vector<std::string> lru2q_imm_algos = {"BiLSMTree", "BiLSMTree-Ext"};
-  const std::vector<std::string> lru2q_algos = {"BiLSMTree-Direct"};
 };
 
 }
