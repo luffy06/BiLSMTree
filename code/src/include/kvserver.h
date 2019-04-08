@@ -20,7 +20,7 @@ public:
 private:
   LSMTree *lsmtree_;
   LogManager *logmanager_;
-  const std::vector<std::string> kvsep_algos = {"BiLSMTree-Direct", "Wisckey", "BiLSMTree", "Cuckoo"};
+  const std::vector<std::string> kvsep_algos = {"BiLSMTree", "BiLSMTree-Ext", "BiLSMTree-Direct", "Wisckey", "Cuckoo"};
   const std::vector<std::string> base_algos = {"LevelDB"};
 };
 

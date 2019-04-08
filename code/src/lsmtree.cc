@@ -11,19 +11,19 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
 
   std::string algo = Util::GetAlgorithm();
-  max_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
-  min_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
+  cur_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
+  base_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   buf_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
-  max_size_[0] = Config::LSMTreeConfig::L0SIZE;
-  min_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  cur_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  base_size_[0] = Config::LSMTreeConfig::L0SIZE;
   buf_size_[0] = Config::LSMTreeConfig::L0SIZE;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
-    max_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
-    min_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
+    cur_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
+    base_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     buf_size_[i] = 0;
     if (Util::CheckAlgorithm(algo, variable_tree_algos))
-      buf_size_[i] = max_size_[i] / 2 < Config::LSMTreeConfig::LISTSIZE ? max_size_[i] / 2 : Config::LSMTreeConfig::LISTSIZE;
-    max_size_[i] = max_size_[i] - buf_size_[i];
+      buf_size_[i] = cur_size_[i] / 2 < Config::LSMTreeConfig::LISTSIZE ? cur_size_[i] / 2 : Config::LSMTreeConfig::LISTSIZE;
+    cur_size_[i] = cur_size_[i] - buf_size_[i];
   }
 }
 
@@ -34,7 +34,7 @@ LSMTree::~LSMTree() {
 bool LSMTree::Get(const Slice key, Slice& value) {
   // std::cout << "LSMTree Get:" << key.ToString() << std::endl;
   // for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
-  //   std::cout << "Level:" << i << " Size:" << max_size_[i] << std::endl;
+  //   std::cout << "Level:" << i << " Size:" << cur_size_[i] << std::endl;
   //   std::cout << "File Size:" << file_[i].size() << std::endl;
   //   std::cout << "Buffer Size:" << buffer_[i].size() << std::endl;
   //   ShowMetas(i, true);
@@ -43,7 +43,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
   size_t checked = 0;
   for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     std::vector<size_t> check_files_ = GetCheckFiles(algo, i, key);
-    if (Util::CheckAlgorithm(algo, rollback_buffer_algos)) {
+    if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos)) {
       for (size_t j = 0; j < buffer_[i].size(); ++ j)
         if (key.compare(buffer_[i][j].smallest_) >= 0 && key.compare(buffer_[i][j].largest_) <= 0)
           check_files_.push_back(j + file_[i].size());
@@ -57,7 +57,7 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (Config::TRACE_READ_LOG)
         std::cout << "Check SEQ:" << meta.sequence_number_ << "[" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
       if (GetValueFromFile(meta, key, value)) {
-        if (Util::CheckAlgorithm(algo, rollback_base_algos)) {
+        if (Util::CheckAlgorithm(algo, rollback_algos)) {
           UpdateFrequency(meta.sequence_number_);
           if (i > 0) {
             size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
@@ -70,10 +70,10 @@ bool LSMTree::Get(const Slice key, Slice& value) {
                 file_[i].erase(file_[i].begin() + p);
               else
                 buffer_[i].erase(buffer_[i].begin() + p - file_[i].size());
-              if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
+              if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
+                RollBackWithCuckoo(i, meta);
+              else
                 RollBack(i, meta);
-              else if (Util::CheckAlgorithm(algo, rollback_direct_algos))
-                RollBackBase(i, meta);
             }
           }
         }
@@ -101,14 +101,14 @@ void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
     std::cout << "DUMP L0:" << filename << "\tRange:[" << meta.smallest_.ToString() << "\t" << meta.largest_.ToString() << "]" << std::endl;
   lsmtreeresult_->MinorCompaction(total_size_);
   std::string algo = Util::GetAlgorithm();
-  if (Util::CheckAlgorithm(algo, rollback_buffer_algos)) {
+  if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos)) {
     buffer_[0].insert(buffer_[0].begin(), meta);
-    if (buffer_[0].size() > min_size_[0])
+    if (buffer_[0].size() > base_size_[0])
       CompactList(0);
   }
   else {
     file_[0].insert(file_[0].begin(), meta);
-    if (file_[0].size() > max_size_[0])
+    if (file_[0].size() > cur_size_[0])
       MajorCompaction(0);
   }
   if (Config::TRACE_LOG)
@@ -160,7 +160,7 @@ void LSMTree::UpdateFrequency(size_t sequence_number) {
 std::vector<size_t> LSMTree::GetCheckFiles(std::string algo, size_t level, const Slice key) {
   std::vector<size_t> check_files_;
   if (level == 0) {
-    if (Util::CheckAlgorithm(algo, rollback_buffer_algos)) {
+    if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos)) {
       int index = BinarySearch(level, key);
       if (index != -1)
         check_files_.push_back(index);
@@ -328,7 +328,7 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   size_t target_level = now_level;
   double diff = 0;
   for (int i = now_level - 1; i >= 0; -- i) {
-    double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i) * (buf_size_[now_level] + 1) - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1;
+    double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1);
     if (diff_t > diff) {
       target_level = i;
       diff = diff_t;
@@ -337,13 +337,15 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   return target_level;
 }
 
-void LSMTree::RollBackBase(const size_t now_level, const Meta meta) {
+void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   std::string algo = Util::GetAlgorithm();
-  assert(Util::CheckAlgorithm(algo, rollback_direct_algos));
   if (now_level == 0)
     return ;
-  // size_t to_level = GetTargetLevel(now_level, meta);
   size_t to_level = 0;
+  if (Util::CheckAlgorithm(algo, rollback_direct_algos))
+    GetTargetLevel(now_level, meta);
+  if (to_level != 0)
+    std::cout << "NOT ZERO" << std::endl;
   assert(to_level <= now_level);
   if (to_level == now_level)
     return ;
@@ -437,13 +439,19 @@ void LSMTree::RollBackBase(const size_t now_level, const Meta meta) {
   }
   assert(CheckFileList(to_level));
 
+  if (Util::CheckAlgorithm(algo, variable_tree_algos))
+    cur_size_[to_level] = cur_size_[to_level] + 50;
+  if (file_[to_level].size() > cur_size_[to_level]) {
+    MajorCompaction(to_level);
+  }
+
   if (Config::TRACE_LOG)
     std::cout << "RollBackBase Success" << std::endl;
 }
 
-void LSMTree::RollBack(const size_t now_level, const Meta meta) {
+void LSMTree::RollBackWithCuckoo(const size_t now_level, const Meta meta) {
   std::string algo = Util::GetAlgorithm();
-  assert(Util::CheckAlgorithm(algo, rollback_buffer_algos));
+  assert(Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos));
   if (now_level == 0)
     return ;
   size_t to_level = GetTargetLevel(now_level, meta);
@@ -535,7 +543,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   // add to buffer_
   buffer_[to_level].push_back(new_meta);
   if (buffer_[to_level].size() > buf_size_[to_level]) {
-    max_size_[to_level] = max_size_[to_level] + buf_size_[to_level] * 2;
+    cur_size_[to_level] = cur_size_[to_level] + buf_size_[to_level] * 2;
     CompactList(to_level);
   }
   if (Config::TRACE_LOG)
@@ -629,7 +637,7 @@ void LSMTree::CompactList(size_t level) {
       file_[level].insert(file_[level].end(), meta);
   }
 
-  if (file_[level].size() > max_size_[level])
+  if (file_[level].size() > cur_size_[level])
     MajorCompaction(level);
   if (Config::TRACE_LOG)
     std::cout << "CompactList On Level:" << level << " Success" << std::endl;
@@ -640,14 +648,14 @@ void LSMTree::MajorCompaction(size_t level) {
   if (level == Config::LSMTreeConfig::MAX_LEVEL)
     return ;
   std::vector<Meta> wait_queue_;
-  if (file_[level].size() <= max_size_[level])
+  if (file_[level].size() <= cur_size_[level])
     return ;
   if (Config::TRACE_LOG) 
     std::cout << "MajorCompaction On Level:" << level << std::endl;
 
-  size_t select_numb_Li = file_[level].size() - max_size_[level];
+  size_t select_numb_Li = file_[level].size() - cur_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
-  max_size_[level] = std::max(max_size_[level] - 1, min_size_[level]);
+  cur_size_[level] = std::max(cur_size_[level] - 1, base_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;
   std::vector<size_t> select_indexs;
@@ -669,10 +677,10 @@ void LSMTree::MajorCompaction(size_t level) {
     file_[level].erase(file_[level].begin() + p - i);
   }
 
-  // if (level == 0 && !Util::CheckAlgorithm(algo, rollback_base_algos))
+  // if (level == 0)
   //   GetOverlaps(file_[level], wait_queue_);
   // select overlap files from Li+1
-  if (Util::CheckAlgorithm(algo, rollback_buffer_algos))
+  if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
   // select from file_
   GetOverlaps(file_[level + 1], wait_queue_);
@@ -707,7 +715,7 @@ void LSMTree::MajorCompaction(size_t level) {
   assert(CheckFileList(level + 1));
   if (Config::TRACE_LOG)
     std::cout << "MajorCompaction On Level:" << level << " Success" << std::endl;
-  if (file_[level + 1].size() > max_size_[level + 1])
+  if (file_[level + 1].size() > cur_size_[level + 1])
     MajorCompaction(level + 1);
 }
 

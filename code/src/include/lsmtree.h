@@ -25,8 +25,8 @@ public:
 private:
   std::vector<Meta> file_[Config::LSMTreeConfig::MAX_LEVEL];
   std::vector<Meta> buffer_[Config::LSMTreeConfig::MAX_LEVEL];
-  std::vector<size_t> max_size_;
-  std::vector<size_t> min_size_;
+  std::vector<size_t> cur_size_;
+  std::vector<size_t> base_size_;
   std::vector<size_t> buf_size_;
   VisitFrequency *recent_files_;
   std::vector<size_t> frequency_;
@@ -35,12 +35,13 @@ private:
   LSMTreeResult *lsmtreeresult_;
   size_t rollback_;
   double ALPHA;
-  const std::vector<std::string> variable_tree_algos = {"BiLSMTree"};
-  const std::vector<std::string> rollback_base_algos = {"BiLSMTree-Direct", "BiLSMTree"};
-  const std::vector<std::string> rollback_buffer_algos = {"BiLSMTree"};
-  const std::vector<std::string> rollback_direct_algos = {"BiLSMTree-Direct"};
-  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree-Direct"};
-  const std::vector<std::string> cuckoo_algos = {"BiLSMTree", "Cuckoo"};
+  const std::vector<std::string> variable_tree_algos = {"BiLSMTree", "BiLSMTree-Ext"};
+  const std::vector<std::string> rollback_algos = {"BiLSMTree", "BiLSMTree-Direct", "BiLSMTree-Ext"};
+  const std::vector<std::string> rollback_with_cuckoo_algos = {"BiLSMTree-Ext"};
+  const std::vector<std::string> rollback_direct_algos = {"BiLSMTree"};
+  const std::vector<std::string> rollback_top_algos = {"BiLSMTree-Direct"};
+  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree", "BiLSMTree-Direct"};
+  const std::vector<std::string> cuckoo_algos = {"BiLSMTree-Ext", "Cuckoo"};
 
   size_t GetSequenceNumber();
 
@@ -58,9 +59,9 @@ private:
 
   size_t GetTargetLevel(const size_t now_level, const Meta meta);
 
-  void RollBack(const size_t now_level, const Meta meta);
+  void RollBackWithCuckoo(const size_t now_level, const Meta meta);
 
-  void RollBackBase(const size_t now_level, const Meta meta);
+  void RollBack(const size_t now_level, const Meta meta);
 
   std::vector<Table*> MergeTables(const std::vector<TableIterator*>& tables);
 
