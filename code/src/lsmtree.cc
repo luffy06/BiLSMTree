@@ -344,8 +344,6 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   size_t to_level = 0;
   if (Util::CheckAlgorithm(algo, rollback_direct_algos))
     GetTargetLevel(now_level, meta);
-  if (to_level != 0)
-    std::cout << "NOT ZERO" << std::endl;
   assert(to_level <= now_level);
   if (to_level == now_level)
     return ;
@@ -440,10 +438,9 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   assert(CheckFileList(to_level));
 
   if (Util::CheckAlgorithm(algo, variable_tree_algos))
-    cur_size_[to_level] = cur_size_[to_level] + 50;
-  if (file_[to_level].size() > cur_size_[to_level]) {
+    cur_size_[to_level] = cur_size_[to_level] + 2;
+  if (file_[to_level].size() > cur_size_[to_level])
     MajorCompaction(to_level);
-  }
 
   if (Config::TRACE_LOG)
     std::cout << "RollBackBase Success" << std::endl;
@@ -677,8 +674,8 @@ void LSMTree::MajorCompaction(size_t level) {
     file_[level].erase(file_[level].begin() + p - i);
   }
 
-  // if (level == 0)
-  //   GetOverlaps(file_[level], wait_queue_);
+  if (level == 0)
+    GetOverlaps(file_[level], wait_queue_);
   // select overlap files from Li+1
   if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
     GetOverlaps(buffer_[level + 1], wait_queue_);
