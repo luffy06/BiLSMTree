@@ -344,7 +344,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   size_t to_level = 0;
   if (Util::CheckAlgorithm(algo, rollback_direct_algos))
     GetTargetLevel(now_level, meta);
-  assert(to_level <= now_level);
+  assert(to_level < now_level);
   if (to_level == now_level)
     return ;
   lsmtreeresult_->RollBack();
@@ -437,10 +437,10 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   }
   assert(CheckFileList(to_level));
 
-  // if (Util::CheckAlgorithm(algo, variable_tree_algos))
-  //   cur_size_[to_level] = cur_size_[to_level] + 2;
-  // if (file_[to_level].size() > cur_size_[to_level])
-  //   MajorCompaction(to_level);
+  if (Util::CheckAlgorithm(algo, variable_tree_algos))
+    cur_size_[to_level] = cur_size_[to_level] + 2;
+  if (file_[to_level].size() > cur_size_[to_level])
+    MajorCompaction(to_level);
 
   if (Config::TRACE_LOG)
     std::cout << "RollBackBase Success" << std::endl;
