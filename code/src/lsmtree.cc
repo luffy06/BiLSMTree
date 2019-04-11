@@ -316,6 +316,7 @@ bool LSMTree::GetValueFromFile(const Meta meta, const Slice key, Slice& value) {
 }
 
 size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
+  std::string algo = Util::GetAlgorithm();
   size_t overlaps[7];
   overlaps[now_level] = 0;
   for (int i = now_level - 1; i >= 0; -- i) {
@@ -328,7 +329,11 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   size_t target_level = now_level;
   double diff = 0;
   for (int i = now_level - 1; i >= 0; -- i) {
-    double diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1);
+    double diff_t = 0;
+    if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
+      diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i) * (buf_size_[now_level] + 1) - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1;
+    else
+      diff_t = frequency_[meta.sequence_number_] * 3 * (now_level - i - Config::FlashConfig::READ_WRITE_RATE - overlaps[i] - 1);
     if (diff_t > diff) {
       target_level = i;
       diff = diff_t;
@@ -452,7 +457,7 @@ void LSMTree::RollBackWithCuckoo(const size_t now_level, const Meta meta) {
   if (now_level == 0)
     return ;
   size_t to_level = GetTargetLevel(now_level, meta);
-  assert(to_level <= now_level);
+  assert(to_level < now_level);
   if (to_level == now_level)
     return ;
   lsmtreeresult_->RollBack();
