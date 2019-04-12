@@ -416,12 +416,14 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
 
   std::vector<TableIterator*> tables_;
   tables_.push_back(ti);
+  size_t total_size_ = 0;
   for (size_t i = 1; i < wait_queue_.size(); ++ i) {
     std::string filename = GetFilename(wait_queue_[i].sequence_number_);
+    total_size_ = total_size_ + wait_queue_[i].file_size_;
     tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
-
+  lsmtreeresult_->MajorCompaction(total_size_);
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
