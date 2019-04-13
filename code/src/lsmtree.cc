@@ -86,6 +86,12 @@ bool LSMTree::Get(const Slice key, Slice& value) {
 }
 
 void LSMTree::AddTableToL0(const std::vector<KV>& kvs) {
+  // for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
+  //   std::cout << "Level:" << i << " Size:" << cur_size_[i] << std::endl;
+  //   std::cout << "File Size:" << file_[i].size() << std::endl;
+  //   std::cout << "Buffer Size:" << buffer_[i].size() << std::endl;
+  //   ShowMetas(i, true);
+  // }
   size_t total_size_ = 0;
   for (size_t i = 0; i < kvs.size(); ++ i)
     total_size_ = total_size_ + kvs[i].size();
