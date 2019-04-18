@@ -6,7 +6,7 @@ testid=(8 12)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('BiLSMTree' 'Wisckey')
+algos=('BiLSMTree' 'BiLSMTree-Ext')
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
