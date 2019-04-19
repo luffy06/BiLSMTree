@@ -1,0 +1,30 @@
+
+
+
+[6]O’Neil P, Cheng E, Gawlick D, et al. The log-structured merge-tree (LSM-tree)[J]. Acta Informatica, 1996, 33(4): 351-385.
+[7]Russell Sears and Raghu Ramakrishnan. 2012. bLSM: A general purpose log structured merge tree. In Proceedings of the 2012 ACM SIGMOD International Conference on Management of Data (SIGMOD’12).
+[8]Strozzi C. NoSQL: A relational database management system[J]. Lainattu, 1998, 5: 2014.
+[9] Cattell R. Scalable SQL and NoSQL data stores[J]. Acm Sigmod Record, 2011, 39(4): 12-27.
+[10]阳振坤. OceanBase 关系数据库架构[J]. 华东师范大学学报 (自然科学版), 2014, 2014(5): 141-148.
+[11]S. G. Edward, N. Sabharwal, "Mongodb explained" in Practical MongoDB, New York, NY, USA:Springer, pp. 159-190, 2015.
+[12] M. N. Vora, "Hadoop-hbase for large-scale data", Proc. Int. Conf. Comput. Sci. Netw. Technol., pp. 601-605, 2011.
+[13]Comer D. Ubiquitous B-Tree[J]. Acm Computing Surveys, 1979, 11(2):121-137.
+[14]F. Chang, J. Dean, S. Ghemawat, W. C. Hsieh, D. A. Wallach, M. Burrows, T. Chandra, A. Fikes, R. E. Gruber, "Bigtable: A distributed storage system for structured data", ACM Trans. Comput. Syst., vol. 26, no. 2, 2008.
+[15]Gary Rong(2017, November 29)，基本概念. Message posted to https://github.com/rjl493456442/leveldb-handbook/blob/master/basic.rst
+[16] M. N. Vora, "Hadoop-hbase for large-scale data", Proc. Int. Conf. Comput. Sci. Netw. Technol., pp. 601-605, 2011.
+[17]"Rocksdb.", [online] Available: http://rocksdb.org/.
+[18]赵鑫. 键值数据库在云计算中的应用与实现[D].
+[19]Kannan S, Bhat N, Gavrilovska A, et al. Redesigning LSMs for nonvolatile memory with NoveLSM[C]//2018 {USENIX} Annual Technical Conference ({USENIX}{ATC} 18). 2018: 993-1005.
+[20]Song N Y, Yeom H Y, Han H. Efficient key-value stores with Ranged Log-structured Merge Trees[C]//2018 IEEE 11th International Conference on Cloud Computing (CLOUD). IEEE, 2018: 652-659.
+[21]Zhang Y, Li Y, Guo F, et al. ElasticBF: Fine-grained and Elastic Bloom Filter Towards Efficient Read for LSM-tree-based {KV} Stores[C]//10th {USENIX} Workshop on Hot Topics in Storage and File Systems (HotStorage 18). 2018.
+[22] Zhang J, Lu Y, Shu J, et al. FlashKV: Accelerating KV performance with open-channel SSDs[J]. ACM Transactions on Embedded Computing Systems (TECS), 2017, 16(5s): 139.
+[23]Alsubaiee S, Carey M J, Li C. LSM-Based Storage and Indexing: An old idea with timely benefits[C]//Second international ACM workshop on managing and mining enriched geo-spatial data. ACM, 2015: 1-6.
+[24]Raju P, Kadekodi R, Chidambaram V, et al. Pebblesdb: Building key-value stores using fragmented log-structured merge trees[C]//Proceedings of the 26th Symposium on Operating Systems Principles. ACM, 2017: 497-514.
+[25]Wu X, Xu Y, Shao Z, et al. LSM-trie: An LSM-tree-based ultra-large key-value store for small data items[C]//2015 {USENIX} Annual Technical Conference ({USENIX}{ATC} 15). 2015: 71-82.
+[26]Teng D, Guo L, Lee R, et al. LSbM-tree: Re-enabling buffer caching in data management for mixed reads and writes[C]//2017 IEEE 37th International Conference on Distributed Computing Systems (ICDCS). IEEE, 2017: 68-79.
+[27]叶枫. Key-Value Store读写性能研究与优化[D]. 2016.
+[28]Wang P , Sun G , Jiang S , et al. An efficient design and implementation of LSM-tree based key-value store on open-channel SSD[M]. 2014.
+[29]Lu L, Pillai T S, Gopalakrishnan H, et al. Wisckey: Separating keys from values in ssd-conscious storage[J]. ACM Transactions on Storage (TOS), 2017, 13(1): 5.
+[30]Shi Y, Shen Z, Shao Z. SQLiteKV: An efficient LSM-tree-based SQLite-like database engine for mobile devices[C]//2018 23rd Asia and South Pacific Design Automation Conference (ASP-DAC). IEEE, 2018: 28-33.
+[31]Jin P, Ou Y, Härder T, et al. AD-LRU: An efficient buffer replacement algorithm for flash-based databases[J]. Data & Knowledge Engineering, 2012, 72: 83-102.
+[32]Cooper B F, Silberstein A, Tam E, et al. Benchmarking cloud serving systems with YCSB[C]//Proceedings of the 1st ACM symposium on Cloud computing. ACM, 2010: 143-154.
