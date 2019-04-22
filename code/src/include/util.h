@@ -217,6 +217,7 @@ public:
     major_compaction_size_ = 0;
     check_times_.clear();
     merge_size_.clear();
+    max_merge_size_ = 0;
     rollback_ = 0;
     record_ = false;
   }
@@ -278,6 +279,7 @@ public:
       major_compaction_times_ = major_compaction_times_ + 1;
       major_compaction_size_ = major_compaction_size_ + file_size;
       merge_size_.push_back(merge_size);
+      max_merge_size_ = std::max(max_merge_size_, merge_size);
     }
   }
 
@@ -383,6 +385,10 @@ public:
     return (sum / merge_size_.size());
   }
 
+  size_t GetMaxMergeSize() {
+    return max_merge_size_;
+  }
+
   size_t GetRollBack() {
     return rollback_;
   }
@@ -412,6 +418,7 @@ public:
     std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
     std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
     std::cout << "AVERAGE_MERGE_SIZE:" << GetMergeSizeAvg() << std::endl;
+    std::cout << "MAX_MERGE_SIZE:" << GetMaxMergeSize() << std::endl;
     std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
     for (std::map<std::string, size_t>::iterator it = read_map_.begin(); it != read_map_.end(); ++ it)
       std::cout << "TYPE_" << it->first << ":" << it->second << std::endl;
@@ -431,6 +438,7 @@ private:
   size_t minor_compaction_size_;
   size_t major_compaction_times_;
   size_t major_compaction_size_;
+  size_t max_merge_size_;
   std::vector<size_t> check_times_;
   std::vector<size_t> merge_size_;
   std::map<std::string, size_t> read_map_;
