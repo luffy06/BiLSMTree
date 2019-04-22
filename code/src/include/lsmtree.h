@@ -26,6 +26,7 @@ private:
   std::vector<Meta> file_[Config::LSMTreeConfig::MAX_LEVEL];
   std::vector<Meta> buffer_[Config::LSMTreeConfig::MAX_LEVEL];
   std::vector<size_t> cur_size_;
+  std::vector<size_t> dec_size_;
   std::vector<size_t> base_size_;
   std::vector<size_t> buf_size_;
   VisitFrequency *recent_files_;

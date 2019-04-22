@@ -93,9 +93,9 @@ public:
   };
 
   struct CacheServerConfig {
-    static const size_t IMM_NUMB = 1;
+    static const size_t IMM_NUMB = 3;
     static const size_t MEMORY_SIZE = 8 * 1024 * 1024;
-    static const size_t LRU2Q_RATE = 1;
+    static const size_t LRU2Q_RATE = 3;
     static const size_t LRU_RATE = 1;
   };
 
@@ -216,6 +216,7 @@ public:
     major_compaction_times_ = 0;
     major_compaction_size_ = 0;
     check_times_.clear();
+    merge_size_.clear();
     rollback_ = 0;
     record_ = false;
   }
@@ -272,10 +273,11 @@ public:
     }
   }
 
-  void MajorCompaction(size_t file_size) {
+  void MajorCompaction(size_t file_size, size_t merge_size) {
     if (record_) {
       major_compaction_times_ = major_compaction_times_ + 1;
       major_compaction_size_ = major_compaction_size_ + file_size;
+      merge_size_.push_back(merge_size);
     }
   }
 
@@ -372,6 +374,15 @@ public:
     return (sum / check_times_.size());
   }
 
+  double GetMergeSizeAvg() {
+    double sum = 0;
+    for (size_t i = 0; i < merge_size_.size(); ++ i)
+      sum = sum + merge_size_[i];
+    if (merge_size_.size() == 0)
+      return 0;
+    return (sum / merge_size_.size());
+  }
+
   size_t GetRollBack() {
     return rollback_;
   }
@@ -400,6 +411,7 @@ public:
     std::cout << "MAJOR_COMPACTION_SIZE:" << GetMajorCompactionSize() << std::endl;
     std::cout << "AVG_MAJOR_COMPACTION_SIZE:" << GetAverageMajorCompactionSize() << std::endl;
     std::cout << "AVERAGE_CHECK_TIMES:" << GetCheckTimesAvg() << std::endl;
+    std::cout << "AVERAGE_MERGE_SIZE:" << GetMergeSizeAvg() << std::endl;
     std::cout << "ROLLBACK:" << GetRollBack() << std::endl;
     for (std::map<std::string, size_t>::iterator it = read_map_.begin(); it != read_map_.end(); ++ it)
       std::cout << "TYPE_" << it->first << ":" << it->second << std::endl;
@@ -420,6 +432,7 @@ private:
   size_t major_compaction_times_;
   size_t major_compaction_size_;
   std::vector<size_t> check_times_;
+  std::vector<size_t> merge_size_;
   std::map<std::string, size_t> read_map_;
   size_t rollback_;
 };

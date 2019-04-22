@@ -12,14 +12,17 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
 
   std::string algo = Util::GetAlgorithm();
   cur_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
+  dec_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   base_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   buf_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   cur_size_[0] = Config::LSMTreeConfig::L0SIZE;
+  dec_size_[0] = 1;
   base_size_[0] = Config::LSMTreeConfig::L0SIZE;
   buf_size_[0] = Config::LSMTreeConfig::L0SIZE;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     cur_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     base_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
+    dec_size_[i] = 1;
     buf_size_[i] = 0;
     if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
       buf_size_[i] = cur_size_[i] / 2 < Config::LSMTreeConfig::LISTSIZE ? cur_size_[i] / 2 : Config::LSMTreeConfig::LISTSIZE;
@@ -429,7 +432,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
     tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
-  lsmtreeresult_->MajorCompaction(total_size_);
+  lsmtreeresult_->MajorCompaction(total_size_, wait_queue_.size());
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
@@ -629,7 +632,7 @@ void LSMTree::CompactList(size_t level) {
     tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
-  lsmtreeresult_->MajorCompaction(total_size_);
+  lsmtreeresult_->MajorCompaction(total_size_, wait_queue_.size());
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
@@ -665,7 +668,7 @@ void LSMTree::MajorCompaction(size_t level) {
 
   size_t select_numb_Li = file_[level].size() - cur_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
-  cur_size_[level] = std::max(cur_size_[level] - 1, base_size_[level]);
+  cur_size_[level] = std::max(cur_size_[level] - dec_size_[level], base_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;
   std::vector<size_t> select_indexs;
@@ -703,7 +706,7 @@ void LSMTree::MajorCompaction(size_t level) {
     tables_.push_back(new TableIterator(filename, filesystem_, wait_queue_[i], lsmtreeresult_, bloom_algos, cuckoo_algos));
     filesystem_->Delete(filename);
   }
-  lsmtreeresult_->MajorCompaction(total_size_);
+  lsmtreeresult_->MajorCompaction(total_size_, wait_queue_.size());
   std::vector<Table*> merged_tables = MergeTables(tables_);
   for (size_t i = 0; i < merged_tables.size(); ++ i) {
     Meta meta = merged_tables[i]->GetMeta();
