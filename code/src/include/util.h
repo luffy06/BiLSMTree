@@ -119,8 +119,14 @@ public:
   };
 
   struct TableConfig {
-    static const size_t TABLE_SIZE = 8;
-    static const size_t BLOCK_SIZE = 16;
+    static const size_t LEVELDB_TABLE_SIZE = 2 * 1024 * 1024;
+    static const size_t LEVELDB_BLOCK_SIZE = 512;
+    static const size_t WISCKEY_TABLE_SIZE = 32 * 1024;
+    static const size_t WISCKEY_BLOCK_SIZE = 16;
+    static const size_t BILSMTREE_TABLE_SIZE = 8 * 1024;
+    static const size_t BILSMTREE_BLOCK_SIZE = 16;
+    static const size_t BILSMTREE_DIRECT_TABLE_SIZE = 8 * 1024;
+    static const size_t BILSMTREE_DIRECT_BLOCK_SIZE = 16;
   };
 
   struct VisitFrequencyConfig {
