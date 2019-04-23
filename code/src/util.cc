@@ -47,7 +47,7 @@ size_t Util::GetMemTableSize() {
     mem_size_ = mem_size_ - lru_size_;
     mem_size_ = mem_size_ / Util::GetMemTableNumb();
   }
-  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
+  else if (algo == std::string("BiLSMTree") || algo == std::string("Wisckey") || algo == std::string("LevelDB")) {
     mem_size_ = mem_size_ / 2;
   }
   else {
@@ -66,7 +66,7 @@ size_t Util::GetMemTableNumb() {
   size_t numb = 0;
   if (algo == std::string("BiLSMTreePro"))
     numb = Config::CacheServerConfig::IMM_NUMB + 1;
-  else if (algo == std::string("Wisckey") || algo == std::string("LevelDB"))
+  else if (algo == std::string("BiLSMTree") || algo == std::string("Wisckey") || algo == std::string("LevelDB"))
     numb = 2;
   return numb;
 }
