@@ -1,6 +1,7 @@
 #ifndef BILSMTREE_RWRATIO_H
 #define BILSMTREE_RWRATIO_H
 
+#include <iostream>
 #include <queue>
 
 namespace bilsmtree {

@@ -30,6 +30,8 @@ void RWRatio::Append(size_t op) {
       write_times_ = write_times_ - 1;
   }
   size_ ++;
+  // std::cout << "READ_RATIO:" << GetReadRatio() << std::endl;
+  // std::cout << "READ_TIMES:" << read_times_ << "\tWRITE_TIMES:" << write_times_ << std::endl;
 }
 
 double RWRatio::GetReadRatio() {
