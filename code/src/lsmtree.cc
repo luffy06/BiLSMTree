@@ -37,8 +37,11 @@ LSMTree::~LSMTree() {
 }
 
 void LSMTree::Splay(const double read_ratio) {
-  for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
-    cur_size_[i] = base_size_[i] + int(read_ratio * (Config::LSMTreeConfig::MAX_LEVEL - i) * plus_size_[i]);
+  std::string algo = Util::GetAlgorithm();
+  if (Util::CheckAlgorithm(algo, variable_tree_algos)) {
+    for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
+      cur_size_[i] = base_size_[i] + int(read_ratio * (Config::LSMTreeConfig::MAX_LEVEL - i) * plus_size_[i]);
+  }
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
