@@ -8,6 +8,7 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
   total_sequence_number_ = 0;
   rollback_ = 0;
   ALPHA = 3.0;
+  read_ratio_ = 0;
   recent_files_ = new VisitFrequency(Config::VisitFrequencyConfig::MAXQUEUESIZE, filesystem);
 
   std::string algo = Util::GetAlgorithm();
@@ -72,13 +73,14 @@ bool LSMTree::Get(const Slice key, Slice& value) {
       if (GetValueFromFile(meta, key, value)) {
         if (Util::CheckAlgorithm(algo, rollback_algos)) {
           UpdateFrequency(meta.sequence_number_);
-          if (i > 0) {
+          if (i > 0 && read_ratio_ > 0) {
             size_t min_fre = frequency_[file_[i - 1][0].sequence_number_];
             for (size_t k = 1; k < file_[i - 1].size(); ++ k) {
               if (frequency_[file_[i - 1][k].sequence_number_] < min_fre)
                 min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
-            if (frequency_[meta.sequence_number_] >= min_fre * ALPHA) {
+            size_t threshold = min_fre * ALPHA / read_ratio_;
+            if (frequency_[meta.sequence_number_] >= threshold) {
               if (p < file_[i].size())
                 file_[i].erase(file_[i].begin() + p);
               else
