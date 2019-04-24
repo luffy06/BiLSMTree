@@ -588,7 +588,7 @@ std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tabl
     if (ti->HasNext())
       q.push(ti);
     if (buffers_.size() == 0 || kv.key_.compare(buffers_[buffers_.size() - 1].key_) > 0) {
-      if (buffer_size_ >= table_size_) {
+      if (buffer_size_ + kv.size() > table_size_) {
         size_t sequence_number_ = GetSequenceNumber();
         std::string filename = GetFilename(sequence_number_);
         Table *t = new Table(buffers_, sequence_number_, filename, filesystem_, lsmtreeresult_, bloom_algos, cuckoo_algos);

@@ -42,7 +42,7 @@ std::string Util::GetAlgorithm() {
 size_t Util::GetMemTableSize() {
   std::string algo = Util::GetAlgorithm();
   size_t mem_size_ = Config::CacheServerConfig::MEMORY_SIZE / 2;
-  if (algo == std::string("BiLSMTreePro")) {
+  if (algo == std::string("BiLSMTree")) {
     size_t lru_size_ = Config::CacheServerConfig::MEMORY_SIZE * Config::CacheServerConfig::LRU2Q_RATE / (Config::CacheServerConfig::LRU2Q_RATE + 1);
     mem_size_ = Config::CacheServerConfig::MEMORY_SIZE - lru_size_;
     mem_size_ = mem_size_ / Util::GetMemTableNumb();
@@ -61,7 +61,7 @@ size_t Util::GetLRU2QSize() {
 size_t Util::GetMemTableNumb() {
   std::string algo = Util::GetAlgorithm();
   size_t numb = 2;
-  if (algo == std::string("BiLSMTreePro"))
+  if (algo == std::string("BiLSMTree"))
     numb = Config::CacheServerConfig::IMM_NUMB + 1;
   else if (algo == std::string("BiLSMTree-Direct"))
     numb = 0;
