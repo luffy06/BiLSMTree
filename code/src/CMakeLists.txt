@@ -36,6 +36,7 @@ target_sources(bilsmtree
     "${PROJECT_SOURCE_DIR}/lru2q.cc"
     "${PROJECT_SOURCE_DIR}/kvserver.cc"    
     "${PROJECT_SOURCE_DIR}/cacheserver.cc"
+    "${PROJECT_SOURCE_DIR}/rwratio.cc"
     "${PROJECT_SOURCE_DIR}/db.cc"
 
   $<$<VERSION_GREATER:CMAKE_VERSION,3.2>:PUBLIC>
@@ -57,6 +58,7 @@ target_sources(bilsmtree
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/lru2q.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/kvserver.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/cacheserver.h"
+    "${BILSMTREE_PUBLIC_INCLUDE_DIR}/rwratio.h"
     "${BILSMTREE_PUBLIC_INCLUDE_DIR}/db.h"
 )
 

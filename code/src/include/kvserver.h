@@ -17,6 +17,8 @@ public:
   bool Get(const Slice key, Slice& value);
 
   void MinorCompact(const std::vector<KV> &data);
+
+  void Splay(const double read_ratio);
 private:
   LSMTree *lsmtree_;
   LogManager *logmanager_;

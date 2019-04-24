@@ -7,6 +7,7 @@ DB::DB() {
   filesystem_ = new FileSystem(result_->flashresult_);
   cacheserver_ = new CacheServer(result_->memoryresult_);
   kvserver_ = new KVServer(filesystem_, result_->lsmtreeresult_);
+  rwratio_ = new RWRatio(5000);
 }
 
 DB::~DB() {
@@ -14,6 +15,7 @@ DB::~DB() {
   delete kvserver_;
   delete filesystem_;
   delete result_;
+  delete rwratio_;
 }
 
 void DB::Put(const std::string key, const std::string value) {
@@ -28,6 +30,8 @@ void DB::Put(const std::string key, const std::string value) {
     if (Config::TRACE_LOG)
       std::cout << "Minor Compaction Success" << std::endl;
   }
+  rwratio_->Append(1);
+  kvserver_->Splay(rwratio_->GetReadRatio());
 }
 
 bool DB::Get(const std::string key, std::string& value) {
@@ -48,6 +52,8 @@ bool DB::Get(const std::string key, std::string& value) {
     result_->lsmtreeresult_->RealRead(value_.size());
     value = value_.ToString();
   }
+  rwratio_->Append(0);
+  kvserver_->Splay(rwratio_->GetReadRatio());
   return res;
 }
 

@@ -12,26 +12,33 @@ LSMTree::LSMTree(FileSystem* filesystem, LSMTreeResult* lsmtreeresult) {
 
   std::string algo = Util::GetAlgorithm();
   cur_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
-  dec_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
+  plus_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   base_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   buf_size_.resize(Config::LSMTreeConfig::MAX_LEVEL);
   cur_size_[0] = Config::LSMTreeConfig::L0SIZE;
-  dec_size_[0] = 1;
   base_size_[0] = Config::LSMTreeConfig::L0SIZE;
   buf_size_[0] = Config::LSMTreeConfig::L0SIZE;
   for (size_t i = 1; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i) {
     cur_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
     base_size_[i] = static_cast<size_t>(pow(Config::LSMTreeConfig::LIBASE, i));
-    dec_size_[i] = 1;
+    plus_size_[i] = 0;
     buf_size_[i] = 0;
     if (Util::CheckAlgorithm(algo, rollback_with_cuckoo_algos))
       buf_size_[i] = cur_size_[i] / 2 < Config::LSMTreeConfig::LISTSIZE ? cur_size_[i] / 2 : Config::LSMTreeConfig::LISTSIZE;
     cur_size_[i] = cur_size_[i] - buf_size_[i];
   }
+  plus_size_[0] = Config::LSMTreeConfig::L0LIM;
+  plus_size_[1] = Config::LSMTreeConfig::L1LIM;
+  plus_size_[2] = Config::LSMTreeConfig::L2LIM;
 }
 
 LSMTree::~LSMTree() {
   delete recent_files_;
+}
+
+void LSMTree::Splay(const double read_ratio) {
+  for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
+    cur_size_[i] = base_size_[i] + int(read_ratio * (Config::LSMTreeConfig::MAX_LEVEL - i) * plus_size_[i]);
 }
 
 bool LSMTree::Get(const Slice key, Slice& value) {
@@ -453,8 +460,8 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
   }
   assert(CheckFileList(to_level));
 
-  if (Util::CheckAlgorithm(algo, variable_tree_algos))
-    cur_size_[to_level] = cur_size_[to_level] + 2;
+  // if (Util::CheckAlgorithm(algo, variable_tree_algos))
+  //   cur_size_[to_level] = cur_size_[to_level] + 2;
   if (file_[to_level].size() > cur_size_[to_level])
     MajorCompaction(to_level);
 
@@ -668,7 +675,6 @@ void LSMTree::MajorCompaction(size_t level) {
 
   size_t select_numb_Li = file_[level].size() - cur_size_[level];
   // std::cout << "SELECT " << select_numb_Li << std::endl;
-  cur_size_[level] = std::max(cur_size_[level] - dec_size_[level], base_size_[level]);
   // select from files from Li
   std::vector<std::pair<size_t, size_t>> indexs;
   std::vector<size_t> select_indexs;

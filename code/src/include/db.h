@@ -3,6 +3,7 @@
 
 #include "kvserver.h"
 #include "cacheserver.h"
+#include "rwratio.h"
 
 namespace bilsmtree {
 
@@ -26,6 +27,7 @@ private:
   KVServer *kvserver_;
   FileSystem *filesystem_;
   Result *result_;
+  RWRatio *rwratio_;
 };
 
 }

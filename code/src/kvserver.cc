@@ -51,4 +51,8 @@ void KVServer::MinorCompact(const std::vector<KV> &data) {
   }
 }
 
+void KVServer::Splay(const double read_ratio) {
+  lsmtree_->Splay(read_ratio);
+}
+
 }
