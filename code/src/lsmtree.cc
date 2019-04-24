@@ -38,6 +38,7 @@ LSMTree::~LSMTree() {
 }
 
 void LSMTree::Splay(const double read_ratio) {
+  read_ratio_ = read_ratio;
   std::string algo = Util::GetAlgorithm();
   if (Util::CheckAlgorithm(algo, variable_tree_algos)) {
     for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
