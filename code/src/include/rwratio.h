@@ -17,6 +17,8 @@ public:
 
   double GetWriteRatio();
 
+  void Clear();
+
 private:
   std::queue<size_t> visit_[2];
 

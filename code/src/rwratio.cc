@@ -40,4 +40,11 @@ double RWRatio::GetWriteRatio() {
   return (write_times_ * 1.0) / (read_times_ + write_times_);
 }
 
+void RWRatio::Clear() {
+  read_times_ = write_times_ = 0;
+  size_ = 0;
+  while (!visit_[0].empty())
+    visit_[0].pop();
+}
+
 }

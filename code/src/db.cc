@@ -59,6 +59,7 @@ bool DB::Get(const std::string key, std::string& value) {
 
 void DB::StartRecord() {
   result_->StartRecord();
+  rwratio_->Clear();
 }
 
 }
