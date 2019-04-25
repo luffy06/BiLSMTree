@@ -2,13 +2,7 @@
 
 ## Overview
 
-
-
-major contribution：
-
-1. 重新设计了内存的存储结构；
-2. 增加了数据上浮的操作；
-3. 可以改变LSMTree的形状
+FSLSM-Tree旨在优化基于LSM-Tree结构的数据库在读紧张的workload上的性能。<del>FSLSM-Tree首先为内存增加了多级缓存结构，提高数据在内存的驻留时间。</del>其次提出了上浮机制允许将SSTable通过给定的机制上浮到高层。FSLSM-Tree还会根据当前操作，识别出当前的workload的读写特点，适当的调整LSM-Tree的形状，以便于得到更佳的读写性能。
 
 ## 整体结构
 
@@ -16,13 +10,27 @@ major contribution：
 
 【图1：整体架构】
 
-### 内存：LRU+FIFO替换
+### <del>内存：多级缓存替换</del>
 
-如图1中的Memory部分，在内存中的存储结构，我们用LRU+FIFO替换原来的MemTable+Immutable MemTable组合，它们两个的大小相同。
+如图1中的Memory部分，在内存中的存储结构，我们用一个LRU2Q+一个MemTable+一个Imm List替换原来的的MemTable+Immutable MemTable组合。数据依次流动从LRU2Q，MemTable，由Immutable MemTable组成的List，最后流入外部存储设备。
 
-每当有数据从LRU中淘汰后会被加入FIFO。当新数据加入FIFO时，若FIFO已经满了，则将FIFO中的数据DUMP到外部设备，清空FIFO，新数据加入FIFO。当数据在LRU或FIFO中被访问，则都将该数据移动到LRU的头部。
+每当有数据从LRU2Q中淘汰后会被加入MemTable。当MemTable满了以后，将这个Memtable转换为Immutable MemTable，加入Imm List。当Imm List满了之后，将该List队尾的Immutable MemTable淘汰，存储到外部存储设备中。当数据在LRU2Q中被访问到后，会按照LRU2Q的策略移动在队伍中的位置。
 
-### 外存：上浮和变形
+### <del>LRU2Q、MemTable、Imm List大小分配</del>
+
+初始设定每个MemTable和Immutable MemTable最大为$\theta$MB。
+
+若内存不足2$\times\theta$MB，则平均划分内存空间，一半划分为MemTable，一半划分为Imm List，Imm List中只有一个Immutable MemTable。
+
+当内存大于2$\times\theta$MB，优先分配给LRU2Q。设定LRU2Q的大小为MemTable和Imm List的大小之和的$\alpha$倍，Imm List中Immutable MemTable的个数最大为$\beta$个。
+
+定义$g(k)=(1+k)\times\theta\times (1 + \alpha), (1\le k\le \beta)$，表示$k$个大小$\theta$MB的Immutable MemTable时的最小需要内存大小。
+
+当内存大小在$[g(k), g(k+1)]$时，分配$k$个大小为$\theta$MB的Immutable MemTable，一个$\theta$MB的MemTable，剩余空间全分配个LRU2Q。
+
+当内存大小大于$g(\beta)$时，分配$\beta$个大小为$\theta$MB的Immutable MemTable，一个$\theta$MB的MemTable，剩下空间全分配给LRU2Q。
+
+### 外存：上浮机制
 
 如图1中的Disk/Flash部分，当一个文件被频繁访问时，我们将其上浮到高层。
 
@@ -36,9 +44,9 @@ major contribution：
 
 我们对每个SSTable文件记录最近$F$次访问中的访问次数$f$，第$i$层的第$t$个SSTable的最近$F$次访问中的访问次数为$f_{i,t}$，若满足
 $$
-f_{i,t}\ge min(f_{i-1,u})  \times \gamma (i > 0)\quad (1)
+f_{i,t}\ge min(f_{i-1,u})  \times \gamma / \eta (i > 0)\quad (1)
 $$
-其中$f_{i-1,u}$为第$i-1$层的第$u$个SSTable的最近$F$次访问中的访问次数，$\gamma$为上浮常数，那么这个SSTable文件需要进行上浮操作。
+其中$f_{i-1,u}$为第$i-1$层的第$u$个SSTable的最近$F$次访问中的访问次数，$\gamma$为上浮常数，$\eta$ 为当前workload的读比例（我们通过每隔固定数目的操作进行一次统计得到当前的读写比例）。
 
 #### 2. 确定数据上浮的目标层数
 
@@ -88,11 +96,33 @@ SSTable的上浮过程可以被分为两步：
 1. 分别与上浮过程中跨越的层中的文件，进行删除旧数据操作。
 2. 与上浮的层进行Compaction合并操作。
 
-#### 4. 变形树
+### 外存：伸展树
 
-为了避免因上浮操作所引起的频繁Compaction操作，我们打破了原有的LevelDB中LSMTree的固定结构，允许LSMTree能够根据当前的访问序列的特点自适应的修改自身的形状。因为不同层次的文件对于flash而言都是一样的，读写$L_0$层中文件的速度和读写$L_6$层中文件的速度是一样的，所以当有很多最近都是频繁访问的文件时，我们应该将他们都放在同一个层次访问，而不应该受到默认结构的限制而造成不同的访问时间。
+考虑到频繁上浮将会因为LevelDB中LSM-Tree的形状限制，而导致频繁Compaction操作。例如$L_0 $层的文件个数上限为4个，也就是说当多个文件均上浮到$L_0$层时，将会多次引起Compaction操作。同时我们发现适当的扩大$L_0$层的文件个数上限，将会显著提升LevelDB的读性能。因此，我们打破了原有的LevelDB中LSM-Tree的固定结构，允许LSM-Tree能够根据当前的workload的读写特点自适应的修改自身的形状。
 
-当SSTable上浮到$L_i$层时，我们认为将来也会有一部分文件上浮到$L_i$层，所以此时增加$L_i$层的文件个数上限。当$L_i$层发生Compaction时，我们认为已经有一段时间没有文件上浮到$L_i$层了，所以我们减少$L_i$层的文件个数上限。通过上述两个操作，我们可以实现LSMTree的自适应变形操作。
+![splay](pic/splay.svg)
+
+【图2：适应不同读写特点的LSM-Tree形状】
+
+因为LevelDB原来就是针对写紧张的workload所设计，所以图2中（a）的形状（也就是原来的默认形状）最有利于数据库的访问。而对于读多写少的workload，我们发现图2中（c）的形状更为有利于数据库的访问，根据我们的实验，每次查询一个key，平均只需要查找1个文件就可以找到对应的value。而对于读写参半的workload，我们发现图2中（b）的形状更利于数据的访问。
+
+####伸展操作
+
+前文提到，我们每隔一定数量的操作来统计当前workload的读写比例，并用$\eta$表示。我们根据$\eta$设计了一个能够随着$\eta$变化而改变树形状的机制。
+
+首先我们为每层定义一个涨幅参数$inc$，$inc[i]$表示第$i$层的涨幅参数。一般来说$inc[0]\ge inc[1]\ge inc[2]\ge \ldots\ge inc[6]$，这是因为在初始的形状中，$L_i$层的文件上限个数就大于$L_{i-1}$层的文件上限个数。
+
+定义$L_i$层的文件上限个数$thr[i]=base[i]+\eta\times(7-i)\times inc[i]$，其中$base[i]= \begin{equation}\left\{ \begin{array}{lr}4 & i=0\\ 10^i & 1\le i\le 6\end{array}\right.\end{equation}$
+
+每当$\eta$发生变化，则对LSM-Tree的各层文件上限个数进行更新。
+
+# Overhead Analysis
+
+在FSLSM-Tree的上浮机制中，因为$L_i$层的SSTable不能简单直接的逻辑上移动到上浮的$L_j$层，所以在上浮过程中，去除旧数据操作和在$L_j$层进行的合并操作都会产生额外的overhead。最坏情况下，一个$L_6$层的第$t$个SSTable需要移动到$L_0$层，平均在每层有$5$个SSTable与其存在键值范围的重叠，所以共需要额外读取约$6\times 5\times 2 =60$MB的的数据。但考虑到未来的$F$次访问中，可能有$f_{6, t}$次需要访问这个SSTable（$F$为很大的常数，默认设为$10^5$），则此时上浮这个SSTable是值得的。
+
+为了避免SSTable频繁上浮所导致的Compaction操作，我们提出伸展机制，能够使得上浮的SSTable在上浮的层中多驻留一段时间。LSM-Tree伸展出来的空间是为上浮的SSTable所预留的，但当上浮频率与伸展空间不匹配时，预留出的空间则留给了通过Compaction下来的SSTable，这样则增加了查找或比较文件的个数，尤其是$L_0$层会额外增加查找文件的个数，导致额外的读。
+
+如何识别一个SSTable是否是真正的最近频繁访问的SSTable是一个十分关键的问题。若触发条件过于容易，SSTable频繁上浮，但在未来却不是频繁访问，那么上浮时产生的Overhead将无法被抹平。
 
 # 例子
 
@@ -108,7 +138,7 @@ SSTable的上浮过程可以被分为两步：
 
 对比（a）和（b），增加LRU2Q能够使频繁访问的键能够在内存中驻留更久的时间，同时也减少了每次刷入外部存储设备的键的数量。
 
-## 外存例子
+## 外存上浮例子
 
 ![case2](./pic/case2.svg)
 
@@ -140,7 +170,6 @@ SSTable的上浮过程可以被分为两步：
 
 ![algo3](pic/algo3.png)
 
-算法3 展示将$L_i$层的SSTable $S_i$上浮到$L_j$层的过程。读取$S_i$的所有键值对，存储在一个$data$数组中，并删除SSTable $S_i$。依次从$L_{i-1}$层到$L_{j+1}$层，读出每层所有与数组$data$存储的键值范围存在重叠的SSTable的所有键值对，存储在一个$temp$数组中，然后去除$data$数组中与$temp$数组中重复的键值对。在$L_j$层，对剩余的$data$数组进行一次Compaction操作：读取存在键值重叠的SSTable，进行多路合并，划分新的SSTable，插入$L_j$层。增加$L_j$层的SSTable个数上限，每次增加的个数为参数$\eta$。最后判断，$L_j$层SSTable文件个数是否超过上限，若超过上限，对$L_j$进行Compaction操作。
+算法3 展示将$L_i$层的SSTable $S_i$上浮到$L_j$层的过程。读取$S_i$的所有键值对，存储在一个$data$数组中，并删除SSTable $S_i$。依次从$L_{i-1}$层到$L_{j+1}$层，读出每层所有与数组$data$存储的键值范围存在重叠的SSTable的所有键值对，存储在一个$temp$数组中，然后去除$data$数组中与$temp$数组中重复的键值对。在$L_j$层，对剩余的$data$数组进行一次Compaction操作：读取存在键值重叠的SSTable，进行多路合并，划分新的SSTable，插入$L_j$层。最后判断，$L_j$层SSTable文件个数是否超过上限，若超过上限，对$L_j$进行Compaction操作。
 
-**在外存中查找一个key的方法与原来一样。每次完成Compaction后，减少对应层的SSTable文件个数上限。**
-
+**在外存中查找一个key和Compaction的方法与原来一样。**

@@ -1,10 +1,10 @@
 # Experiment Setup
 
-## Workload
+## Workloads
 
-评估数据均由YCSB[1]生成，共设计了15个trace。
+评估数据均由YCSB[1]生成，共设计了15个trace。YCSB是一个框架，它的目的是为了便利比较不同的新生代的云数据服务系统的性能。（with the goal of facilitating performance comparisons of the new generation of cloud data serving systems.）YCSB测试时分为两个阶段，Load和Running阶段。Load阶段往待测试的数据库中加载数据，Running阶段在Load阶段已加载的数据的基础上进行不同操作的测试。操作的类别包括随机读（read），范围读（range lookup），插入写（insert），更新写（update）。
 
-| Benchmark  | 描述                     | 读写比   |
+| workload   | 描述                     | 读写比   |
 | ---------- | ------------------------ | -------- |
 | Workload0  | 全部读                   | 1.0：0.0 |
 | Workload1  | 一半读，一半插入         | 0.5：0.5 |
@@ -13,35 +13,53 @@
 | Workload4  | 大量读，少量更新         | 0.8：0.2 |
 | Workload5  | 大量读，少量插入         | 0.9：0.1 |
 | Workload6  | 大量读，少量更新         | 0.9：0.1 |
-| Workload7  | 少量读，大量插入         | 0.1：0.9 |
-| Workload8  | 少量读，大量更新         | 0.1：0.9 |
-| Workload9  | 少量读，大量插入         | 0.2：0.8 |
-| Workload10 | 少量读，大量更新         | 0.2：0.8 |
-| Workload11 | 全部插入                 | 0.0：1.0 |
-| Workload12 | 全部更新                 | 0.0：1.0 |
-| Workload13 | 全部扫描                 | 1.0：0.0 |
-| Workload14 | 一半读，1/4插入，1/4更新 | 0.5：0.5 |
+| Workload7  | 少量读，大量插入         | 0.2：0.8 |
+| Workload8  | 少量读，大量更新         | 0.2：0.8 |
+| Workload9  | 全部插入                 | 0.0：1.0 |
+| Workload10 | 全部更新                 | 0.0：1.0 |
+| Workload11 | 全部扫描                 | 1.0：0.0 |
+| Workload12 | 一半读，1/4插入，1/4更新 | 0.5：0.5 |
 
-# Evaluation
+## 对比
+
+我们讲FSLSM-Tree分别和具有代表性的方法进行了比较，一个是Wisckey，另一个是LevelDB。Wisckey首个提出键值分离思想，显著的提升了写性能。LevelDB是当前最流行的基于LSM-Tree结构的数据库。
+
+## 性能指标
+
+我们比较了以下7个性能指标：
+
+* 总延迟
+* 读放大
+* 写放大
+* Compaction的总数据量
+* 查找一个key平均需要检查的文件个数
+
+这5个性能指标能够全面的反映FSLSM-Tree的读写性能。
+
+# Experiment Result
 
 ## Latency
 
-和LevelDB比，BiLSMTree在任何情况下均优于LevelDB，平均能够提高77%。主要原因是BiLSMTree也采用键值分离策略，降低Compaction时value的读出和重新写入所带来的额外代价。
+和LevelDB比，FSLSM-Tree在任何情况下均优于LevelDB，平均能够提高63%。主要原因是对于写多的workload，FSLSM-Tree也采用键值分离策略，降低Compaction时value的读出和重新写入所带来的额外代价；对于读多的workload，数据的上浮也为FSLSM-Tree带来了足够多的提升。
 
-和Wisckey比，BiLSMTree整体在读写均衡（Benchmark1、2、14）、读多写少（Benchmark3、4、5、6），或全读的情况（Benchmark0、13）下均优于Wisckey，平均能够提高70.14%，但在写多读少的情况下（Benchmark7、8、9、10）和全写的情况下（Benchmark11、12），BiLSMTree基本劣于Wisckey，平均降低了135.23%。其中写为更新写的情况下，（Benchmark7、9、11），平均降低了47.37%；写为插入写的情况下（Benchmark8、10、12），平均降低了223.10%。主要原因在读均多于或等于写、或全读的情况下，BiLSMTree通过将频繁访问的文件提升到高层，以降低未来对这些文件访问时的代价。在读少于或
+和Wisckey比，
+
+* 在读写均衡（workload1、2、12）、读多写少（workload3、4、5、6），或全读的情况（workload0、11）下FSLSM-Tree均优于Wisckey，平均能够提高38%，主要原因在于上浮机制减少了额外的读；
+* 在写多读少的情况下（workload7、8），FSLSM-Tree在80%更新写的情况下劣于Wisckey，降低了2%，但在80%插入的情况下，提高了30%。？？？？
+* 在全写的情况下（workload10、11），FSLSM-Tree与Wisckey算法相同，因为此时FSLSM-Tree识别出为全写的特性，所以不进行上浮和伸展操作。
 
 ## 读放大、写放大
 
-## 内存中读的次数
-
-## 从内存导出倒LSMTree的总数据量
+FSLSM-Tree有效的降低了读放大，同时也没有产生过多额外写放大，相比Wisckey平均降低了4.41倍的读放大，相比LevelDB平均降低了9.01倍的读放大。因为Wisckey显著的降低了LevelDB的写放大，所以FSLSM-Tree在Wisckey的基础上，平均仅仅提高了0.09倍的写放大，但又保持了对LevelDB的显著提升。读放大的显著提升主要得益于上浮后，
 
 ## Compaction的总数据量
 
+虽然FSLSM-Tree通过伸展机制尽可能的减少因上浮所引起的Compaction，但还是会产生一些额外的Compaction操作，最多的workload相比于Wisckey将会产生多达4倍的Compaction数据量。但从平均来看，FSLSM-Tree仅仅产生了1.2倍的Compaction数据量。FSLM-Tree因为和Wisckey一样，没有存储value，所以Compaction的数据量能够得到大大的减少。
+
 ## 查找一个Key平均需要检查的文件个数
 
- 
+FSLSM-Tree显著的减少了查找一个Key平均需要检查的文件个数，平均只需要检查2.33个文件就能够查到真正的value，而Wisckey和LevelDB平均需要检查4.34和4.36个文件才能够查到真正的value。因为FSLSM-Tree将文件上浮到高层，同时加上伸展机制对文件的延缓Compaction作用，使得查找文件的个数的到显著的减少。 
 
 # Reference
 
-1. Brian F. Cooper, Adam Silberstein, Erwin Tam, Raghu Ramakrishnan, and Russell Sears. 2010. Benchmarking cloud serving systems with YCSB. In Proceedings of the 1st ACM symposium on Cloud computing. ACM, 143–154. 
+1. Brian F. Cooper, Adam Silberstein, Erwin Tam, Raghu Ramakrishnan, and Russell Sears. 2010. workloading cloud serving systems with YCSB. In Proceedings of the 1st ACM symposium on Cloud computing. ACM, 143–154. 
