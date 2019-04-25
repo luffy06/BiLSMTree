@@ -116,8 +116,8 @@ public:
     static const size_t L0SIZE = 4;
     static const size_t LIBASE = 10;
     static const size_t LISTSIZE = 50;
-    static const size_t L0LIM = 20;
-    static const size_t L1LIM = 10;
+    static const size_t L0LIM = 0;
+    static const size_t L1LIM = 20;
     static const size_t L2LIM = 5;
   };
 
