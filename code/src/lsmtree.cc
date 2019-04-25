@@ -364,8 +364,6 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
       diff = diff_t;
     }
   }
-  if (target_level == 0)
-    target_level = target_level + 1;
   return target_level;
 }
 
