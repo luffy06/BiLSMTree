@@ -40,6 +40,9 @@ LSMTree::~LSMTree() {
 void LSMTree::Splay(const double read_ratio) {
   read_ratio_ = read_ratio;
   std::string algo = Util::GetAlgorithm();
+  // for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
+  //   std::cout << "Level: " << i << "\tThresold: " << cur_size_[i] << std::endl;
+  // std::cout << std::endl;
   if (Util::CheckAlgorithm(algo, variable_tree_algos)) {
     for (size_t i = 0; i < Config::LSMTreeConfig::MAX_LEVEL; ++ i)
       cur_size_[i] = base_size_[i] + int(read_ratio * (Config::LSMTreeConfig::MAX_LEVEL - i) * plus_size_[i]);
