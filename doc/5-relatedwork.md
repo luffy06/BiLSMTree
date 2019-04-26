@@ -134,18 +134,3 @@ HashKV用打tag的方法来重新安排冷KV到不同的存储区域，以便于
 HashKV对比较小的KV，直接将其存储在LSM-Tree中。
 
 ## LSbM-Tree
-
-
-
-## Splaying LSM
-
-核心思想是借鉴于Splay Tree的数据结构，将频繁访问的键通过旋转或者拷贝至LSM树的高level中。
-
-### AlwaysSplay
-
-对每个get操作都会触发一个put操作，即将该对应的键值拷贝到高level。
-
-### FlexSplay
-
-对每个get操作触发put操作之前，先将拷贝了的键值对标记splayed。当进行向下合并的时候，对于标记为splayed的数据根据当前的状态估计保留该键值的收益，否则删除。
-
