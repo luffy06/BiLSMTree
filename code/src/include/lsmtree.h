@@ -38,12 +38,12 @@ private:
   size_t rollback_;
   double ALPHA;
   double read_ratio_;
-  const std::vector<std::string> variable_tree_algos = {"BiLSMTree", "BiLSMTree-Ext"};
-  const std::vector<std::string> rollback_algos = {"BiLSMTree", "BiLSMTree-Direct", "BiLSMTree-Ext"};
+  const std::vector<std::string> variable_tree_algos = {"BiLSMTree", "BiLSMTree-KV", "BiLSMTree-Ext"};
+  const std::vector<std::string> rollback_algos = {"BiLSMTree", "BiLSMTree-KV", "BiLSMTree-Direct", "BiLSMTree-Ext"};
   const std::vector<std::string> rollback_with_cuckoo_algos = {"BiLSMTree-Ext"};
-  const std::vector<std::string> rollback_direct_algos = {"BiLSMTree"};
+  const std::vector<std::string> rollback_direct_algos = {"BiLSMTree", "BiLSMTree-KV"};
   const std::vector<std::string> rollback_top_algos = {"BiLSMTree-Direct"};
-  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree", "BiLSMTree-Direct"};
+  const std::vector<std::string> bloom_algos = {"Wisckey", "LevelDB", "BiLSMTree", "BiLSMTree-KV", "BiLSMTree-Direct"};
   const std::vector<std::string> cuckoo_algos = {"BiLSMTree-Ext", "Cuckoo"};
 
   size_t GetSequenceNumber();

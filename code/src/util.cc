@@ -65,14 +65,12 @@ size_t Util::GetMemTableNumb() {
     numb = Config::CacheServerConfig::IMM_NUMB + 1;
   else if (algo == std::string("BiLSMTree-Direct"))
     numb = 0;
-  else if (algo == std::string("BiLSMTree"))
-    numb = 2;
   return numb;
 }
 
 size_t Util::GetSSTableSize() {
   std::string algo = Util::GetAlgorithm();
-  if (algo == std::string("LevelDB"))
+  if (algo == std::string("LevelDB") || algo == std::string("BiLSMTree-KV"))
     return Config::TableConfig::LEVELDB_TABLE_SIZE;
   else if (algo == std::string("Wisckey"))
     return Config::TableConfig::WISCKEY_TABLE_SIZE;
@@ -87,7 +85,7 @@ size_t Util::GetBlockSize() {
   std::string algo = Util::GetAlgorithm();
   size_t table_size_ = GetSSTableSize();
   size_t block_size_ = 512;
-  if (algo == std::string("LevelDB"))
+  if (algo == std::string("LevelDB") || algo == std::string("BiLSMTree-KV"))
     block_size_ = Config::TableConfig::LEVELDB_BLOCK_SIZE;
   else if (algo == std::string("Wisckey"))
     block_size_ = Config::TableConfig::WISCKEY_BLOCK_SIZE;
