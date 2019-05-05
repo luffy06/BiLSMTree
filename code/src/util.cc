@@ -74,7 +74,7 @@ size_t Util::GetSSTableSize() {
     return Config::TableConfig::LEVELDB_TABLE_SIZE;
   else if (algo == std::string("Wisckey"))
     return Config::TableConfig::WISCKEY_TABLE_SIZE;
-  else if (algo == std::string("BiLSMTree"))
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext"))
     return Config::TableConfig::BILSMTREE_TABLE_SIZE;
   else if (algo == std::string("BiLSMTree-Direct"))
     return Config::TableConfig::BILSMTREE_DIRECT_TABLE_SIZE;
@@ -89,7 +89,7 @@ size_t Util::GetBlockSize() {
     block_size_ = Config::TableConfig::LEVELDB_BLOCK_SIZE;
   else if (algo == std::string("Wisckey"))
     block_size_ = Config::TableConfig::WISCKEY_BLOCK_SIZE;
-  else if (algo == std::string("BiLSMTree"))
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext"))
     block_size_ = Config::TableConfig::BILSMTREE_BLOCK_SIZE;
   else if (algo == std::string("BiLSMTree-Direct"))
     block_size_ = Config::TableConfig::BILSMTREE_DIRECT_BLOCK_SIZE;
