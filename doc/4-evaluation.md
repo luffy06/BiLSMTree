@@ -24,7 +24,7 @@
 
 ## 对比
 
-我们讲FSLSM-Tree分别和具有代表性的方法进行了比较，一个是Wisckey，另一个是LevelDB。Wisckey首个提出键值分离思想，显著的提升了写性能。LevelDB是当前最流行的基于LSM-Tree结构的数据库。
+我们将FSLSM-Tree分别和具有代表性的方法进行了比较，一个是Wisckey，另一个是LevelDB。Wisckey首个提出键值分离思想，显著的提升了写性能。LevelDB是当前最流行的基于LSM-Tree结构的数据库。
 
 ## 性能指标
 
