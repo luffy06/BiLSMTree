@@ -45,10 +45,10 @@ NoSQL包含许多高效的数据结构，如键值存储，图存储，文档存
 13. [Workload]：Atikoglu B, Xu Y, Frachtenberg E, et al. Workload analysis of a large-scale key-value store[C]//ACM SIGMETRICS Performance Evaluation Review. ACM, 2012, 40(1): 53-64.
 14. [HashKV]：Chan H H W, Liang C J M, Li Y, et al. HashKV: Enabling Efficient Updates in {KV} Storage via Hashing[C]//2018 {USENIX} Annual Technical Conference ({USENIX}{ATC} 18). 2018: 1007-1019.
 15. [FlashKV]：Zhang J, Lu Y, Shu J, et al. FlashKV: Accelerating KV performance with open-channel SSDs[J]. ACM Transactions on Embedded Computing Systems (TECS), 2017, 16(5s): 139.
-16. [H-C in SSD]：Lee J, Kim J S. An empirical study of hot/cold data separation policies in solid state drives (SSDs)[C]//Proceedings of the 6th International Systems and Storage Conference. ACM, 2013: 12.
-17. [Identify H-C]：Levandoski J J, Larson P Å, Stoica R. Identifying hot and cold data in main-memory databases[C]//2013 IEEE 29th International Conference on Data Engineering (ICDE). IEEE, 2013: 26-37.
-18. [Necessity]：Van Houdt B. On the necessity of hot and cold data identification to reduce the write amplification in flash-based SSDs[J]. Performance Evaluation, 2014, 82: 1-14.
-19. [LWC]：Yao T, Wan J, Huang P, et al. Building efficient key-value stores via a lightweight compaction tree[J]. ACM Transactions on Storage (TOS), 2017, 13(4): 29.
+16. [HCinSSD]：Lee J, Kim J S. An empirical study of hot/cold data separation policies in solid state drives (SSDs)[C]//Proceedings of the 6th International Systems and Storage Conference. ACM, 2013: 12.
+17. [IdentifyHC]：Levandoski J J, Larson P Å, Stoica R. Identifying hot and cold data in main-memory databases[C]//2013 IEEE 29th International Conference on Data Engineering (ICDE). IEEE, 2013: 26-37.
+18. [HCNecessity]：Van Houdt B. On the necessity of hot and cold data identification to reduce the write amplification in flash-based SSDs[J]. Performance Evaluation, 2014, 82: 1-14.
+19. [LWC-Tree]：Yao T, Wan J, Huang P, et al. Building efficient key-value stores via a lightweight compaction tree[J]. ACM Transactions on Storage (TOS), 2017, 13(4): 29.
 20. [KVSSD]：Wu S M, Lin K H, Chang L P. KVSSD: Close integration of LSM trees and flash translation layer for write-efficient KV store[C]//2018 Design, Automation & Test in Europe Conference & Exhibition (DATE). IEEE, 2018: 563-568.
 21. [KVFTL]：Chen Y T, Yang M C, Chang Y H, et al. Co-Optimizing Storage Space Utilization and Performance for Key-Value Solid State Drives[J]. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 2019, 38(1): 29-42.
 22. [Dostoevsky]：Dayan N, Idreos S. Dostoevsky: Better space-time trade-offs for LSM-tree based key-value stores via adaptive removal of superfluous merging[C]//Proceedings of the 2018 International Conference on Management of Data. ACM, 2018: 505-520.
