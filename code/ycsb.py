@@ -3,31 +3,34 @@ import random as rd
 from functools import reduce
 
 distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'insertproportion', 'scanproportion']
-distribution = [(300000, 1.00, 0.00, 0.00, 0.00),  # A 0  100% read
-                (300000, 0.50, 0.50, 0.00, 0.00),  # B 1  50%  read 50% update
-                (300000, 0.50, 0.00, 0.50, 0.00),  # C 2  50%  read 50% insert
-                (300000, 0.80, 0.20, 0.00, 0.00),  # D 3  80%  read 20% update
-                (300000, 0.80, 0.00, 0.20, 0.00),  # E 4  80%  read 20% insert
-                (300000, 0.90, 0.10, 0.00, 0.00),  # F 6  90%  read 10% update
-                (300000, 0.90, 0.00, 0.10, 0.00),  # G 5  90%  read 10% insert
-                (300000, 0.10, 0.90, 0.00, 0.00),  # H 7  10%  read 90% update
-                (300000, 0.10, 0.00, 0.90, 0.00),  # I 8  10%  read 90% insert
-                (300000, 0.20, 0.80, 0.00, 0.00),  # J 9  20%  read 80% update
-                (300000, 0.20, 0.00, 0.80, 0.00),  # K 10 20%  read 80% insert
-                (300000, 0.00, 1.00, 0.00, 0.00),  # L 11 100% update
-                (300000, 0.00, 0.00, 1.00, 0.00),  # M 12 100% insert
-                (3000, 0.00, 0.00, 0.00, 1.00),    # N 13 100% scan
-                (300000, 0.50, 0.25, 0.25, 0.00)]  # O 14 50%  read 25% update 25% insert
-
+distribution = [
+                # (5000000, 1.00, 0.00, 0.00, 0.00),  # A 1  100% read
+                # (3000, 0.00, 0.00, 0.00, 1.00),    # N    100% scan
+                (5000000, 0.90, 0.10, 0.00, 0.00),  # F 2  90%  read 10% update
+                (5000000, 0.90, 0.00, 0.10, 0.00),  # G 3  90%  read 10% insert
+                (5000000, 0.80, 0.20, 0.00, 0.00),  # D 4  80%  read 20% update
+                (5000000, 0.80, 0.00, 0.20, 0.00),  # E 5  80%  read 20% insert
+                (5000000, 0.50, 0.50, 0.00, 0.00),  # B 6  50%  read 50% update
+                (5000000, 0.50, 0.00, 0.50, 0.00),  # C 7  50%  read 50% insert
+                # (5000000, 0.50, 0.25, 0.25, 0.00),  # O 8  50%  read 25% update 25% insert
+                (5000000, 0.20, 0.80, 0.00, 0.00),  # J 9  20%  read 80% update
+                (5000000, 0.20, 0.00, 0.80, 0.00),  # K 10 20%  read 80% insert
+                # (800000, 0.10, 0.90, 0.00, 0.00),  # H 7  10%  read 90% update
+                # (800000, 0.10, 0.00, 0.90, 0.00),  # I 8  10%  read 90% insert
+                # (5000000, 0.00, 1.00, 0.00, 0.00),  # L 11 100% update
+                # (5000000, 0.00, 0.00, 1.00, 0.00)   # M 12 100% insert
+                ]
 attributes = {
-  'recordcount': 50000,
+  'recordcount': 500000,
   'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
   'readallfields': 'true',
   'requestdistribution': 'zipfian' # latest, uniform
 }
 workload_num = len(distribution)
-key_v_value = 64
+key_size = 16       # 64B
+key_v_value = 64    # 1KB
 padding = '&'
+limited = 500000
 
 def generate_workload(project_path):
   for i in range(workload_num):
@@ -75,16 +78,22 @@ def shuffle(arr):
     arr[i] = arr[j]
     arr[j] = v
 
+def write_result(result, filename):
+  f = open(filename, 'a')
+  for i, l in enumerate(result):
+    line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
+    f.write(line + '\n')
+  f.close()
+
 def read(in_filename, out_filename):
   print('Process ' + in_filename)
   replace_key = [':', ',', ';', '$', ' ', '\t']
   f = open(in_filename, 'r')
-  lines = f.readlines()
-  f.close()
   result = []
-  for i, l in enumerate(lines):
+  i = 0
+  for l in f:
     if l.startswith('INSERT') or l.startswith('UPDATE') or l.startswith('SCAN') or l.startswith('READ'):
-      ls = l.split()
+      ls = l.strip().split()
       op = ls[0]
       key = ls[2][4:]
       if op == 'SCAN':
@@ -98,26 +107,29 @@ def read(in_filename, out_filename):
       for k in replace_key:
         value = value.replace(k, '0')
       if len(value) < len(key) * key_v_value:
+        add_value = ""
         for u in range(len(key) * key_v_value - len(value)):
-          value = value + padding
+          add_value = add_value + padding
+        value = value + add_value
       else:
         value = value[:len(key) * key_v_value]
       if op == 'SCAN':
         suffix = ls[3]
-        value = key[:len(key) - len(suffix)]
-        for s in suffix:
-          value = value + s
+        value = key[:len(key) - len(suffix)] + suffix
         if int(key) > int(value):
           t = key
           key = value
           value = t
+      if len(key) < key_size:
+        for i in range(key_size - len(key)):
+          key = '0' + key
+      if len(key) > key_size:
+        key = key[len(key) - key_size:len(key)]
       result.append([op, key, value])
-  shuffle(result)
-  f = open(out_filename, 'a')
-  for i, l in enumerate(result):
-    line = reduce(lambda x, w: x + '\t' + w, l, '').strip()
-    f.write(line + '\n')
-  f.close()
+      i = i + 1
+      if len(result) >= limited:
+        write_result(result, out_filename)
+        result = []
 
 if __name__ == '__main__':
   project_path = 'lib/YCSB/'

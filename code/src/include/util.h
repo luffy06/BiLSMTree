@@ -64,14 +64,15 @@ public:
   static const size_t BUFFER_SIZE = 2000000;
 
   struct FlashConfig {
-    static const size_t READ_LATENCY = 50;            // 50us
-    static const size_t WRITE_LATENCY = 200;          // 200us
-    static const size_t ERASE_LATENCY = 2000;         // 2ms
+    // Intel 3D NAND flash
+    static const size_t READ_LATENCY = 75;            // 75us
+    static const size_t WRITE_LATENCY = 1250;         // 1250us
+    static const size_t ERASE_LATENCY = 5000;         // 5ms
     static constexpr const double READ_WRITE_RATE = (1.0 * WRITE_LATENCY) / READ_LATENCY;
     static constexpr const char* BASE_PATH = "logs/";
     static const size_t BLOCK_NUMS = 8192;
-    static const size_t PAGE_NUMS = 128;
-    static const size_t PAGE_SIZE = 8 * 1024; // 8KB
+    static const size_t PAGE_NUMS = 2048;
+    static const size_t PAGE_SIZE = 16 * 1024; // 8KB
     static const size_t LBA_NUMS = BLOCK_NUMS * PAGE_NUMS;
     static const size_t LOG_LENGTH = 5000;
     static const size_t BLOCK_COLLECTION_TRIGGER = static_cast<size_t>(LBA_NUMS * 0.2);
