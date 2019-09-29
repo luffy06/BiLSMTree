@@ -6,22 +6,22 @@ distribution_attr = ['operationcount', 'readproportion', 'updateproportion', 'in
 distribution = [
                 # (5000000, 1.00, 0.00, 0.00, 0.00),  # A 1  100% read
                 # (3000, 0.00, 0.00, 0.00, 1.00),    # N    100% scan
-                (5000000, 0.90, 0.10, 0.00, 0.00),  # F 2  90%  read 10% update
-                (5000000, 0.90, 0.00, 0.10, 0.00),  # G 3  90%  read 10% insert
-                (5000000, 0.80, 0.20, 0.00, 0.00),  # D 4  80%  read 20% update
-                (5000000, 0.80, 0.00, 0.20, 0.00),  # E 5  80%  read 20% insert
-                (5000000, 0.50, 0.50, 0.00, 0.00),  # B 6  50%  read 50% update
-                (5000000, 0.50, 0.00, 0.50, 0.00),  # C 7  50%  read 50% insert
+                (1000000, 0.90, 0.10, 0.00, 0.00),  # F 2  90%  read 10% update
+                (1000000, 0.90, 0.00, 0.10, 0.00),  # G 3  90%  read 10% insert
+                (1000000, 0.80, 0.20, 0.00, 0.00),  # D 4  80%  read 20% update
+                (1000000, 0.80, 0.00, 0.20, 0.00),  # E 5  80%  read 20% insert
+                (1000000, 0.50, 0.50, 0.00, 0.00),  # B 6  50%  read 50% update
+                (1000000, 0.50, 0.00, 0.50, 0.00),  # C 7  50%  read 50% insert
                 # (5000000, 0.50, 0.25, 0.25, 0.00),  # O 8  50%  read 25% update 25% insert
-                (5000000, 0.20, 0.80, 0.00, 0.00),  # J 9  20%  read 80% update
-                (5000000, 0.20, 0.00, 0.80, 0.00),  # K 10 20%  read 80% insert
+                (1000000, 0.20, 0.80, 0.00, 0.00),  # J 9  20%  read 80% update
+                (1000000, 0.20, 0.00, 0.80, 0.00),  # K 10 20%  read 80% insert
                 # (800000, 0.10, 0.90, 0.00, 0.00),  # H 7  10%  read 90% update
                 # (800000, 0.10, 0.00, 0.90, 0.00),  # I 8  10%  read 90% insert
                 # (5000000, 0.00, 1.00, 0.00, 0.00),  # L 11 100% update
                 # (5000000, 0.00, 0.00, 1.00, 0.00)   # M 12 100% insert
                 ]
 attributes = {
-  'recordcount': 500000,
+  'recordcount': 100000,
   'workload': 'com.yahoo.ycsb.workloads.CoreWorkload',
   'readallfields': 'true',
   'requestdistribution': 'zipfian' # latest, uniform
@@ -130,6 +130,7 @@ def read(in_filename, out_filename):
       if len(result) >= limited:
         write_result(result, out_filename)
         result = []
+  write_result(result, out_filename)
 
 if __name__ == '__main__':
   project_path = 'lib/YCSB/'
