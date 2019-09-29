@@ -1,46 +1,12 @@
 # Experiment Setup
 
-## Workloads
+我们在不同读写特性的workload上测试了我们的仿真器，这些workload都是由YCSB框架生成的（synthesize）。YCSB是一个流行的数据评估框架，它的目的是提供一系列Common Benchmark用于比较具有不同特性的新生代的云数据服务系统的性能。（with the goal of facilitating performance comparisons of the new generation of cloud data serving systems.）Workload的生成主要分为两个阶段，第一个阶段是loading阶段，在这个阶段，YCSB将向目标数据库插入大量的数据；第二个阶段是running阶段，其中包括read、update、insert等操作。
 
-评估数据均由YCSB[1]生成，共设计了15个trace。YCSB是一个框架，它的目的是为了便利比较不同的新生代的云数据服务系统的性能。（with the goal of facilitating performance comparisons of the new generation of cloud data serving systems.）YCSB测试时分为两个阶段，Load和Running阶段。Load阶段往待测试的数据库中加载数据，Running阶段在Load阶段已加载的数据的基础上进行不同操作的测试。操作的类别包括随机读（read），范围读（range lookup），插入写（insert），更新写（update）。
-
-| workload   | 描述                     | 读写比   |
-| ---------- | ------------------------ | -------- |
-| Workload0  | 全部读                   | 1.0：0.0 |
-| Workload1  | 一半读，一半插入         | 0.5：0.5 |
-| Workload2  | 一半读，一半更新         | 0.5：0.5 |
-| Workload3  | 大量读，少量更新         | 0.8：0.2 |
-| Workload4  | 大量读，少量插入         | 0.8：0.2 |
-| Workload5  | 大量读，少量更新         | 0.9：0.1 |
-| Workload6  | 大量读，少量插入         | 0.9：0.1 |
-| Workload7  | 少量读，大量更新         | 0.1：0.9 |
-| Wokrload8  | 少量读，大量插入         | 0.1：0.9 |
-| Workload9  | 少量读，大量更新         | 0.2：0.8 |
-| Workload10 | 少量读，大量插入         | 0.2：0.8 |
-| Workload11 | 全部更新                 | 0.0：1.0 |
-| Workload12 | 全部插入                 | 0.0：1.0 |
-| Workload13 | 全部扫描                 | 1.0：0.0 |
-| Workload14 | 一半读，1/4插入，1/4更新 | 0.5：0.5 |
-
-## 对比
-
-我们将FSLSM-Tree分别和具有代表性的方法进行了比较，一个是Wisckey，另一个是LevelDB。Wisckey首个提出键值分离思想，显著的提升了写性能。LevelDB是当前最流行的基于LSM-Tree结构的数据库。
-
-## 性能指标
-
-我们比较了以下7个性能指标：
-
-* 总延迟
-* 读放大
-* 写放大
-* Compaction的总数据量
-* 查找一个key平均需要检查的文件个数
-
-这5个性能指标能够全面的反映FSLSM-Tree的读写性能。
+我们共设计了12个不同的满足zipfian分布的workload，其中loading阶段包括了200,000条插入操作，随后在running阶段包括了800,000条不同的操作。在这些workload中，workload1、10、11分别是100%读、更新、插入；workload2、3、12分别是50%读和50%写（更新或插入）；workload4-7是read-intensive，分别是80%read和90%read。workload8、9是write-intensive，包括了80%的写。我们将Tidal-Tree分别和具有代表性的方法进行了比较，一个是Wisckey，另一个是LevelDB。Wisckey首个提出键值分离思想，显著的提升了写性能。LevelDB是当前最流行的基于LSM-Tree结构的数据库。
 
 # Experiment Result
 
-## Latency
+## Latency（表）
 
 和LevelDB比，FSLSM-Tree在任何情况下均优于LevelDB，平均能够提高72.13%。主要原因是对于写多的workload，FSLSM-Tree也采用键值分离策略，降低Compaction时value的读出和重新写入所带来的额外代价；对于读多的workload，数据的上浮也为FSLSM-Tree带来了足够多的提升。
 
