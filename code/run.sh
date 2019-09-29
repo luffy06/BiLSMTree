@@ -5,7 +5,7 @@ set -e  # fail and exit on any command erroring
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('Wisckey' 'LevelDB')
+algos=('BiLSMTree-Direct')
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
