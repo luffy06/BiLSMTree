@@ -5,7 +5,7 @@ set -e  # fail and exit on any command erroring
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('BiLSMTree-Mem2Q' 'BiLSMTree-Mem' 'Wisckey' 'LevelDB')
+algos=('BiLSMTree-Mem' 'Wisckey' 'LevelDB')
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then
