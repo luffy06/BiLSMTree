@@ -83,8 +83,26 @@ bool LSMTree::Get(const Slice key, Slice& value) {
               if (frequency_[file_[i - 1][k].sequence_number_] < min_fre)
                 min_fre = frequency_[file_[i - 1][k].sequence_number_];
             }
+            size_t sum_fre = 0;
+            for (size_t u = 0; u <= i - 1; ++ u) {
+              size_t min_ = frequency_[file_[u][0].sequence_number_];
+              for (size_t k = 1; k < file_[u].size(); ++ k) {
+                if (frequency_[file_[u][k].sequence_number_] < min_)
+                  min_ = frequency_[file_[u][k].sequence_number_];
+              }
+              sum_fre = sum_fre + min_;
+            }
             size_t threshold = min_fre * ALPHA / read_ratio_;
-            if (frequency_[meta.sequence_number_] >= threshold) {
+            size_t threshold_mem_1 = sum_fre * ALPHA;
+            size_t threshold_mem_2 = sum_fre * ALPHA / read_ratio_;
+
+            if (Util::CheckAlgorithm(algo, rollback_mem_algos) && i <= 1 && frequency_[meta.sequence_number_] >= threshold_mem_1) {
+              RollBackMem(i, meta);
+            }
+            else if (Util::CheckAlgorithm(algo, rollback_mem_algos) && i > 1 && frequency_[meta.sequence_number_] >= threshold_mem_2) {
+              RollBackMem(i, meta);
+            }
+            else if (frequency_[meta.sequence_number_] >= threshold) {
               if (p < file_[i].size())
                 file_[i].erase(file_[i].begin() + p);
               else
@@ -367,23 +385,9 @@ size_t LSMTree::GetTargetLevel(const size_t now_level, const Meta meta) {
   return target_level;
 }
 
-void LSMTree::RollBack(const size_t now_level, const Meta meta) {
-  std::string algo = Util::GetAlgorithm();
-  if (now_level == 0)
-    return ;
-  size_t to_level = 0;
-  if (Util::CheckAlgorithm(algo, rollback_direct_algos))
-    GetTargetLevel(now_level, meta);
-  assert(to_level < now_level);
-  if (to_level == now_level)
-    return ;
-  lsmtreeresult_->RollBack();
-  if (Config::TRACE_LOG) {
-    std::cout << "RollBackBase Now Level:" << now_level << " To Level:" << to_level << std::endl;
-    std::cout << "SEQ:" << meta.sequence_number_ << " [" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
-  }
-
+TableIterator* LSMTree::RemoveExpiredData(const size_t now_level, const size_t to_level, const Meta meta) {
   TableIterator* ti = new TableIterator(GetFilename(meta.sequence_number_), filesystem_, meta, lsmtreeresult_, bloom_algos, cuckoo_algos);
+
   filesystem_->Delete(GetFilename(meta.sequence_number_));
   std::vector<KV> kvs;
   std::vector<bool> drop;
@@ -392,7 +396,7 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
     kvs.push_back(kv);
     drop.push_back(false);
   }
-  for (int i = now_level - 1; i >= static_cast<int>(to_level); -- i) {
+  for (int i = static_cast<int>(now_level) - 1; i >= static_cast<int>(to_level); -- i) {
     int l = 0;
     int r = static_cast<int>(file_[i].size()) - 1;
     while (l < static_cast<int>(file_[i].size()) && meta.smallest_.compare(file_[i][l].largest_) > 0) ++ l;
@@ -431,6 +435,27 @@ void LSMTree::RollBack(const size_t now_level, const Meta meta) {
       data.push_back(kvs[i]);
   }
   ti->SetData(data);
+
+  return ti;
+}
+
+void LSMTree::RollBack(const size_t now_level, const Meta meta) {
+  std::string algo = Util::GetAlgorithm();
+  if (now_level == 0)
+    return ;
+  size_t to_level = 0;
+  if (Util::CheckAlgorithm(algo, rollback_direct_algos))
+    GetTargetLevel(now_level, meta);
+  assert(to_level < now_level);
+  if (to_level == now_level)
+    return ;
+  lsmtreeresult_->RollBack();
+  if (Config::TRACE_LOG) {
+    std::cout << "RollBackBase Now Level:" << now_level << " To Level:" << to_level << std::endl;
+    std::cout << "SEQ:" << meta.sequence_number_ << " [" << meta.smallest_.ToString() << ",\t" << meta.largest_.ToString() << "]" << std::endl;
+  }
+
+  TableIterator* ti =  RemoveExpiredData(now_level, to_level, meta);
 
   std::vector<Meta> wait_queue_;
   Meta fake_meta = Meta();
@@ -577,6 +602,23 @@ void LSMTree::RollBackWithCuckoo(const size_t now_level, const Meta meta) {
   }
   if (Config::TRACE_LOG)
     std::cout << "RollBack Success" << std::endl;
+}
+
+void LSMTree::RollBackMem(const size_t now_level, const Meta meta) {
+  TableIterator* ti = RemoveExpiredData(now_level, 0, meta);
+
+  for (size_t i = 0; i < file_[now_level].size(); ++ i) {
+    if (file_[now_level][i].sequence_number_ == meta.sequence_number_) {
+      file_[now_level].erase(file_[now_level].begin() + i);
+      break;
+    }
+  }
+
+  if (rollback_datas_ != NULL) {
+    delete rollback_datas_;
+    rollback_datas_ = NULL;
+  }
+  rollback_datas_ = ti;
 }
 
 std::vector<Table*> LSMTree::MergeTables(const std::vector<TableIterator*>& tables) {

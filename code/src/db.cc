@@ -43,6 +43,12 @@ bool DB::Get(const std::string key, std::string& value) {
   if (!res) {
     res = kvserver_->Get(key_, value_);
     result_->lsmtreeresult_->ReadInFlash();
+    if (kvserver_->NeedRollback()) {
+      std::vector<KV> data = kvserver_->GetRollbackData();
+      for (size_t i = 0; i < data.size(); ++ i) {
+        Put(data[i].key_.ToString(), data[i].value_.ToString());
+      }
+    }
   }
   else {
     result_->lsmtreeresult_->ReadInMemory();

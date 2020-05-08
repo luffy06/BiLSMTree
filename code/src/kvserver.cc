@@ -55,4 +55,16 @@ void KVServer::Splay(const double read_ratio) {
   lsmtree_->Splay(read_ratio);
 }
 
+
+bool KVServer::NeedRollback() {
+  std::string algo = Util::GetAlgorithm();
+  if (Util::CheckAlgorithm(algo, rollback_mem_algos) && lsmtree_->ReadyForRollback())
+    return true;
+  return false;
+}
+
+std::vector<KV> KVServer::GetRollbackData() {
+  return lsmtree_->GetRollbackData();
+}
+
 }

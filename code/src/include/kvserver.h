@@ -19,11 +19,16 @@ public:
   void MinorCompact(const std::vector<KV> &data);
 
   void Splay(const double read_ratio);
+
+  bool NeedRollback();
+
+  std::vector<KV> GetRollbackData();
 private:
   LSMTree *lsmtree_;
   LogManager *logmanager_;
-  const std::vector<std::string> kvsep_algos = {"BiLSMTree", "BiLSMTree-Ext", "BiLSMTree-Direct", "Wisckey", "Cuckoo"};
+  const std::vector<std::string> kvsep_algos = {"BiLSMTree", "BiLSMTree-Ext", "BiLSMTree-Direct", "BiLSMTree-Mem", "Wisckey", "Cuckoo"};
   const std::vector<std::string> base_algos = {"BiLSMTree-KV", "LevelDB"};
+  const std::vector<std::string> rollback_mem_algos = {"BiLSMTree-Mem"};
 };
 
 }
