@@ -2,11 +2,11 @@
 
 set -e  # fail and exit on any command erroring
 
-testid=(9 11)
+testid=(0)
 datafolder="data"
 resultfolder="result"
 suffix=".in"
-algos=('BiLSMTree' 'Wisckey' 'LevelDB')
+algos=('BiLSMTree-Mem' 'BiLSMTree-Mem2Q')
 for algo in ${algos[*]}; do
   resultname=${resultfolder}/${algo}.out
   if [[ -f ${resultname} ]]; then

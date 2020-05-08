@@ -131,6 +131,8 @@ public:
     static const size_t BILSMTREE_BLOCK_SIZE = 16;
     static const size_t BILSMTREE_DIRECT_TABLE_SIZE = 8 * 1024;
     static const size_t BILSMTREE_DIRECT_BLOCK_SIZE = 16;
+    static const size_t BILSMTREE_Mem_TABLE_SIZE = 8 * 1024;
+    static const size_t BILSMTREE_Mem_BLOCK_SIZE = 16;
   };
 
   struct VisitFrequencyConfig {

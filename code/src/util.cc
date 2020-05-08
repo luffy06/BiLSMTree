@@ -42,7 +42,7 @@ std::string Util::GetAlgorithm() {
 size_t Util::GetMemTableSize() {
   std::string algo = Util::GetAlgorithm();
   size_t mem_size_ = Config::CacheServerConfig::MEMORY_SIZE / 2;
-  if (algo == std::string("BiLSMTreePro")) {
+  if (algo == std::string("BiLSMTreePro") || algo == std::string("BiLSMTree-Mem2Q")) {
     size_t lru_size_ = Config::CacheServerConfig::MEMORY_SIZE * Config::CacheServerConfig::LRU2Q_RATE / (Config::CacheServerConfig::LRU2Q_RATE + 1);
     mem_size_ = Config::CacheServerConfig::MEMORY_SIZE - lru_size_;
     mem_size_ = mem_size_ / Util::GetMemTableNumb();
@@ -53,19 +53,19 @@ size_t Util::GetMemTableSize() {
   return mem_size_;
 }
 
-size_t Util::GetLRU2QSize() {
-  size_t lru2q_size_ = Config::CacheServerConfig::MEMORY_SIZE - (Util::GetMemTableSize() * Util::GetMemTableNumb());
-  return lru2q_size_;
-}
-
 size_t Util::GetMemTableNumb() {
   std::string algo = Util::GetAlgorithm();
   size_t numb = 2;
-  if (algo == std::string("BiLSMTreePro"))
+  if (algo == std::string("BiLSMTreePro") || algo == std::string("BiLSMTree-Mem2Q"))
     numb = Config::CacheServerConfig::IMM_NUMB + 1;
   else if (algo == std::string("BiLSMTree-Direct"))
     numb = 0;
   return numb;
+}
+
+size_t Util::GetLRU2QSize() {
+  size_t lru2q_size_ = Config::CacheServerConfig::MEMORY_SIZE - (Util::GetMemTableSize() * Util::GetMemTableNumb());
+  return lru2q_size_;
 }
 
 size_t Util::GetSSTableSize() {
@@ -74,10 +74,12 @@ size_t Util::GetSSTableSize() {
     return Config::TableConfig::LEVELDB_TABLE_SIZE;
   else if (algo == std::string("Wisckey"))
     return Config::TableConfig::WISCKEY_TABLE_SIZE;
-  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext"))
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext") || algo == std::string("BiLSMTree-Mem"))
     return Config::TableConfig::BILSMTREE_TABLE_SIZE;
   else if (algo == std::string("BiLSMTree-Direct"))
     return Config::TableConfig::BILSMTREE_DIRECT_TABLE_SIZE;
+  else if (algo == std::string("BiLSMTree-Mem2Q"))
+    return Config::TableConfig::BILSMTREE_Mem_TABLE_SIZE;
   return 2 * 1024 * 1024;
 }
 
@@ -89,10 +91,14 @@ size_t Util::GetBlockSize() {
     block_size_ = Config::TableConfig::LEVELDB_BLOCK_SIZE;
   else if (algo == std::string("Wisckey"))
     block_size_ = Config::TableConfig::WISCKEY_BLOCK_SIZE;
-  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext"))
+  else if (algo == std::string("BiLSMTree") || algo == std::string("BiLSMTree-Ext") || algo == std::string("BiLSMTree-Mem"))
     block_size_ = Config::TableConfig::BILSMTREE_BLOCK_SIZE;
   else if (algo == std::string("BiLSMTree-Direct"))
     block_size_ = Config::TableConfig::BILSMTREE_DIRECT_BLOCK_SIZE;
+  else if (algo == std::string("BiLSMTree-Mem2Q"))
+    block_size_ = Config::TableConfig::BILSMTREE_Mem_BLOCK_SIZE;
+  else
+    assert(false);
   return table_size_ / block_size_;
 }
 

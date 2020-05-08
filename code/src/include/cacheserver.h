@@ -21,7 +21,7 @@ private:
   std::vector<SkipList*> imm_list_;
   SkipList *imm_;
   MemoryResult *memoryresult_;
-  const std::vector<std::string> lru2q_imm_algos = {};
+  const std::vector<std::string> lru2q_imm_algos = {"BiLSMTree-Mem2Q"};
   const std::vector<std::string> lru2q_algos = {"BiLSMTree-Direct"};
   const std::vector<std::string> base_algos = {"BiLSMTree-Ext", "BiLSMTree-KV", "BiLSMTree", "Wisckey", "LevelDB", "Cuckoo", "BiLSMTree-Mem"};
 
